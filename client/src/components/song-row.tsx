@@ -528,11 +528,11 @@ export function SongRow({
           hasValue={song.midiNote !== null && song.midiNote !== undefined}
           testId={`${pid}-select-midi-${song.id}`}
         >
-          <option value="" style={{ background: "#111", color: "rgba(255,255,255,0.5)" }}>No MIDI</option>
+          <option value="" style={{ background: "#2e2e2b", color: "rgba(255,255,255,0.5)" }}>No MIDI</option>
           {MIDI_NOTES_BY_NAME.map((group) => (
             <optgroup key={group.noteName} label={`── ${group.noteName} ──`} style={{ background: "#1a1a1a", color: "rgba(255,255,255,0.5)", fontWeight: 700 }}>
               {group.notes.map((n) => (
-                <option key={n.value} value={String(n.value)} style={{ background: "#111", color: "rgba(255,255,255,0.9)", fontWeight: 400 }}>
+                <option key={n.value} value={String(n.value)} style={{ background: "#2e2e2b", color: "rgba(255,255,255,0.9)", fontWeight: 400 }}>
                   {n.label}
                 </option>
               ))}

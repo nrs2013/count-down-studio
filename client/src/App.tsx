@@ -108,8 +108,8 @@ function AppHeader() {
   const currentMode = outputOpen ? "show" as const : "setlist" as const;
 
   const bgColor = outputOpen
-    ? "rgba(10,10,15,0.85)"
-    : "rgba(20,20,24,0.85)";
+    ? "rgba(38,38,36,0.85)"
+    : "rgba(50,50,48,0.85)";
 
   const handleOutputOn = () => {
     openOutputWindow();
@@ -155,7 +155,7 @@ function UndoListener() {
 
 function DuplicateWarning({ onTakeOver }: { onTakeOver: () => void }) {
   return (
-    <div className="h-screen w-full flex items-center justify-center" style={{ background: "#0a0a0f" }}>
+    <div className="h-screen w-full flex items-center justify-center" style={{ background: "#262624" }}>
       <div
         className="max-w-md mx-auto p-8 rounded-lg text-center"
         style={{

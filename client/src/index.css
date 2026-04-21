@@ -88,40 +88,59 @@
 }
 
 .dark {
+  /* ==========================================================
+     Claude-style WARM GRAY theme + Count Down Studio FUCHSIA accent
+     ========================================================== */
+  /* Warm gray palette (hex reference):
+     #262624 bg  / #2e2e2b bg-2 / #383835 bg-3
+     #323230 surface / #3d3d3a surface-hi
+     #46463f border / #5a5a53 border-hi
+     #e8e8e2 text / #a8a8a0 text-2 / #76766f text-3 */
+  --cds-bg:         40 3% 15%;   /* #262624 */
+  --cds-bg-2:       40 3% 18%;   /* #2e2e2b */
+  --cds-bg-3:       45 3% 22%;   /* #383835 */
+  --cds-surface:    40 3% 19%;   /* #323230 */
+  --cds-surface-hi: 42 3% 23%;   /* #3d3d3a */
+  --cds-border:     45 5% 26%;   /* #46463f */
+  --cds-border-hi:  42 5% 34%;   /* #5a5a53 */
+  --cds-text:       60 13% 90%;  /* #e8e8e2 */
+  --cds-text-2:     54 5% 64%;   /* #a8a8a0 */
+  --cds-text-3:     50 4% 45%;   /* #76766f */
+
   --button-outline: rgba(255,255,255, .10);
   --badge-outline: rgba(255,255,255, .05);
   --opaque-button-border-intensity: 9;
   --elevate-1: rgba(255,255,255, .04);
   --elevate-2: rgba(255,255,255, .09);
-  --background: 0 0% 0%;
-  --foreground: 0 0% 95%;
-  --border: 0 0% 12%;
-  --card: 0 0% 4%;
-  --card-foreground: 0 0% 95%;
-  --card-border: 0 0% 10%;
-  --sidebar: 0 0% 3%;
-  --sidebar-foreground: 0 0% 95%;
-  --sidebar-border: 0 0% 10%;
-  --sidebar-primary: 292 84% 55%;
+  --background: var(--cds-bg);
+  --foreground: var(--cds-text);
+  --border: var(--cds-border);
+  --card: var(--cds-bg-2);
+  --card-foreground: var(--cds-text);
+  --card-border: var(--cds-border);
+  --sidebar: var(--cds-bg-2);
+  --sidebar-foreground: var(--cds-text);
+  --sidebar-border: var(--cds-border);
+  --sidebar-primary: 292 84% 72%;      /* fuchsia accent (Count Down brand) */
   --sidebar-primary-foreground: 0 0% 98%;
-  --sidebar-accent: 0 0% 8%;
-  --sidebar-accent-foreground: 0 0% 95%;
-  --sidebar-ring: 292 84% 55%;
-  --popover: 0 0% 6%;
-  --popover-foreground: 0 0% 95%;
-  --popover-border: 0 0% 12%;
-  --primary: 292 84% 55%;
+  --sidebar-accent: var(--cds-surface);
+  --sidebar-accent-foreground: var(--cds-text);
+  --sidebar-ring: 292 84% 72%;
+  --popover: var(--cds-bg-2);
+  --popover-foreground: var(--cds-text);
+  --popover-border: var(--cds-border);
+  --primary: 292 84% 72%;              /* fuchsia accent (kept) */
   --primary-foreground: 0 0% 98%;
-  --secondary: 0 0% 12%;
-  --secondary-foreground: 0 0% 95%;
-  --muted: 0 0% 10%;
-  --muted-foreground: 0 0% 55%;
-  --accent: 292 12% 12%;
-  --accent-foreground: 0 0% 95%;
+  --secondary: var(--cds-surface);
+  --secondary-foreground: var(--cds-text);
+  --muted: var(--cds-surface);
+  --muted-foreground: var(--cds-text-2);
+  --accent: var(--cds-surface);
+  --accent-foreground: var(--cds-text);
   --destructive: 0 84% 42%;
   --destructive-foreground: 0 0% 98%;
-  --input: 0 0% 20%;
-  --ring: 292 84% 55%;
+  --input: var(--cds-border-hi);
+  --ring: 292 84% 72%;
   --chart-1: 292 84% 65%;
   --chart-2: 187 85% 55%;
   --chart-3: 340 80% 70%;

@@ -595,10 +595,10 @@ export function PerformanceEditor({
   const ctrlBtnClass = "flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[11px] font-bold tracking-wider uppercase transition-all duration-200";
 
   return (
-    <div className="flex h-full" style={{ background: "#0a0a0f" }} data-testid="performance-editor">
+    <div className="flex h-full" style={{ background: "#262624" }} data-testid="performance-editor">
       <div
         className="flex flex-col shrink-0 w-1/2"
-        style={{ background: "#0a0a0f" }}
+        style={{ background: "#262624" }}
       >
         <div className="flex-1 flex flex-col items-center justify-center min-h-0">
           <div
