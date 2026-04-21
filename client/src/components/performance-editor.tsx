@@ -623,6 +623,106 @@ export function PerformanceEditor({
         </span>
       </div>
 
+      {/* ===== FULL-WIDTH SECOND STRIP: Concert Title + REHEARSAL / DOOR OPEN / SHOW TIME =====
+          Spans entire width so the concert schedule lives at the top, unified across L/R. */}
+      <div
+        className="shrink-0 w-full px-4 pt-2 pb-3"
+        style={{ background: "#1a1a18", borderBottom: "1px solid #46463f" }}
+      >
+        <div className="flex items-center gap-3 mb-1.5">
+          <div className="w-9 shrink-0" />
+          <span className="flex-1 text-[11px] uppercase font-bold"
+            style={{ fontFamily: UI_FONT, letterSpacing: "0.15em", color: "#76766f" }}
+          >Concert Title</span>
+          <span className="text-[11px] uppercase font-bold text-center"
+            style={{ fontFamily: UI_FONT, letterSpacing: "0.15em", color: "#76766f", width: "72px", minWidth: "72px" }}
+          >REHEARSAL</span>
+          <span className="text-[11px] uppercase font-bold text-center"
+            style={{ fontFamily: UI_FONT, letterSpacing: "0.15em", color: "#76766f", width: "72px", minWidth: "72px" }}
+          >DOOR OPEN</span>
+          <span className="text-[11px] uppercase font-bold text-center"
+            style={{ fontFamily: UI_FONT, letterSpacing: "0.15em", color: "#76766f", width: "72px", minWidth: "72px" }}
+          >SHOW TIME</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={toggleEventInfo}
+            disabled={!outputOpen}
+            className="h-9 w-9 shrink-0 rounded-lg flex items-center justify-center transition-colors duration-150"
+            style={{
+              background: showingEventInfo ? "rgba(232,121,249,0.18)" : "#323230",
+              border: showingEventInfo ? "1px solid #e879f9" : "1px solid #46463f",
+              opacity: outputOpen ? 1 : 0.35,
+              cursor: outputOpen ? "pointer" : "not-allowed",
+            }}
+            title={outputOpen ? (showingEventInfo ? "Hide event info on output" : "Show event info on output") : "Open output window first"}
+            data-testid="button-toggle-event-info-top"
+          >
+            <Info className="w-4 h-4" style={{ color: showingEventInfo ? "#e879f9" : "#a8a8a0" }} />
+          </button>
+          <input
+            type="text"
+            className="flex-1 min-w-0 h-9 text-sm rounded-lg px-3 font-semibold placeholder:text-[#76766f] focus:outline-none focus:ring-1 focus:ring-fuchsia-500/50 transition-all duration-150"
+            style={{ background: "#323230", border: "1px solid #46463f", color: "#e8e8e2", fontFamily: UI_FONT }}
+            value={setlistNameValue}
+            onChange={(e) => { if (setlist) setSetlistNameValue(e.target.value); }}
+            onFocus={() => { setlistNameFocusedRef.current = true; }}
+            onCompositionStart={() => { imeSetlistRef.current = true; clearTimeout(imeSetlistTimerRef.current); }}
+            onCompositionEnd={() => { clearTimeout(imeSetlistTimerRef.current); imeSetlistTimerRef.current = setTimeout(() => { imeSetlistRef.current = false; }, 300); }}
+            onBlur={commitSetlistName}
+            onKeyDown={(e) => { if (e.nativeEvent.isComposing || e.keyCode === 229 || imeSetlistRef.current) return; if (e.key === "Enter") { e.preventDefault(); commitSetlistName(); } }}
+            placeholder="Concert Title"
+            data-testid="editor-input-setlist-name"
+          />
+          <input
+            type="text"
+            inputMode="numeric"
+            className="h-9 text-sm rounded-lg px-2 text-center font-semibold placeholder:text-[#76766f] focus:outline-none focus:ring-1 focus:ring-[#46463f] transition-all duration-150"
+            style={{ width: "72px", minWidth: "72px", background: "#323230", border: "1px solid #46463f", color: "#e8e8e2", fontFamily: MONO_FONT }}
+            value={rehearsalValue}
+            onChange={(e) => { setRehearsalValue(imeRehearsalRef.current ? e.target.value : filterTimeInput(e.target.value)); }}
+            onCompositionStart={() => { imeRehearsalRef.current = true; clearTimeout(imeRehearsalTimerRef.current); }}
+            onCompositionEnd={(e) => { clearTimeout(imeRehearsalTimerRef.current); imeRehearsalTimerRef.current = setTimeout(() => { imeRehearsalRef.current = false; }, 300); setRehearsalValue(filterTimeInput((e.target as HTMLInputElement).value)); }}
+            onFocus={() => { rehearsalFocusedRef.current = true; }}
+            onBlur={commitRehearsal}
+            onKeyDown={(e) => { if (e.nativeEvent.isComposing || e.keyCode === 229 || imeRehearsalRef.current) return; if (e.key === "Enter") { e.preventDefault(); commitRehearsal(); } }}
+            placeholder="00:00"
+            data-testid="editor-input-rehearsal"
+          />
+          <input
+            type="text"
+            inputMode="numeric"
+            className="h-9 text-sm rounded-lg px-2 text-center font-semibold placeholder:text-[#76766f] focus:outline-none focus:ring-1 focus:ring-[#46463f] transition-all duration-150"
+            style={{ width: "72px", minWidth: "72px", background: "#323230", border: "1px solid #46463f", color: "#e8e8e2", fontFamily: MONO_FONT }}
+            value={doorOpenValue}
+            onChange={(e) => { setDoorOpenValue(imeDoorRef.current ? e.target.value : filterTimeInput(e.target.value)); }}
+            onCompositionStart={() => { imeDoorRef.current = true; clearTimeout(imeDoorTimerRef.current); }}
+            onCompositionEnd={(e) => { clearTimeout(imeDoorTimerRef.current); imeDoorTimerRef.current = setTimeout(() => { imeDoorRef.current = false; }, 300); setDoorOpenValue(filterTimeInput((e.target as HTMLInputElement).value)); }}
+            onFocus={() => { doorOpenFocusedRef.current = true; }}
+            onBlur={commitDoorOpen}
+            onKeyDown={(e) => { if (e.nativeEvent.isComposing || e.keyCode === 229 || imeDoorRef.current) return; if (e.key === "Enter") { e.preventDefault(); commitDoorOpen(); } }}
+            placeholder="00:00"
+            data-testid="editor-input-door-open"
+          />
+          <input
+            type="text"
+            inputMode="numeric"
+            className="h-9 text-sm rounded-lg px-2 text-center font-semibold placeholder:text-[#76766f] focus:outline-none focus:ring-1 focus:ring-[#46463f] transition-all duration-150"
+            style={{ width: "72px", minWidth: "72px", background: "#323230", border: "1px solid #46463f", color: "#e8e8e2", fontFamily: MONO_FONT }}
+            value={showTimeValue}
+            onChange={(e) => { setShowTimeValue(imeShowRef.current ? e.target.value : filterTimeInput(e.target.value)); }}
+            onCompositionStart={() => { imeShowRef.current = true; clearTimeout(imeShowTimerRef.current); }}
+            onCompositionEnd={(e) => { clearTimeout(imeShowTimerRef.current); imeShowTimerRef.current = setTimeout(() => { imeShowRef.current = false; }, 300); setShowTimeValue(filterTimeInput((e.target as HTMLInputElement).value)); }}
+            onFocus={() => { showTimeFocusedRef.current = true; }}
+            onBlur={commitShowTime}
+            onKeyDown={(e) => { if (e.nativeEvent.isComposing || e.keyCode === 229 || imeShowRef.current) return; if (e.key === "Enter") { e.preventDefault(); commitShowTime(); } }}
+            placeholder="00:00"
+            data-testid="editor-input-show-time"
+          />
+        </div>
+      </div>
+
       {/* ===== MAIN CONTENT: LEFT preview + RIGHT editor (flex row) ===== */}
       <div className="flex flex-1 min-h-0 w-full">
 
@@ -762,11 +862,10 @@ export function PerformanceEditor({
         <div className="flex-1 min-h-[16px]" style={{ background: "#262624" }} />
       </div>
 
-      {/* RIGHT: setlist editor (EDIT MODE header removed — now lives in full-width top strip) */}
+      {/* RIGHT: setlist editor (no center divider — the full-width strips bridge the two sides) */}
       <div
         className="flex-1 flex flex-col min-w-0"
         style={{
-          borderLeft: "1px solid #3d3d3a",
           background: "#262624",
         }}
         onDrop={handleEditorDrop}
@@ -775,114 +874,7 @@ export function PerformanceEditor({
 
         <div ref={editorScrollRef} className="flex-1 overflow-y-scroll min-h-0">
           <div className="sticky top-0 z-20" style={{ background: "#262624" }}>
-            <div
-              className="px-2 py-3 relative"
-              style={{
-                borderBottom: "1px solid #46463f",
-                background: "#1a1a18",
-              }}
-            >
-              <div className="flex items-center gap-1 mb-1">
-                <div className="w-9 shrink-0" />
-                <h3
-                  className="flex-1 min-w-0 text-[15px] uppercase leading-none pl-3"
-                  style={{
-                    fontFamily: HEADER_FONT,
-                    letterSpacing: "0.12em",
-                    color: "rgba(232,121,249,0.7)",
-                    textShadow: "0 0 8px rgba(232,121,249,0.2)",
-                  }}
-                >
-                  Concert Title
-                </h3>
-                <span className="text-[15px] uppercase leading-none flex items-center justify-center" style={{ fontFamily: HEADER_FONT, letterSpacing: "0.12em", color: "rgba(74,222,128,0.6)", width: "72px", minWidth: "72px" }}>REHEARSAL</span>
-                <span className="text-[15px] uppercase leading-none flex items-center justify-center" style={{ fontFamily: HEADER_FONT, letterSpacing: "0.12em", color: "rgba(250,204,21,0.6)", width: "72px", minWidth: "72px" }}>DOOR OPEN</span>
-                <span className="text-[15px] uppercase leading-none flex items-center justify-center" style={{ fontFamily: HEADER_FONT, letterSpacing: "0.12em", color: "rgba(6,182,212,0.6)", width: "72px", minWidth: "72px" }}>SHOW TIME</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <button
-                  type="button"
-                  onClick={toggleEventInfo}
-                  disabled={!outputOpen}
-                  className="h-9 w-9 shrink-0 rounded-lg flex items-center justify-center transition-all duration-200"
-                  style={{
-                    background: showingEventInfo ? "rgba(232,121,249,0.25)" : "rgba(255,255,255,0.06)",
-                    border: showingEventInfo ? "1px solid rgba(232,121,249,0.5)" : "1px solid rgba(255,255,255,0.1)",
-                    opacity: outputOpen ? 1 : 0.3,
-                    cursor: outputOpen ? "pointer" : "not-allowed",
-                  }}
-                  title={outputOpen ? (showingEventInfo ? "Hide event info on output" : "Show event info on output") : "Open output window first"}
-                  data-testid="button-toggle-event-info"
-                >
-                  <Info className="w-4 h-4" style={{ color: showingEventInfo ? "#e879f9" : "rgba(255,255,255,0.5)" }} />
-                </button>
-                <input
-                  type="text"
-                  className="flex-1 min-w-0 h-9 text-sm rounded-lg text-white px-3 font-semibold placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-fuchsia-500/50 transition-all duration-200"
-                  style={{
-                    background: "#323230",
-                    border: "1px solid #46463f",
-                  }}
-                  value={setlistNameValue}
-                  onChange={(e) => { if (setlist) setSetlistNameValue(e.target.value); }}
-                  onFocus={() => { setlistNameFocusedRef.current = true; }}
-                  onCompositionStart={() => { imeSetlistRef.current = true; clearTimeout(imeSetlistTimerRef.current); }}
-                  onCompositionEnd={() => { clearTimeout(imeSetlistTimerRef.current); imeSetlistTimerRef.current = setTimeout(() => { imeSetlistRef.current = false; }, 300); }}
-                  onBlur={commitSetlistName}
-                  onKeyDown={(e) => {
-                    if (e.nativeEvent.isComposing || e.keyCode === 229 || imeSetlistRef.current) return;
-                    if (e.key === "Enter") { e.preventDefault(); commitSetlistName(); }
-                  }}
-                  placeholder="Concert Title"
-                  data-testid="editor-input-setlist-name"
-                />
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  className="h-9 text-sm rounded-lg text-white px-2 text-center font-semibold placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-green-500/40 transition-all duration-200"
-                  style={{ width: "72px", minWidth: "72px", background: "#323230", border: "1px solid #46463f" }}
-                  value={rehearsalValue}
-                  onChange={(e) => { setRehearsalValue(imeRehearsalRef.current ? e.target.value : filterTimeInput(e.target.value)); }}
-                  onCompositionStart={() => { imeRehearsalRef.current = true; clearTimeout(imeRehearsalTimerRef.current); }}
-                  onCompositionEnd={(e) => { clearTimeout(imeRehearsalTimerRef.current); imeRehearsalTimerRef.current = setTimeout(() => { imeRehearsalRef.current = false; }, 300); setRehearsalValue(filterTimeInput((e.target as HTMLInputElement).value)); }}
-                  onFocus={() => { rehearsalFocusedRef.current = true; }}
-                  onBlur={commitRehearsal}
-                  onKeyDown={(e) => { if (e.nativeEvent.isComposing || e.keyCode === 229 || imeRehearsalRef.current) return; if (e.key === "Enter") { e.preventDefault(); commitRehearsal(); } }}
-                  placeholder="00:00"
-                  data-testid="editor-input-rehearsal"
-                />
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  className="h-9 text-sm rounded-lg text-white px-2 text-center font-semibold placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-amber-500/40 transition-all duration-200"
-                  style={{ width: "72px", minWidth: "72px", background: "#323230", border: "1px solid #46463f" }}
-                  value={doorOpenValue}
-                  onChange={(e) => { setDoorOpenValue(imeDoorRef.current ? e.target.value : filterTimeInput(e.target.value)); }}
-                  onCompositionStart={() => { imeDoorRef.current = true; clearTimeout(imeDoorTimerRef.current); }}
-                  onCompositionEnd={(e) => { clearTimeout(imeDoorTimerRef.current); imeDoorTimerRef.current = setTimeout(() => { imeDoorRef.current = false; }, 300); setDoorOpenValue(filterTimeInput((e.target as HTMLInputElement).value)); }}
-                  onFocus={() => { doorOpenFocusedRef.current = true; }}
-                  onBlur={commitDoorOpen}
-                  onKeyDown={(e) => { if (e.nativeEvent.isComposing || e.keyCode === 229 || imeDoorRef.current) return; if (e.key === "Enter") { e.preventDefault(); commitDoorOpen(); } }}
-                  placeholder="00:00"
-                  data-testid="editor-input-door-open"
-                />
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  className="h-9 text-sm rounded-lg text-white px-2 text-center font-semibold placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-cyan-500/40 transition-all duration-200"
-                  style={{ width: "72px", minWidth: "72px", background: "#323230", border: "1px solid #46463f" }}
-                  value={showTimeValue}
-                  onChange={(e) => { setShowTimeValue(imeShowRef.current ? e.target.value : filterTimeInput(e.target.value)); }}
-                  onCompositionStart={() => { imeShowRef.current = true; clearTimeout(imeShowTimerRef.current); }}
-                  onCompositionEnd={(e) => { clearTimeout(imeShowTimerRef.current); imeShowTimerRef.current = setTimeout(() => { imeShowRef.current = false; }, 300); setShowTimeValue(filterTimeInput((e.target as HTMLInputElement).value)); }}
-                  onFocus={() => { showTimeFocusedRef.current = true; }}
-                  onBlur={commitShowTime}
-                  onKeyDown={(e) => { if (e.nativeEvent.isComposing || e.keyCode === 229 || imeShowRef.current) return; if (e.key === "Enter") { e.preventDefault(); commitShowTime(); } }}
-                  placeholder="00:00"
-                  data-testid="editor-input-show-time"
-                />
-              </div>
-            </div>
+            {/* Concert Title + schedule times have been moved to the FULL-WIDTH top strip. */}
             <SongTableHeader showPlayButton showMidiColumn hideSubStartEnd />
           </div>
           {songs.length === 0 ? (
