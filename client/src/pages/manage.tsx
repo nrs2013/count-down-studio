@@ -322,11 +322,11 @@ function MobileSongCard({
             hasValue={song.midiNote !== null && song.midiNote !== undefined}
             testId={`select-midi-${song.id}`}
           >
-            <option value="" style={{ background: "#1a1a2e" }}>No MIDI</option>
+            <option value="" style={{ background: "#2e2e2b" }}>No MIDI</option>
             {MIDI_NOTES_BY_NAME.map((group) => (
-              <optgroup key={group.noteName} label={`── ${group.noteName} ──`} style={{ background: "#1a1a2e", color: "rgba(255,255,255,0.5)", fontWeight: 700 }}>
+              <optgroup key={group.noteName} label={`── ${group.noteName} ──`} style={{ background: "#2e2e2b", color: "rgba(255,255,255,0.5)", fontWeight: 700 }}>
                 {group.notes.map((n) => (
-                  <option key={n.value} value={String(n.value)} style={{ background: "#1a1a2e", color: "rgba(255,255,255,0.9)", fontWeight: 400 }}>
+                  <option key={n.value} value={String(n.value)} style={{ background: "#2e2e2b", color: "rgba(255,255,255,0.9)", fontWeight: 400 }}>
                     {n.label}
                   </option>
                 ))}
@@ -933,7 +933,7 @@ export default function Manage() {
 
   if (outputOpen) {
     return (
-      <div className="flex flex-col h-full w-full bg-[#0a0a0f] overflow-hidden" data-testid="show-page">
+      <div className="flex flex-col h-full w-full bg-[#262624] overflow-hidden" data-testid="show-page">
         <div className="flex-1 min-h-0 overflow-hidden w-full">
           <PerformanceEditor
             songs={sortedSongs}

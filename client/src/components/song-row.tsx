@@ -18,7 +18,7 @@ import {
 } from "@/lib/time-utils";
 import { StyledInput, TimeInput, StyledSelect } from "@/components/styled-input";
 
-export const SONG_LIST_BG = "#141418";
+export const SONG_LIST_BG = "#2e2e2b";
 
 interface SongRowProps {
   song: Song;

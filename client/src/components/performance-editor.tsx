@@ -595,10 +595,10 @@ export function PerformanceEditor({
   const ctrlBtnClass = "flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[11px] font-bold tracking-wider uppercase transition-all duration-200";
 
   return (
-    <div className="flex h-full" style={{ background: "#0a0a0f" }} data-testid="performance-editor">
+    <div className="flex h-full" style={{ background: "#262624" }} data-testid="performance-editor">
       <div
         className="flex flex-col shrink-0 w-1/2"
-        style={{ background: "#0a0a0f" }}
+        style={{ background: "#262624" }}
       >
         <div className="flex-1 flex flex-col items-center justify-center min-h-0">
           <div
@@ -728,7 +728,7 @@ export function PerformanceEditor({
         className="flex-1 flex flex-col min-w-0 pt-[4.5rem]"
         style={{
           borderLeft: "1px solid rgba(255,255,255,0.06)",
-          background: "linear-gradient(180deg, #141418 0%, #101014 100%)",
+          background: "linear-gradient(180deg, #2e2e2b 0%, #262624 100%)",
         }}
         onDrop={handleEditorDrop}
         onDragOver={handleEditorDragOver}
