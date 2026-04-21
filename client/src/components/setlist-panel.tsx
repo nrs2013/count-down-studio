@@ -848,7 +848,7 @@ export function SetlistPanel({
     <div
       className="flex flex-col h-full relative"
       style={{
-        background: "linear-gradient(180deg, #141418 0%, #101014 100%)",
+        background: "linear-gradient(180deg, #22211f 0%, #1a1a18 100%)",
       }}
       onDrop={handleDrop}
       onDragOver={handleDragOver}

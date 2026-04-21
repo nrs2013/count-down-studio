@@ -322,11 +322,11 @@ function MobileSongCard({
             hasValue={song.midiNote !== null && song.midiNote !== undefined}
             testId={`select-midi-${song.id}`}
           >
-            <option value="" style={{ background: "#1a1a2e" }}>No MIDI</option>
+            <option value="" style={{ background: "#22211f" }}>No MIDI</option>
             {MIDI_NOTES_BY_NAME.map((group) => (
-              <optgroup key={group.noteName} label={`── ${group.noteName} ──`} style={{ background: "#1a1a2e", color: "rgba(255,255,255,0.5)", fontWeight: 700 }}>
+              <optgroup key={group.noteName} label={`── ${group.noteName} ──`} style={{ background: "#22211f", color: "rgba(255,255,255,0.5)", fontWeight: 700 }}>
                 {group.notes.map((n) => (
-                  <option key={n.value} value={String(n.value)} style={{ background: "#1a1a2e", color: "rgba(255,255,255,0.9)", fontWeight: 400 }}>
+                  <option key={n.value} value={String(n.value)} style={{ background: "#22211f", color: "rgba(255,255,255,0.9)", fontWeight: 400 }}>
                     {n.label}
                   </option>
                 ))}
@@ -985,7 +985,7 @@ export default function Manage() {
       className="h-full flex flex-col relative pt-[4.5rem]"
       style={{
         fontFamily: UI_FONT,
-        background: "linear-gradient(180deg, #141418 0%, #101014 50%, #141418 100%)",
+        background: "linear-gradient(180deg, #1a1a18 0%, #16161414 50%, #1a1a18 100%)",
       }}
       onDrop={handleFileDrop}
       onDragOver={handleFileDragOver}

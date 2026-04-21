@@ -126,7 +126,7 @@ export default function Home() {
   return (
     <div
       className="h-screen w-full overflow-auto flex flex-col items-center justify-center"
-      style={{ background: "#111114", fontFamily: FONT }}
+      style={{ background: "#1a1a18", fontFamily: FONT }}
       data-testid="home-page"
     >
       <div className="w-full max-w-md px-6">
@@ -279,7 +279,7 @@ export default function Home() {
             className="w-full mt-4 uppercase font-bold tracking-wider transition-all"
             style={{
               background: PURPLE_BG,
-              color: "#111114",
+              color: "#1a1a18",
               fontSize: 13,
               fontWeight: 700,
               letterSpacing: "0.1em",
