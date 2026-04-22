@@ -716,8 +716,9 @@ export function PerformanceEditor({
         </div>
       </div>
 
-      {/* ===== MAIN CONTENT: LEFT preview + RIGHT editor (flex row) ===== */}
-      <div className="flex flex-1 min-h-0 w-full">
+      {/* ===== MAIN CONTENT: LEFT preview + RIGHT editor (flex row) =====
+          pt-3 gives a subtle gap below the Concert Title strip to balance the preview layout. */}
+      <div className="flex flex-1 min-h-0 w-full pt-3">
 
       {/* LEFT: External display preview area.
           Outer container is WARM GRAY (#262624). ONLY the 16:9 preview rectangle is pure BLACK.
