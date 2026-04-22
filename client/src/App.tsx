@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Switch, Route, useLocation } from "wouter";
+import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -221,14 +221,19 @@ function AppLayout() {
   );
 }
 
+// GitHub Pages base path (stripped of trailing slash for wouter's base convention)
+const ROUTER_BASE = (import.meta.env.BASE_URL || "/").replace(/\/$/, "");
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <AppModeProvider>
-          <Toaster />
-          <AppLayout />
-        </AppModeProvider>
+        <WouterRouter base={ROUTER_BASE}>
+          <AppModeProvider>
+            <Toaster />
+            <AppLayout />
+          </AppModeProvider>
+        </WouterRouter>
       </TooltipProvider>
     </QueryClientProvider>
   );

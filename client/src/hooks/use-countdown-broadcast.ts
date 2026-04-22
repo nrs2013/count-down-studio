@@ -220,7 +220,9 @@ export function useCountdownBroadcaster() {
       ? `left=${cached.left},top=${cached.top},width=${cached.width},height=${cached.height},menubar=no,toolbar=no,location=no,status=no,scrollbars=no`
       : "width=960,height=540,menubar=no,toolbar=no,location=no,status=no,scrollbars=no";
 
-    const w = window.open("/output?secondary=1", "songcountdown_output", features);
+    // Base URL respects Vite's base config (e.g. "/count-down-studio/" on GitHub Pages)
+    const BASE_URL = import.meta.env.BASE_URL || "/";
+    const w = window.open(`${BASE_URL}output?secondary=1`, "songcountdown_output", features);
 
     if (w) {
       outputWindowRef.current = w;

@@ -85,7 +85,8 @@ if ("serviceWorker" in navigator) {
       }
     } catch {}
 
-    navigator.serviceWorker.register("/sw.js").then((reg) => {
+    const SW_URL = (import.meta.env.BASE_URL || "/") + "sw.js";
+    navigator.serviceWorker.register(SW_URL).then((reg) => {
       reg.update();
 
       reg.addEventListener("updatefound", () => {
