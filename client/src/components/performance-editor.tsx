@@ -610,7 +610,7 @@ export function PerformanceEditor({
           title="ホームに戻る"
           data-testid="button-home-show"
         >
-          {/* Solid fuchsia logo square (PROMPTER-style) */}
+          {/* Solid fuchsia logo square (PROMPTER-style, no glow) */}
           <div
             style={{
               width: 30,
@@ -621,7 +621,6 @@ export function PerformanceEditor({
               alignItems: "center",
               justifyContent: "center",
               flexShrink: 0,
-              boxShadow: "0 0 14px rgba(232,121,249,0.25)",
             }}
           >
             <span style={{ fontSize: 14, fontFamily: "'Helvetica Neue','Inter',sans-serif", fontWeight: 900, color: "#0a0a08", lineHeight: 1, letterSpacing: "-0.03em" }}>CD</span>
@@ -667,7 +666,7 @@ export function PerformanceEditor({
             disabled={!outputOpen}
             className="h-9 w-9 shrink-0 rounded-lg flex items-center justify-center transition-colors duration-150"
             style={{
-              background: showingEventInfo ? "rgba(232,121,249,0.18)" : "#323230",
+              background: showingEventInfo ? "#e879f9" : "#323230",
               border: showingEventInfo ? "1px solid #e879f9" : "1px solid #46463f",
               opacity: outputOpen ? 1 : 0.35,
               cursor: outputOpen ? "pointer" : "not-allowed",
@@ -675,7 +674,7 @@ export function PerformanceEditor({
             title={outputOpen ? (showingEventInfo ? "Hide event info on output" : "Show event info on output") : "Open output window first"}
             data-testid="button-toggle-event-info-top"
           >
-            <Info className="w-4 h-4" style={{ color: showingEventInfo ? "#e879f9" : "#a8a8a0" }} />
+            <Info className="w-4 h-4" style={{ color: showingEventInfo ? "#0a0a08" : "#a8a8a0" }} />
           </button>
           <input
             type="text"
@@ -810,9 +809,10 @@ export function PerformanceEditor({
           }}
           data-testid="editor-control-bar"
         >
+          {/* Control pills — all flat PROMPTER-style: solid surface bg + warm border, no neon glow */}
           {countdownStatus === "running" && (
             <button onClick={onPause} className={ctrlBtnClass}
-              style={{ color: "rgba(250,204,21,0.9)", background: "rgba(250,204,21,0.08)", border: "1px solid rgba(250,204,21,0.2)" }}
+              style={{ color: "#e8e8e2", background: "#323230", border: "1px solid #46463f" }}
               data-testid="editor-button-pause"
             >
               <Pause className="w-3.5 h-3.5" /> Pause
@@ -820,7 +820,7 @@ export function PerformanceEditor({
           )}
           {countdownStatus === "paused" && (
             <button onClick={onResume} className={ctrlBtnClass}
-              style={{ color: "rgba(74,222,128,0.9)", background: "rgba(74,222,128,0.08)", border: "1px solid rgba(74,222,128,0.2)" }}
+              style={{ color: "#e8e8e2", background: "#323230", border: "1px solid #46463f" }}
               data-testid="editor-button-resume"
             >
               <Play className="w-3.5 h-3.5" /> Resume
@@ -828,7 +828,7 @@ export function PerformanceEditor({
           )}
           {(countdownStatus === "running" || countdownStatus === "paused") && (
             <button onClick={onStop} className={ctrlBtnClass}
-              style={{ color: "rgba(239,68,68,0.8)", background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.15)" }}
+              style={{ color: "#a8a8a0", background: "#323230", border: "1px solid #46463f" }}
               data-testid="editor-button-stop"
             >
               <Square className="w-3.5 h-3.5" /> Stop
@@ -836,18 +836,18 @@ export function PerformanceEditor({
           )}
           {hasNextSong && (
             <button onClick={onNext} className={ctrlBtnClass}
-              style={{ color: "rgba(6,182,212,0.9)", background: "rgba(6,182,212,0.08)", border: "1px solid rgba(6,182,212,0.2)" }}
+              style={{ color: "#e8e8e2", background: "#323230", border: "1px solid #46463f" }}
               data-testid="editor-button-next"
             >
               <SkipForward className="w-3.5 h-3.5" /> Next
             </button>
           )}
           {isIdle && songs.length > 0 && (
-            <button onClick={() => onStartSong(0)} className={ctrlBtnClass + " text-white"}
+            <button onClick={() => onStartSong(0)} className={ctrlBtnClass}
               style={{
-                background: "linear-gradient(135deg, rgba(192,38,211,0.7), rgba(168,85,247,0.5))",
-                border: "1px solid rgba(232,121,249,0.3)",
-                boxShadow: "0 0 16px rgba(232,121,249,0.15)",
+                background: "#e879f9",
+                color: "#0a0a08",
+                border: "1px solid #e879f9",
               }}
               data-testid="editor-button-start"
             >
@@ -855,13 +855,13 @@ export function PerformanceEditor({
             </button>
           )}
           <button onClick={handleExport} className={ctrlBtnClass}
-            style={{ color: "rgba(255,255,255,0.5)", background: "#2e2e2b", border: "1px solid #46463f" }}
+            style={{ color: "#a8a8a0", background: "#323230", border: "1px solid #46463f" }}
             data-testid="editor-button-save"
           >
             <Download className="w-3.5 h-3.5" /> Save
           </button>
           <button onClick={() => fileInputRef.current?.click()} className={ctrlBtnClass}
-            style={{ color: "rgba(255,255,255,0.5)", background: "#2e2e2b", border: "1px solid #46463f" }}
+            style={{ color: "#a8a8a0", background: "#323230", border: "1px solid #46463f" }}
             data-testid="editor-button-import"
           >
             <Upload className="w-3.5 h-3.5" /> Import
