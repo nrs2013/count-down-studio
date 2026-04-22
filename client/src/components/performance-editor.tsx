@@ -596,12 +596,11 @@ export function PerformanceEditor({
 
   return (
     <div className="flex flex-col h-full w-full" style={{ background: "#262624" }} data-testid="performance-editor">
-      {/* ===== FULL-WIDTH TOP STRIP: EDIT MODE indicator + song count =====
-          pt-[70px] gives room for fixed ModeTabBar pills at top-right.
-          bg #2e2e2b (panel layer) floats above #262624 canvas for depth. */}
+      {/* ===== FULL-WIDTH TOP STRIP: EDIT MODE indicator only (song count removed) =====
+          Slim strip — just enough room for the ModeTabBar pills (fixed at top-right). */}
       <div
-        className="shrink-0 flex items-center justify-between px-4 pt-[70px] pb-3 w-full"
-        style={{ background: "#2e2e2b" }}
+        className="shrink-0 flex items-center px-4 w-full"
+        style={{ background: "#2e2e2b", height: 56 }}
       >
         <div className="flex items-center gap-2">
           <div
@@ -615,12 +614,6 @@ export function PerformanceEditor({
             Edit Mode
           </span>
         </div>
-        <span
-          className="text-[11px]"
-          style={{ fontFamily: MONO_FONT, color: "#76766f" }}
-        >
-          {songs.length} songs / {formatDuration(songs.reduce((a, s) => a + s.durationSeconds, 0))} total
-        </span>
       </div>
 
       {/* ===== FULL-WIDTH SECOND STRIP: Concert Title + REHEARSAL / DOOR OPEN / SHOW TIME =====
