@@ -2,11 +2,11 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 
-// GitHub Pages serves from /count-down-studio/ (repo name as subpath).
-// Vite's base option rewrites all asset URLs to include this prefix.
+// Served from custom domain (countdown-studio.nrs1.jp) at root path.
+// Vite base is "/" since we're no longer under /count-down-studio/ subpath.
 export default defineConfig({
   plugins: [react()],
-  base: "/count-down-studio/",
+  base: "/",
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "client", "src"),

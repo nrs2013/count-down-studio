@@ -2,20 +2,20 @@
   "name": "COUNT DOWN STUDIO",
   "short_name": "CD STUDIO",
   "description": "MIDI-connected concert countdown timer for live performances",
-  "start_url": "/count-down-studio/",
-  "scope": "/count-down-studio/",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#262624",
   "theme_color": "#262624",
   "orientation": "any",
   "icons": [
     {
-      "src": "/count-down-studio/icon-192.png",
+      "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/count-down-studio/icon-512.png",
+      "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
