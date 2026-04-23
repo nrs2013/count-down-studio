@@ -8,6 +8,7 @@ import {
   useUpdateSetlist,
 } from "@/hooks/use-local-data";
 import { Play, Pause, Square, SkipForward, Download, Upload, Info } from "lucide-react";
+import { MidiNoteIndicator } from "@/components/midi-note-indicator";
 import { type MidiMessage } from "@/hooks/use-midi";
 import { MidiLogMonitor } from "./midi-log-monitor";
 import {
@@ -37,6 +38,45 @@ import { useAppMode } from "@/hooks/use-app-mode";
 import { SongRow, SongTableHeader, AddSongButton, AddSpecialButton, AddMCButton, AddEncoreButton, InsertionRow } from "@/components/song-row";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+
+// ==================================================================
+// LiveMidiBigDisplay: prominent MIDI signal readout below the countdown
+// preview. Scales up the MidiNoteIndicator so it reads from across the room.
+// ==================================================================
+function LiveMidiBigDisplay({ lastMessage }: { lastMessage: MidiMessage | null }) {
+  return (
+    <div
+      className="flex items-center justify-center w-full"
+      style={{
+        minHeight: 84,
+        padding: "12px 16px",
+        borderRadius: 12,
+        border: "1px solid #3a3a35",
+        background: "#1e1e1c",
+      }}
+      data-testid="live-midi-big-display"
+    >
+      {lastMessage ? (
+        <div style={{ transform: "scale(2.4)", transformOrigin: "center" }}>
+          <MidiNoteIndicator lastMessage={lastMessage} />
+        </div>
+      ) : (
+        <div
+          style={{
+            fontFamily: "'JetBrains Mono', 'Menlo', monospace",
+            fontSize: 13,
+            fontWeight: 700,
+            letterSpacing: "0.2em",
+            color: "#5a5a54",
+            textTransform: "uppercase",
+          }}
+        >
+          MIDI signal will appear here
+        </div>
+      )}
+    </div>
+  );
+}
 
 interface PerformanceEditorProps {
   songs: Song[];
@@ -602,9 +642,9 @@ export function PerformanceEditor({
       backgroundImage:
         "radial-gradient(ellipse 70% 50% at 50% 0%, rgba(193,134,200,0.08), transparent 60%), radial-gradient(ellipse 80% 60% at 50% 100%, rgba(60,40,70,0.1), transparent 60%)",
     }} data-testid="performance-editor">
-      {/* ===== FULL-WIDTH TOP STRIP: COUNT DOWN STUDIO logo + wordmark (click → home) ===== */}
+      {/* ===== FULL-WIDTH TOP STRIP: CD logo + wordmark (left) / SAVE + IMPORT (right) ===== */}
       <div
-        className="shrink-0 flex items-center px-4 w-full"
+        className="shrink-0 flex items-center justify-between px-4 w-full"
         style={{
           background: "#262624",
           height: 56,
@@ -643,6 +683,36 @@ export function PerformanceEditor({
             </div>
           </div>
         </button>
+
+        {/* Right side: SAVE + IMPORT shortcut buttons */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleExport}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold tracking-wider uppercase transition-colors duration-150"
+            style={{ color: "#a8a8a0", background: "#323230", border: "1px solid #46463f" }}
+            data-testid="editor-button-save-top"
+            title="Save setlist"
+          >
+            <Download className="w-3.5 h-3.5" /> Save
+          </button>
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold tracking-wider uppercase transition-colors duration-150"
+            style={{ color: "#a8a8a0", background: "#323230", border: "1px solid #46463f" }}
+            data-testid="editor-button-import-top"
+            title="Import setlist"
+          >
+            <Upload className="w-3.5 h-3.5" /> Import
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".json,.scd"
+            className="hidden"
+            onChange={handleImportInput}
+            data-testid="editor-file-input"
+          />
+        </div>
       </div>
 
       {/* ===== FULL-WIDTH SECOND STRIP: Concert Title + REHEARSAL / DOOR OPEN / SHOW TIME =====
@@ -843,46 +913,8 @@ export function PerformanceEditor({
               <Square className="w-3.5 h-3.5" /> Stop
             </button>
           )}
-          {hasNextSong && (
-            <button onClick={onNext} className={ctrlBtnClass}
-              style={{ color: "#e8e8e2", background: "#323230", border: "1px solid #46463f" }}
-              data-testid="editor-button-next"
-            >
-              <SkipForward className="w-3.5 h-3.5" /> Next
-            </button>
-          )}
-          {isIdle && songs.length > 0 && (
-            <button onClick={() => onStartSong(0)} className={ctrlBtnClass}
-              style={{
-                background: "#c186c8",
-                color: "#0a0a08",
-                border: "1px solid #c186c8",
-              }}
-              data-testid="editor-button-start"
-            >
-              <Play className="w-3.5 h-3.5" /> Start
-            </button>
-          )}
-          <button onClick={handleExport} className={ctrlBtnClass}
-            style={{ color: "#a8a8a0", background: "#323230", border: "1px solid #46463f" }}
-            data-testid="editor-button-save"
-          >
-            <Download className="w-3.5 h-3.5" /> Save
-          </button>
-          <button onClick={() => fileInputRef.current?.click()} className={ctrlBtnClass}
-            style={{ color: "#a8a8a0", background: "#323230", border: "1px solid #46463f" }}
-            data-testid="editor-button-import"
-          >
-            <Upload className="w-3.5 h-3.5" /> Import
-          </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".json,.scd"
-            className="hidden"
-            onChange={handleImportInput}
-            data-testid="editor-file-input"
-          />
+          {/* Live MIDI signal display — shows incoming MIDI note prominently */}
+          <LiveMidiBigDisplay lastMessage={lastMidiMessage ?? null} />
         </div>
 
         {/* Bottom spacer — warm gray (mirrors top spacer, centers the preview+controls) */}
