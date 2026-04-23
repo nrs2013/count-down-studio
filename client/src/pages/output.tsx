@@ -4,6 +4,195 @@ import { useCountdownReceiver } from "@/hooks/use-countdown-broadcast";
 import { CountdownDisplay } from "@/components/countdown-display";
 import { EventInfoDisplay } from "@/components/event-info-display";
 
+// ===== Concert End Summary =====
+// Displayed on the sub-display when the director presses "End Show" in the main app.
+// Shows TOTAL / MC / ENCORE elapsed times plus START / END wall-clock times,
+// styled to feel like a curtain-call closing card (warm dark canvas + amber accent).
+function formatHMS(ms: number): string {
+  if (!ms || ms < 0) return "00:00:00";
+  const total = Math.floor(ms / 1000);
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
+
+function ConcertSummaryDisplay({
+  totalMs,
+  mcMs,
+  encoreMs,
+  startTime,
+  endTime,
+}: {
+  totalMs: number;
+  mcMs: number;
+  encoreMs: number;
+  startTime: string;
+  endTime: string;
+}) {
+  const MONO = "'JetBrains Mono', 'Roboto Mono', monospace";
+  const UI = "'Noto Sans JP', 'Inter', sans-serif";
+
+  const StatRow = ({
+    label,
+    value,
+    big,
+    accent,
+  }: {
+    label: string;
+    value: string;
+    big?: boolean;
+    accent?: boolean;
+  }) => (
+    <div className="flex flex-col items-center">
+      <div
+        style={{
+          fontFamily: UI,
+          letterSpacing: "0.28em",
+          fontSize: big ? 18 : 14,
+          fontWeight: 700,
+          color: accent ? "#e8b04a" : "#76766f",
+          marginBottom: big ? 14 : 8,
+        }}
+      >
+        {label}
+      </div>
+      <div
+        style={{
+          fontFamily: MONO,
+          fontSize: big ? 120 : 52,
+          fontWeight: 300,
+          lineHeight: 1,
+          color: accent ? "#f0c77a" : "#e8e8e2",
+          letterSpacing: "0.04em",
+          textShadow: accent ? "0 0 40px rgba(232,176,74,0.25)" : "none",
+        }}
+      >
+        {value}
+      </div>
+    </div>
+  );
+
+  return (
+    <div
+      className="w-screen h-screen flex flex-col items-center justify-center"
+      style={{
+        background: "#0c0b0a",
+        backgroundImage:
+          "radial-gradient(ellipse 60% 40% at 50% 30%, rgba(232,176,74,0.08), transparent 65%), radial-gradient(ellipse 80% 60% at 50% 100%, rgba(193,134,200,0.06), transparent 65%)",
+        animation: "summaryFadeIn 1.2s ease-out forwards",
+      }}
+      data-testid="concert-summary"
+    >
+      {/* Heading */}
+      <div
+        style={{
+          fontFamily: UI,
+          fontSize: 28,
+          letterSpacing: "0.5em",
+          color: "rgba(232,176,74,0.9)",
+          fontWeight: 700,
+          marginBottom: 12,
+          textTransform: "uppercase",
+        }}
+      >
+        End of Show
+      </div>
+      <div
+        style={{
+          fontFamily: UI,
+          fontSize: 14,
+          letterSpacing: "0.3em",
+          color: "#5a5a54",
+          marginBottom: 64,
+          textTransform: "uppercase",
+        }}
+      >
+        Thank you for tonight
+      </div>
+
+      {/* Central TOTAL TIME */}
+      <div style={{ marginBottom: 72 }}>
+        <StatRow label="Total Time" value={formatHMS(totalMs)} big accent />
+      </div>
+
+      {/* MC / ENCORE side by side */}
+      <div
+        className="flex items-start"
+        style={{ gap: 120, marginBottom: 64 }}
+      >
+        <StatRow label="MC Time" value={formatHMS(mcMs)} />
+        <div style={{ width: 1, height: 80, background: "rgba(168,168,160,0.2)" }} />
+        <StatRow label="Encore Time" value={formatHMS(encoreMs)} />
+      </div>
+
+      {/* Divider */}
+      <div style={{ width: 180, height: 1, background: "rgba(232,176,74,0.25)", marginBottom: 40 }} />
+
+      {/* START / END wall clocks */}
+      <div className="flex items-start" style={{ gap: 120 }}>
+        <div className="flex flex-col items-center">
+          <div
+            style={{
+              fontFamily: UI,
+              letterSpacing: "0.28em",
+              fontSize: 12,
+              fontWeight: 700,
+              color: "#76766f",
+              marginBottom: 6,
+            }}
+          >
+            Start Time
+          </div>
+          <div
+            style={{
+              fontFamily: MONO,
+              fontSize: 36,
+              fontWeight: 300,
+              color: "#a8a8a0",
+              letterSpacing: "0.05em",
+            }}
+          >
+            {startTime || "--:--:--"}
+          </div>
+        </div>
+        <div className="flex flex-col items-center">
+          <div
+            style={{
+              fontFamily: UI,
+              letterSpacing: "0.28em",
+              fontSize: 12,
+              fontWeight: 700,
+              color: "#76766f",
+              marginBottom: 6,
+            }}
+          >
+            End Time
+          </div>
+          <div
+            style={{
+              fontFamily: MONO,
+              fontSize: 36,
+              fontWeight: 300,
+              color: "#a8a8a0",
+              letterSpacing: "0.05em",
+            }}
+          >
+            {endTime || "--:--:--"}
+          </div>
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes summaryFadeIn {
+          0% { opacity: 0; transform: scale(0.98); }
+          100% { opacity: 1; transform: scale(1); }
+        }
+      `}</style>
+    </div>
+  );
+}
+
 export default function Output() {
   const [, setLocation] = useLocation();
   const isLegitOutput = typeof window !== "undefined" &&
@@ -164,7 +353,15 @@ export default function Output() {
       className="w-screen h-screen bg-black overflow-hidden cursor-none relative"
       data-testid="output-page"
     >
-      {state.showEventInfo ? (
+      {state.showConcertSummary ? (
+        <ConcertSummaryDisplay
+          totalMs={state.summaryTotalMs || 0}
+          mcMs={state.summaryMcMs || 0}
+          encoreMs={state.summaryEncoreMs || 0}
+          startTime={state.summaryStartTime || ""}
+          endTime={state.summaryEndTime || ""}
+        />
+      ) : state.showEventInfo ? (
         <EventInfoDisplay
           concertTitle={state.eventConcertTitle || ""}
           doorOpen={state.eventDoorOpen || null}

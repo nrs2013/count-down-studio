@@ -25,6 +25,13 @@ export interface CountdownState {
   subTimerRemaining?: number;
   subTimerFormatted?: string;
   subTimerActive?: boolean;
+  // Concert End Summary (shown on sub-display when the director ends the show)
+  showConcertSummary?: boolean;
+  summaryTotalMs?: number;
+  summaryMcMs?: number;
+  summaryEncoreMs?: number;
+  summaryStartTime?: string;
+  summaryEndTime?: string;
 }
 
 const LS_KEY = "countdown-state";

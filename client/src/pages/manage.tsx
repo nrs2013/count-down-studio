@@ -358,6 +358,17 @@ export default function Manage() {
   const [showEventInfoOnPrimary, setShowEventInfoOnPrimary] = useState(false);
   const stopEventInfoRef = useRef<(() => void) | null>(null);
 
+  // Concert summary tracking: records when the concert began and accumulates MC / ENCORE time.
+  const concertStartAtRef = useRef<number | null>(null);
+  const segmentStartAtRef = useRef<number | null>(null);
+  const segmentTypeRef = useRef<"song" | "mc" | "encore" | null>(null);
+  const prevTrackedSongIdRef = useRef<number | null>(null);
+  const [mcTotalMs, setMcTotalMs] = useState(0);
+  const [encoreTotalMs, setEncoreTotalMs] = useState(0);
+  // When true, suppress the recurring countdown broadcast so the summary screen on the
+  // sub-display isn't overwritten by stale idle state.
+  const [summaryActive, setSummaryActive] = useState(false);
+
   useEffect(() => {
     if (!outputOpen) return;
     const handler = (e: KeyboardEvent) => {
@@ -417,12 +428,110 @@ export default function Manage() {
     }
   }, [countdown.status, currentSongId, sortedSongs, countdown]);
 
+  // Concert summary tracking — finalize previous segment whenever currentSongId changes,
+  // then start a fresh segment for the new song. Concert start time recorded on first song.
+  useEffect(() => {
+    const now = Date.now();
+    // Finalize previous segment (add to MC/ENCORE totals if applicable)
+    if (segmentStartAtRef.current !== null && segmentTypeRef.current !== null) {
+      const duration = now - segmentStartAtRef.current;
+      if (segmentTypeRef.current === "mc") setMcTotalMs((v) => v + duration);
+      else if (segmentTypeRef.current === "encore") setEncoreTotalMs((v) => v + duration);
+    }
+    // Start new segment if there's an active song
+    if (currentSongId !== null) {
+      const song = sortedSongs.find((s) => s.id === currentSongId);
+      if (song) {
+        segmentStartAtRef.current = now;
+        segmentTypeRef.current = song.isMC ? "mc" : song.isEncore ? "encore" : "song";
+        if (concertStartAtRef.current === null) {
+          concertStartAtRef.current = now;
+        }
+      }
+    } else {
+      segmentStartAtRef.current = null;
+      segmentTypeRef.current = null;
+    }
+    prevTrackedSongIdRef.current = currentSongId;
+  }, [currentSongId, sortedSongs]);
+
+  // End-concert handler: finalize current segment, then broadcast the summary to the sub-display.
+  const endConcert = useCallback(() => {
+    const now = Date.now();
+    let finalMcMs = mcTotalMs;
+    let finalEncoreMs = encoreTotalMs;
+    if (segmentStartAtRef.current !== null && segmentTypeRef.current !== null) {
+      const duration = now - segmentStartAtRef.current;
+      if (segmentTypeRef.current === "mc") finalMcMs += duration;
+      else if (segmentTypeRef.current === "encore") finalEncoreMs += duration;
+      setMcTotalMs(finalMcMs);
+      setEncoreTotalMs(finalEncoreMs);
+      segmentStartAtRef.current = null;
+      segmentTypeRef.current = null;
+    }
+    const startAt = concertStartAtRef.current;
+    if (!startAt) {
+      toast({ title: "コンサートがまだ始まってないよ" });
+      return;
+    }
+    countdown.stop();
+    setCurrentSongId(null);
+    const totalMs = now - startAt;
+    const fmt = (ms: number) => {
+      const s = Math.floor(ms / 1000);
+      const startD = new Date(ms);
+      return {
+        hms: `${String(startD.getHours()).padStart(2, "0")}:${String(startD.getMinutes()).padStart(2, "0")}:${String(startD.getSeconds()).padStart(2, "0")}`,
+        sec: s,
+      };
+    };
+    setSummaryActive(true);
+    broadcast({
+      formattedTime: "--:--",
+      status: "idle",
+      progress: 0,
+      remainingSeconds: 0,
+      showConcertSummary: true,
+      summaryTotalMs: totalMs,
+      summaryMcMs: finalMcMs,
+      summaryEncoreMs: finalEncoreMs,
+      summaryStartTime: fmt(startAt).hms,
+      summaryEndTime: fmt(now).hms,
+    });
+    toast({ title: "End of Show", description: "サマリーをサブディスプレイに表示中" });
+  }, [mcTotalMs, encoreTotalMs, broadcast, countdown, toast]);
+
+  const resetConcertTracking = useCallback(() => {
+    concertStartAtRef.current = null;
+    segmentStartAtRef.current = null;
+    segmentTypeRef.current = null;
+    setMcTotalMs(0);
+    setEncoreTotalMs(0);
+    setSummaryActive(false);
+    // Clear the summary overlay on the sub-display.
+    broadcast({
+      formattedTime: "--:--",
+      status: "idle",
+      progress: 0,
+      remainingSeconds: 0,
+      showConcertSummary: false,
+      summaryTotalMs: 0,
+      summaryMcMs: 0,
+      summaryEncoreMs: 0,
+      summaryStartTime: "",
+      summaryEndTime: "",
+    });
+  }, [broadcast]);
+
   const startSong = useCallback(
     (index: number) => {
       if (index < 0 || index >= sortedSongs.length) return;
       if (stopEventInfoRef.current) {
         stopEventInfoRef.current();
       }
+      // If the director starts a song after an End-of-Show summary, clear it so the
+      // countdown display takes over again.
+      if (summaryActive) setSummaryActive(false);
       const song = sortedSongs[index];
       setCurrentSongId(song.id);
       setLiveTitleOverrides(null);
@@ -542,6 +651,8 @@ export default function Manage() {
 
   useEffect(() => {
     if (!outputOpen || showEventInfoOnPrimary) return;
+    // Don't overwrite the End-of-Show summary that we're intentionally displaying.
+    if (summaryActive) return;
     broadcast({
       formattedTime: displayTime,
       status: displayStatus,
@@ -562,7 +673,7 @@ export default function Manage() {
       subTimerFormatted,
       subTimerActive,
     });
-  }, [broadcast, outputOpen, showEventInfoOnPrimary, displayTime, displayStatus, countdown.progress, countdown.remainingSeconds, displaySongTitle, displayArtist, displayNextTitle, displayIsEvent, displayXTime, displayIsMC, displayIsEncore, countdown.isCountUp, countdown.elapsedSeconds, displayMcTarget, subTimerTotal, subTimerRemaining, subTimerFormatted, subTimerActive]);
+  }, [broadcast, outputOpen, showEventInfoOnPrimary, summaryActive, displayTime, displayStatus, countdown.progress, countdown.remainingSeconds, displaySongTitle, displayArtist, displayNextTitle, displayIsEvent, displayXTime, displayIsMC, displayIsEncore, countdown.isCountUp, countdown.elapsedSeconds, displayMcTarget, subTimerTotal, subTimerRemaining, subTimerFormatted, subTimerActive]);
 
   const createSetlist = useCreateSetlist();
   const deleteSetlist = useDeleteSetlist();
@@ -976,6 +1087,8 @@ export default function Manage() {
             subTimerRemaining={subTimerRemaining}
             subTimerSeconds={subTimerTotal}
             subTimerActive={subTimerActive}
+            onEndConcert={endConcert}
+            onResetConcertTracking={resetConcertTracking}
           />
         </div>
       </div>

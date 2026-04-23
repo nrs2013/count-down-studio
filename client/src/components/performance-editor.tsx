@@ -7,7 +7,7 @@ import {
   useReorderSongs,
   useUpdateSetlist,
 } from "@/hooks/use-local-data";
-import { Play, Pause, Square, SkipForward, Download, Upload, Info } from "lucide-react";
+import { Play, Pause, Square, SkipForward, Download, Upload, Info, Flag, RotateCcw } from "lucide-react";
 import { MidiNoteIndicator } from "@/components/midi-note-indicator";
 import { type MidiMessage } from "@/hooks/use-midi";
 import { MidiLogMonitor } from "./midi-log-monitor";
@@ -254,6 +254,8 @@ interface PerformanceEditorProps {
   subTimerRemaining?: number;
   subTimerSeconds?: number;
   subTimerActive?: boolean;
+  onEndConcert?: () => void;
+  onResetConcertTracking?: () => void;
 }
 
 export function PerformanceEditor({
@@ -292,6 +294,8 @@ export function PerformanceEditor({
   subTimerRemaining,
   subTimerSeconds: subTimerSecondsProp,
   subTimerActive,
+  onEndConcert,
+  onResetConcertTracking,
 }: PerformanceEditorProps) {
   const addSong = useCreateSong();
   const reorderSongs = useReorderSongs();
@@ -1024,6 +1028,51 @@ export function PerformanceEditor({
               data-testid="editor-button-stop"
             >
               <Square className="w-3.5 h-3.5" /> Stop
+            </button>
+          )}
+          {/* END SHOW — finalizes the concert & broadcasts the summary screen to the sub-display. */}
+          {onEndConcert && (
+            <button
+              onClick={() => {
+                if (confirm("コンサートを終了しますか？\nサブディスプレイにサマリーを表示します。")) {
+                  onEndConcert();
+                }
+              }}
+              className={ctrlBtnClass}
+              style={{
+                color: "#e8b04a",
+                background: "#1c1b19",
+                border: "1px solid rgba(232,176,74,0.35)",
+              }}
+              title="コンサート終了 → サマリーをサブディスプレイに表示"
+              data-testid="editor-button-end-show"
+            >
+              <Flag className="w-3.5 h-3.5" /> End Show
+            </button>
+          )}
+          {/* RESET — clears the saved TOTAL/MC/ENCORE tracking for a new concert. */}
+          {onResetConcertTracking && (
+            <button
+              onClick={() => {
+                if (confirm("サマリーを閉じて集計をリセットしますか？")) {
+                  onResetConcertTracking();
+                  // Also close summary overlay on sub-display.
+                  try {
+                    // Use countdown reset broadcast via a lightweight event
+                    window.dispatchEvent(new CustomEvent("cds-reset-summary"));
+                  } catch {}
+                }
+              }}
+              className={ctrlBtnClass}
+              style={{
+                color: "#76766f",
+                background: "#1c1b19",
+                border: "1px solid #2c2a27",
+              }}
+              title="サマリー非表示 & 集計リセット"
+              data-testid="editor-button-reset-summary"
+            >
+              <RotateCcw className="w-3.5 h-3.5" /> Reset
             </button>
           )}
           {/* Live MIDI signal display with ON/OFF toggle */}
