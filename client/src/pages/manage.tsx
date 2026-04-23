@@ -432,6 +432,13 @@ export default function Manage() {
   // Concert summary tracking — finalize previous segment whenever currentSongId changes,
   // then start a fresh segment for the new song. Concert start time recorded on first song.
   // Each MC / ENCORE segment is pushed individually so we can display MC1, MC2, … separately.
+  //
+  // IMPORTANT: we depend ONLY on currentSongId, not sortedSongs. If we included sortedSongs
+  // in the deps, every render that produced a new array reference would re-run this effect
+  // and synthesize a tiny phantom MC segment each time — producing "MC 3194, MC 3195, …"
+  // on the summary screen. We read sortedSongs via a ref instead.
+  const sortedSongsRef = useRef(sortedSongs);
+  sortedSongsRef.current = sortedSongs;
   useEffect(() => {
     const now = Date.now();
     if (segmentStartAtRef.current !== null && segmentTypeRef.current !== null) {
@@ -440,7 +447,7 @@ export default function Manage() {
       else if (segmentTypeRef.current === "encore") setEncoreSegments((arr) => [...arr, duration]);
     }
     if (currentSongId !== null) {
-      const song = sortedSongs.find((s) => s.id === currentSongId);
+      const song = sortedSongsRef.current.find((s) => s.id === currentSongId);
       if (song) {
         segmentStartAtRef.current = now;
         segmentTypeRef.current = song.isMC ? "mc" : song.isEncore ? "encore" : "song";
@@ -453,7 +460,7 @@ export default function Manage() {
       segmentTypeRef.current = null;
     }
     prevTrackedSongIdRef.current = currentSongId;
-  }, [currentSongId, sortedSongs]);
+  }, [currentSongId]);
 
   // End-concert handler: finalize current segment, then broadcast the summary to the sub-display.
   const endConcert = useCallback(() => {
