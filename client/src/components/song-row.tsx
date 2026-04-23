@@ -529,9 +529,9 @@ export function SongRow({
                     boxShadow: "0 0 0 1px rgba(106,138,102,0.3)",
                   }
                 : {
-                    background: "#242220",
+                    background: "#1d1b19",
                     color: "#76766f",
-                    border: "1px solid #33302c",
+                    border: "1px solid #2f2c28",
                   }),
             }}
             onClick={() => {
