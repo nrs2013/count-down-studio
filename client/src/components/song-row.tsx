@@ -308,7 +308,7 @@ export function SongRow({
         // Flat Claude-style: solid surface, lifted above warm gray canvas.
         background: isCurrent ? "#4a3a48" : "#363634",
         borderRadius: "10px",
-        marginBottom: "8px",
+        marginBottom: "3px",
         border: isCurrent ? "1px solid #c186c8" : "1px solid #46463f",
         boxShadow: isCurrent
           ? "0 0 0 1px rgba(193,134,200,0.25)"
