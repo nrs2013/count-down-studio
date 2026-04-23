@@ -92,16 +92,16 @@
      Claude-style WARM GRAY theme + Count Down Studio FUCHSIA accent
      ========================================================== */
   /* Warm gray palette (hex reference):
-     #141414 bg  / #141414 bg-2 / #383835 bg-3
-     #1a1a1a surface / #1e1e1e surface-hi
-     #2a2a2a border / #5a5a53 border-hi
+     #181411 bg  / #181411 bg-2 / #383835 bg-3
+     #1e1814 surface / #221d18 surface-hi
+     #322a24 border / #5a5a53 border-hi
      #e8e8e2 text / #a8a8a0 text-2 / #76766f text-3 */
-  --cds-bg:         40 3% 15%;   /* #141414 */
-  --cds-bg-2:       40 3% 18%;   /* #141414 */
+  --cds-bg:         40 3% 15%;   /* #181411 */
+  --cds-bg-2:       40 3% 18%;   /* #181411 */
   --cds-bg-3:       45 3% 22%;   /* #383835 */
-  --cds-surface:    40 3% 19%;   /* #1a1a1a */
-  --cds-surface-hi: 42 3% 23%;   /* #1e1e1e */
-  --cds-border:     45 5% 26%;   /* #2a2a2a */
+  --cds-surface:    40 3% 19%;   /* #1e1814 */
+  --cds-surface-hi: 42 3% 23%;   /* #221d18 */
+  --cds-border:     45 5% 26%;   /* #322a24 */
   --cds-border-hi:  42 5% 34%;   /* #5a5a53 */
   --cds-text:       60 13% 90%;  /* #e8e8e2 */
   --cds-text-2:     54 5% 64%;   /* #a8a8a0 */
@@ -212,7 +212,7 @@
   body {
     @apply font-sans antialiased text-foreground;
     /* Warm gray canvas — consistent with row gaps. Cards sit slightly lighter above. */
-    background-color: #141414;
+    background-color: #181411;
     background-image:
       radial-gradient(ellipse 70% 50% at 50% 0%, rgba(193,134,200,0.07), transparent 60%),
       radial-gradient(ellipse 80% 60% at 50% 100%, rgba(60,40,70,0.09), transparent 60%);
@@ -222,7 +222,7 @@
 
   /* Utility: Claude-style surface with subtle vertical gradient (feels alive, not flat) */
   .cds-surface-grad {
-    background: linear-gradient(180deg, #222222 0%, #1a1a1a 100%);
+    background: linear-gradient(180deg, #2a231e 0%, #1e1814 100%);
   }
   .cds-surface-grad-hi {
     background: linear-gradient(180deg, #3a3a37 0%, #353532 100%);

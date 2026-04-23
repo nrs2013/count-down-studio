@@ -51,8 +51,8 @@ function LiveMidiBigDisplay({ lastMessage }: { lastMessage: MidiMessage | null }
         minHeight: 84,
         padding: "12px 16px",
         borderRadius: 12,
-        border: "1px solid #222222",
-        background: "#1e1e1e",
+        border: "1px solid #2a231e",
+        background: "#221d18",
       }}
       data-testid="live-midi-big-display"
     >
@@ -638,7 +638,7 @@ export function PerformanceEditor({
 
   return (
     <div className="flex flex-col h-full w-full" style={{
-      background: "#141414",
+      background: "#181411",
       backgroundImage:
         "radial-gradient(ellipse 70% 50% at 50% 0%, rgba(193,134,200,0.08), transparent 60%), radial-gradient(ellipse 80% 60% at 50% 100%, rgba(60,40,70,0.1), transparent 60%)",
     }} data-testid="performance-editor">
@@ -646,7 +646,7 @@ export function PerformanceEditor({
       <div
         className="shrink-0 flex items-center justify-between px-4 w-full"
         style={{
-          background: "#141414",
+          background: "#181411",
           height: 56,
         }}
       >
@@ -689,7 +689,7 @@ export function PerformanceEditor({
           <button
             onClick={handleExport}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold tracking-wider uppercase transition-colors duration-150"
-            style={{ color: "#a8a8a0", background: "#1a1a1a", border: "1px solid #2a2a2a" }}
+            style={{ color: "#a8a8a0", background: "#1e1814", border: "1px solid #322a24" }}
             data-testid="editor-button-save-top"
             title="Save setlist"
           >
@@ -698,7 +698,7 @@ export function PerformanceEditor({
           <button
             onClick={() => fileInputRef.current?.click()}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold tracking-wider uppercase transition-colors duration-150"
-            style={{ color: "#a8a8a0", background: "#1a1a1a", border: "1px solid #2a2a2a" }}
+            style={{ color: "#a8a8a0", background: "#1e1814", border: "1px solid #322a24" }}
             data-testid="editor-button-import-top"
             title="Import setlist"
           >
@@ -720,7 +720,7 @@ export function PerformanceEditor({
       <div
         className="shrink-0 w-full px-4 pt-2 pb-3"
         style={{
-          background: "#141414",
+          background: "#181411",
         }}
       >
         <div className="flex items-center gap-3 mb-1.5">
@@ -745,8 +745,8 @@ export function PerformanceEditor({
             disabled={!outputOpen}
             className="h-9 w-9 shrink-0 rounded-lg flex items-center justify-center transition-colors duration-150"
             style={{
-              background: showingEventInfo ? "#c186c8" : "#1a1a1a",
-              border: showingEventInfo ? "1px solid #c186c8" : "1px solid #2a2a2a",
+              background: showingEventInfo ? "#c186c8" : "#1e1814",
+              border: showingEventInfo ? "1px solid #c186c8" : "1px solid #322a24",
               opacity: outputOpen ? 1 : 0.35,
               cursor: outputOpen ? "pointer" : "not-allowed",
             }}
@@ -758,7 +758,7 @@ export function PerformanceEditor({
           <input
             type="text"
             className="flex-1 min-w-0 h-9 text-sm rounded-lg px-3 font-semibold placeholder:text-[#76766f] focus:outline-none focus:ring-1 focus:ring-fuchsia-500/50 transition-all duration-150"
-            style={{ background: "#1a1a1a", border: "1px solid #2a2a2a", color: "#e8e8e2", fontFamily: UI_FONT }}
+            style={{ background: "#1e1814", border: "1px solid #322a24", color: "#e8e8e2", fontFamily: UI_FONT }}
             value={setlistNameValue}
             onChange={(e) => { if (setlist) setSetlistNameValue(e.target.value); }}
             onFocus={() => { setlistNameFocusedRef.current = true; }}
@@ -772,8 +772,8 @@ export function PerformanceEditor({
           <input
             type="text"
             inputMode="numeric"
-            className="h-9 text-sm rounded-lg px-2 text-center font-semibold placeholder:text-[#76766f] focus:outline-none focus:ring-1 focus:ring-[#2a2a2a] transition-all duration-150"
-            style={{ width: "72px", minWidth: "72px", background: "#1a1a1a", border: "1px solid #2a2a2a", color: "#e8e8e2", fontFamily: MONO_FONT }}
+            className="h-9 text-sm rounded-lg px-2 text-center font-semibold placeholder:text-[#76766f] focus:outline-none focus:ring-1 focus:ring-[#322a24] transition-all duration-150"
+            style={{ width: "72px", minWidth: "72px", background: "#1e1814", border: "1px solid #322a24", color: "#e8e8e2", fontFamily: MONO_FONT }}
             value={rehearsalValue}
             onChange={(e) => { setRehearsalValue(imeRehearsalRef.current ? e.target.value : filterTimeInput(e.target.value)); }}
             onCompositionStart={() => { imeRehearsalRef.current = true; clearTimeout(imeRehearsalTimerRef.current); }}
@@ -787,8 +787,8 @@ export function PerformanceEditor({
           <input
             type="text"
             inputMode="numeric"
-            className="h-9 text-sm rounded-lg px-2 text-center font-semibold placeholder:text-[#76766f] focus:outline-none focus:ring-1 focus:ring-[#2a2a2a] transition-all duration-150"
-            style={{ width: "72px", minWidth: "72px", background: "#1a1a1a", border: "1px solid #2a2a2a", color: "#e8e8e2", fontFamily: MONO_FONT }}
+            className="h-9 text-sm rounded-lg px-2 text-center font-semibold placeholder:text-[#76766f] focus:outline-none focus:ring-1 focus:ring-[#322a24] transition-all duration-150"
+            style={{ width: "72px", minWidth: "72px", background: "#1e1814", border: "1px solid #322a24", color: "#e8e8e2", fontFamily: MONO_FONT }}
             value={doorOpenValue}
             onChange={(e) => { setDoorOpenValue(imeDoorRef.current ? e.target.value : filterTimeInput(e.target.value)); }}
             onCompositionStart={() => { imeDoorRef.current = true; clearTimeout(imeDoorTimerRef.current); }}
@@ -802,8 +802,8 @@ export function PerformanceEditor({
           <input
             type="text"
             inputMode="numeric"
-            className="h-9 text-sm rounded-lg px-2 text-center font-semibold placeholder:text-[#76766f] focus:outline-none focus:ring-1 focus:ring-[#2a2a2a] transition-all duration-150"
-            style={{ width: "72px", minWidth: "72px", background: "#1a1a1a", border: "1px solid #2a2a2a", color: "#e8e8e2", fontFamily: MONO_FONT }}
+            className="h-9 text-sm rounded-lg px-2 text-center font-semibold placeholder:text-[#76766f] focus:outline-none focus:ring-1 focus:ring-[#322a24] transition-all duration-150"
+            style={{ width: "72px", minWidth: "72px", background: "#1e1814", border: "1px solid #322a24", color: "#e8e8e2", fontFamily: MONO_FONT }}
             value={showTimeValue}
             onChange={(e) => { setShowTimeValue(imeShowRef.current ? e.target.value : filterTimeInput(e.target.value)); }}
             onCompositionStart={() => { imeShowRef.current = true; clearTimeout(imeShowTimerRef.current); }}
@@ -823,17 +823,17 @@ export function PerformanceEditor({
       <div className="flex flex-1 min-h-0 w-full pt-6 pr-6">
 
       {/* LEFT: External display preview area.
-          Outer container is WARM GRAY (#141414). ONLY the 16:9 preview rectangle is pure BLACK.
+          Outer container is WARM GRAY (#181411). ONLY the 16:9 preview rectangle is pure BLACK.
           Explicit flex spacers center the preview; spacers + control bar inherit warm gray. */}
       <div
         className="flex flex-col shrink-0 w-1/2 h-full"
-        style={{ background: "#141414" }}
+        style={{ background: "#181411" }}
       >
         {/* Top spacer — warm gray */}
-        <div className="flex-1 min-h-[16px]" style={{ background: "#141414" }} />
+        <div className="flex-1 min-h-[16px]" style={{ background: "#181411" }} />
 
         {/* 16:9 preview rectangle — ONLY this is pure black, capped so it never overflows */}
-        <div className="px-6 w-full shrink-0" style={{ background: "#141414" }}>
+        <div className="px-6 w-full shrink-0" style={{ background: "#181411" }}>
           <div
             className="relative mx-auto"
             style={{
@@ -843,7 +843,7 @@ export function PerformanceEditor({
               maxHeight: "calc(100vh - 220px)",
               overflow: "hidden",
               borderRadius: "6px",
-              boxShadow: "0 8px 32px rgba(0,0,0,0.6), 0 0 0 1px #2a2a2a",
+              boxShadow: "0 8px 32px rgba(0,0,0,0.6), 0 0 0 1px #322a24",
             }}
           >
             {showingEventInfo ? (
@@ -883,7 +883,7 @@ export function PerformanceEditor({
         <div
           className="flex flex-wrap items-center justify-center gap-2 py-3 px-4 w-full shrink-0"
           style={{
-            background: "#141414",
+            background: "#181411",
             marginTop: "14px",
           }}
           data-testid="editor-control-bar"
@@ -891,7 +891,7 @@ export function PerformanceEditor({
           {/* Control pills — all flat PROMPTER-style: solid surface bg + warm border, no neon glow */}
           {countdownStatus === "running" && (
             <button onClick={onPause} className={ctrlBtnClass}
-              style={{ color: "#e8e8e2", background: "#1a1a1a", border: "1px solid #2a2a2a" }}
+              style={{ color: "#e8e8e2", background: "#1e1814", border: "1px solid #322a24" }}
               data-testid="editor-button-pause"
             >
               <Pause className="w-3.5 h-3.5" /> Pause
@@ -899,7 +899,7 @@ export function PerformanceEditor({
           )}
           {countdownStatus === "paused" && (
             <button onClick={onResume} className={ctrlBtnClass}
-              style={{ color: "#e8e8e2", background: "#1a1a1a", border: "1px solid #2a2a2a" }}
+              style={{ color: "#e8e8e2", background: "#1e1814", border: "1px solid #322a24" }}
               data-testid="editor-button-resume"
             >
               <Play className="w-3.5 h-3.5" /> Resume
@@ -907,7 +907,7 @@ export function PerformanceEditor({
           )}
           {(countdownStatus === "running" || countdownStatus === "paused") && (
             <button onClick={onStop} className={ctrlBtnClass}
-              style={{ color: "#a8a8a0", background: "#1a1a1a", border: "1px solid #2a2a2a" }}
+              style={{ color: "#a8a8a0", background: "#1e1814", border: "1px solid #322a24" }}
               data-testid="editor-button-stop"
             >
               <Square className="w-3.5 h-3.5" /> Stop
@@ -918,21 +918,21 @@ export function PerformanceEditor({
         </div>
 
         {/* Bottom spacer — warm gray (mirrors top spacer, centers the preview+controls) */}
-        <div className="flex-1 min-h-[16px]" style={{ background: "#141414" }} />
+        <div className="flex-1 min-h-[16px]" style={{ background: "#181411" }} />
       </div>
 
       {/* RIGHT: setlist editor (no center divider — the full-width strips bridge the two sides) */}
       <div
         className="flex-1 flex flex-col min-w-0"
         style={{
-          background: "#141414",
+          background: "#181411",
         }}
         onDrop={handleEditorDrop}
         onDragOver={handleEditorDragOver}
       >
 
         <div ref={editorScrollRef} className="flex-1 overflow-y-scroll min-h-0">
-          <div className="sticky top-0 z-20" style={{ background: "#141414" }}>
+          <div className="sticky top-0 z-20" style={{ background: "#181411" }}>
             {/* Concert Title + schedule times have been moved to the FULL-WIDTH top strip. */}
             <SongTableHeader showPlayButton showMidiColumn hideSubStartEnd />
           </div>
@@ -1000,8 +1000,8 @@ export function PerformanceEditor({
       <div
         className="shrink-0 w-full"
         style={{
-          borderTop: "1px solid #1e1e1e",
-          background: "#141414",
+          borderTop: "1px solid #221d18",
+          background: "#181411",
           height: 32,
           overflow: "hidden",
         }}

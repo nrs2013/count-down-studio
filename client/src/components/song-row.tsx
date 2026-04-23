@@ -306,10 +306,10 @@ export function SongRow({
       style={{
         ...sortableStyle,
         // Flat Claude-style: solid surface, lifted above warm gray canvas.
-        background: isCurrent ? "#2a1e28" : "#222222",
+        background: isCurrent ? "#2a1e28" : "#2a231e",
         borderRadius: "10px",
         marginBottom: "3px",
-        border: isCurrent ? "1px solid #c186c8" : "1px solid #2a2a2a",
+        border: isCurrent ? "1px solid #c186c8" : "1px solid #322a24",
         boxShadow: isCurrent
           ? "0 0 0 1px rgba(193,134,200,0.25)"
           : "none",
@@ -381,7 +381,7 @@ export function SongRow({
           className="shrink-0 w-7 h-7 rounded-full flex items-center justify-center transition-colors duration-150"
           style={{
             color: isCurrent ? "#0a0a08" : "#a8a8a0",
-            background: isCurrent ? "#c186c8" : "#2a2a2a",
+            background: isCurrent ? "#c186c8" : "#322a24",
             border: "none",
           }}
           onClick={() => onStartSong?.(index)}
@@ -505,9 +505,9 @@ export function SongRow({
                     boxShadow: "0 0 0 1px rgba(106,138,102,0.3)",
                   }
                 : {
-                    background: "#0a0a0a",
+                    background: "#0e0a08",
                     color: "#5a5a54",
-                    border: "1px solid #222222",
+                    border: "1px solid #2a231e",
                   }),
             }}
             onClick={() => {
@@ -561,11 +561,11 @@ export function SongRow({
           hasValue={song.midiNote !== null && song.midiNote !== undefined}
           testId={`${pid}-select-midi-${song.id}`}
         >
-          <option value="" style={{ background: "#141414", color: "rgba(255,255,255,0.5)" }}>No MIDI</option>
+          <option value="" style={{ background: "#181411", color: "rgba(255,255,255,0.5)" }}>No MIDI</option>
           {MIDI_NOTES_BY_NAME.map((group) => (
-            <optgroup key={group.noteName} label={`── ${group.noteName} ──`} style={{ background: "#1a1a1a", color: "rgba(255,255,255,0.5)", fontWeight: 700 }}>
+            <optgroup key={group.noteName} label={`── ${group.noteName} ──`} style={{ background: "#1e1814", color: "rgba(255,255,255,0.5)", fontWeight: 700 }}>
               {group.notes.map((n) => (
-                <option key={n.value} value={String(n.value)} style={{ background: "#141414", color: "rgba(255,255,255,0.9)", fontWeight: 400 }}>
+                <option key={n.value} value={String(n.value)} style={{ background: "#181411", color: "rgba(255,255,255,0.9)", fontWeight: 400 }}>
                   {n.label}
                 </option>
               ))}
@@ -578,7 +578,7 @@ export function SongRow({
         tabIndex={-1}
         className="shrink-0 w-5 h-5 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110"
         style={{ color: "transparent", background: "transparent" }}
-        onMouseEnter={(e) => { e.currentTarget.style.color = "#a8a8a0"; e.currentTarget.style.background = "#1a1a1a"; }}
+        onMouseEnter={(e) => { e.currentTarget.style.color = "#a8a8a0"; e.currentTarget.style.background = "#1e1814"; }}
         onMouseLeave={(e) => { e.currentTarget.style.color = "transparent"; e.currentTarget.style.background = "transparent"; }}
         onClick={() => {
           deleteSong.mutate({ id: song.id, setlistId }, {
@@ -643,7 +643,7 @@ export function AddSongButton({ onClick, disabled = false, variant = "full", tes
         className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase transition-all duration-300 disabled:opacity-40"
         style={{
           background: "transparent",
-          border: "1px dashed #2a2a2a",
+          border: "1px dashed #322a24",
           color: "#a8a8a0",
         }}
         data-testid={testId}
@@ -661,7 +661,7 @@ export function AddSongButton({ onClick, disabled = false, variant = "full", tes
       className="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg font-semibold text-sm tracking-wider uppercase transition-all duration-300 disabled:opacity-40"
       style={{
         background: "transparent",
-        border: "1px dashed #2a2a2a",
+        border: "1px dashed #322a24",
         color: "#a8a8a0",
       }}
       data-testid={testId}
@@ -690,7 +690,7 @@ export function AddMCButton({ onClick, disabled = false, variant = "full", testI
         className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase transition-all duration-300 disabled:opacity-40"
         style={{
           background: "transparent",
-          border: "1px dashed #2a2a2a",
+          border: "1px dashed #322a24",
           color: "#a8a8a0",
         }}
         data-testid={testId}
@@ -708,7 +708,7 @@ export function AddMCButton({ onClick, disabled = false, variant = "full", testI
       className="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg font-semibold text-sm tracking-wider uppercase transition-all duration-300 disabled:opacity-40"
       style={{
         background: "transparent",
-        border: "1px dashed #2a2a2a",
+        border: "1px dashed #322a24",
         color: "#a8a8a0",
       }}
       data-testid={testId}
@@ -737,7 +737,7 @@ export function AddSpecialButton({ onClick, disabled = false, variant = "full", 
         className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase transition-all duration-300 disabled:opacity-40"
         style={{
           background: "transparent",
-          border: "1px dashed #2a2a2a",
+          border: "1px dashed #322a24",
           color: "#a8a8a0",
         }}
         data-testid={testId}
@@ -755,7 +755,7 @@ export function AddSpecialButton({ onClick, disabled = false, variant = "full", 
       className="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg font-semibold text-sm tracking-wider uppercase transition-all duration-300 disabled:opacity-40"
       style={{
         background: "transparent",
-        border: "1px dashed #2a2a2a",
+        border: "1px dashed #322a24",
         color: "#a8a8a0",
       }}
       data-testid={testId}
@@ -784,7 +784,7 @@ export function AddEncoreButton({ onClick, disabled = false, variant = "full", t
         className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase transition-all duration-300 disabled:opacity-40"
         style={{
           background: "transparent",
-          border: "1px dashed #2a2a2a",
+          border: "1px dashed #322a24",
           color: "#a8a8a0",
         }}
         data-testid={testId}
@@ -802,7 +802,7 @@ export function AddEncoreButton({ onClick, disabled = false, variant = "full", t
       className="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg font-semibold text-sm tracking-wider uppercase transition-all duration-300 disabled:opacity-40"
       style={{
         background: "transparent",
-        border: "1px dashed #2a2a2a",
+        border: "1px dashed #322a24",
         color: "#a8a8a0",
       }}
       data-testid={testId}

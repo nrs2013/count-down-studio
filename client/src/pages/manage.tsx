@@ -933,7 +933,7 @@ export default function Manage() {
 
   if (outputOpen) {
     return (
-      <div className="flex flex-col h-full w-full bg-[#141414] overflow-hidden" data-testid="show-page">
+      <div className="flex flex-col h-full w-full bg-[#181411] overflow-hidden" data-testid="show-page">
         <div className="flex-1 min-h-0 overflow-hidden w-full">
           <PerformanceEditor
             songs={sortedSongs}
@@ -985,7 +985,7 @@ export default function Manage() {
       className="h-full flex flex-col relative pt-[4.5rem]"
       style={{
         fontFamily: UI_FONT,
-        background: "#141414", // warm gray canvas; header strip (deep black) creates contrast
+        background: "#181411", // warm gray canvas; header strip (deep black) creates contrast
       }}
       onDrop={handleFileDrop}
       onDragOver={handleFileDragOver}
@@ -997,8 +997,8 @@ export default function Manage() {
         className="fixed top-0 left-0 right-0 z-40 flex items-center"
         style={{
           height: 56,
-          background: "#141414",                      // deeper than canvas for strong anchor
-          borderBottom: "1px solid #2a2a2a",
+          background: "#181411",                      // deeper than canvas for strong anchor
+          borderBottom: "1px solid #322a24",
         }}
       >
         <button
@@ -1041,7 +1041,7 @@ export default function Manage() {
           className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none"
           style={{
             background: "rgba(100,100,90,0.06)",
-            border: "3px dashed #2a2a2a",
+            border: "3px dashed #322a24",
             borderRadius: "12px",
           }}
         >
@@ -1059,8 +1059,8 @@ export default function Manage() {
         <header
           className="px-3 py-2"
           style={{
-            borderBottom: "1px solid #2a2a2a",
-            background: "#141414",
+            borderBottom: "1px solid #322a24",
+            background: "#181411",
           }}
         >
           <div className="flex items-center gap-1.5 flex-wrap max-w-7xl mx-auto">
@@ -1165,7 +1165,7 @@ export default function Manage() {
             <div className="flex items-center gap-2 mb-3">
               <button
                 className="w-8 h-8 rounded-full flex items-center justify-center text-white/30 transition-all duration-200 disabled:opacity-20"
-                style={{ background: "#141414", border: "1px solid #1e1e1e" }}
+                style={{ background: "#181411", border: "1px solid #221d18" }}
                 disabled={currentSetlistIndex <= 0}
                 onClick={goToPrevSetlist}
                 data-testid="button-prev-setlist"
@@ -1177,7 +1177,7 @@ export default function Manage() {
               </span>
               <button
                 className="w-8 h-8 rounded-full flex items-center justify-center text-white/30 transition-all duration-200 disabled:opacity-20"
-                style={{ background: "#141414", border: "1px solid #1e1e1e" }}
+                style={{ background: "#181411", border: "1px solid #221d18" }}
                 disabled={currentSetlistIndex >= setlists.length - 1}
                 onClick={goToNextSetlist}
                 data-testid="button-next-setlist"

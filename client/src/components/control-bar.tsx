@@ -28,15 +28,15 @@ export function ControlBar({
       <div
         className="flex items-center gap-1 rounded-full px-2 py-1"
         style={{
-          background: "#1a1a1a",
-          border: "1px solid #2a2a2a",
+          background: "#1e1814",
+          border: "1px solid #322a24",
         }}
       >
         {status === "running" && (
           <button
             onClick={onPause}
             className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-medium tracking-wider uppercase transition-colors duration-200"
-            style={{ background: "#2a2a2a", color: "#a8a8a0" }}
+            style={{ background: "#322a24", color: "#a8a8a0" }}
             data-testid="button-pause"
           >
             <Pause className="w-3.5 h-3.5" />
@@ -48,7 +48,7 @@ export function ControlBar({
           <button
             onClick={onResume}
             className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-medium tracking-wider uppercase transition-colors duration-200"
-            style={{ background: "#2a2a2a", color: "#a8a8a0" }}
+            style={{ background: "#322a24", color: "#a8a8a0" }}
             data-testid="button-resume"
           >
             <Play className="w-3.5 h-3.5" />
@@ -72,7 +72,7 @@ export function ControlBar({
           <button
             onClick={onNext}
             className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-medium tracking-wider uppercase transition-colors duration-200"
-            style={{ background: "#2a2a2a", color: "#a8a8a0" }}
+            style={{ background: "#322a24", color: "#a8a8a0" }}
             data-testid="button-next"
           >
             <SkipForward className="w-3.5 h-3.5" />

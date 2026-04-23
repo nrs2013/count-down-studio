@@ -269,7 +269,7 @@ function InlineSongCard({
       <div className="flex items-center gap-1.5">
         <div
           className="flex-shrink-0 cursor-grab active:cursor-grabbing touch-none self-stretch flex items-center"
-          style={{ color: "#2a2a2a" }}
+          style={{ color: "#322a24" }}
           onClick={(e) => e.stopPropagation()}
           {...attributes}
           {...listeners}
@@ -429,9 +429,9 @@ function InlineSongCard({
                           boxShadow: "0 0 6px rgba(34,197,94,0.15)",
                         }
                       : {
-                          background: "#141414",
+                          background: "#181411",
                           color: "rgba(255,255,255,0.15)",
-                          border: "1px solid #1e1e1e",
+                          border: "1px solid #221d18",
                         }),
                   }}
                   onClick={(e) => {
@@ -875,8 +875,8 @@ export function SetlistPanel({
       <div
         className="px-3 py-3 relative"
         style={{
-          borderBottom: "1px solid #2a2a2a",
-          background: "#141414",
+          borderBottom: "1px solid #322a24",
+          background: "#181411",
         }}
       >
         <div className="flex items-center gap-2 mb-1">
@@ -922,8 +922,8 @@ export function SetlistPanel({
             type="text"
             className="flex-1 min-w-0 h-9 text-sm rounded-lg text-white px-3 font-semibold placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-fuchsia-500/50 transition-all duration-200"
             style={{
-              background: "#1a1a1a",
-              border: "1px solid #2a2a2a",
+              background: "#1e1814",
+              border: "1px solid #322a24",
             }}
             value={setlistNameValue}
             onChange={(e) => { if (setlist) setSetlistNameValue(e.target.value); }}
@@ -942,7 +942,7 @@ export function SetlistPanel({
             type="text"
             inputMode="numeric"
             className="h-9 text-sm rounded-lg text-white px-2 text-center font-semibold placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-green-500/40 transition-all duration-200"
-            style={{ width: "72px", minWidth: "72px", background: "#1a1a1a", border: "1px solid #2a2a2a" }}
+            style={{ width: "72px", minWidth: "72px", background: "#1e1814", border: "1px solid #322a24" }}
             value={rehearsalValue}
             onChange={(e) => { setRehearsalValue(imeRehearsalRef.current ? e.target.value : filterTimeInput(e.target.value)); }}
             onCompositionStart={() => { imeRehearsalRef.current = true; clearTimeout(imeRehearsalTimerRef.current); }}
@@ -957,7 +957,7 @@ export function SetlistPanel({
             type="text"
             inputMode="numeric"
             className="h-9 text-sm rounded-lg text-white px-2 text-center font-semibold placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-amber-500/40 transition-all duration-200"
-            style={{ width: "72px", minWidth: "72px", background: "#1a1a1a", border: "1px solid #2a2a2a" }}
+            style={{ width: "72px", minWidth: "72px", background: "#1e1814", border: "1px solid #322a24" }}
             value={doorOpenValue}
             onChange={(e) => { setDoorOpenValue(imeDoorRef.current ? e.target.value : filterTimeInput(e.target.value)); }}
             onCompositionStart={() => { imeDoorRef.current = true; clearTimeout(imeDoorTimerRef.current); }}
@@ -972,7 +972,7 @@ export function SetlistPanel({
             type="text"
             inputMode="numeric"
             className="h-9 text-sm rounded-lg text-white px-2 text-center font-semibold placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-cyan-500/40 transition-all duration-200"
-            style={{ width: "72px", minWidth: "72px", background: "#1a1a1a", border: "1px solid #2a2a2a" }}
+            style={{ width: "72px", minWidth: "72px", background: "#1e1814", border: "1px solid #322a24" }}
             value={showTimeValue}
             onChange={(e) => { setShowTimeValue(imeShowRef.current ? e.target.value : filterTimeInput(e.target.value)); }}
             onCompositionStart={() => { imeShowRef.current = true; clearTimeout(imeShowTimerRef.current); }}
