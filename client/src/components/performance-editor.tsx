@@ -40,6 +40,99 @@ import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
 // ==================================================================
+// OvertureElapsedDisplay: tracks minutes/seconds since the first song started.
+// Starts the clock when countdownStatus first transitions to "running".
+// Reset button clears it manually.
+// ==================================================================
+function OvertureElapsedDisplay({ countdownStatus }: { countdownStatus: CountdownStatus }) {
+  const [startedAt, setStartedAt] = useState<number | null>(null);
+  const [now, setNow] = useState(Date.now());
+
+  useEffect(() => {
+    if (countdownStatus === "running" && startedAt === null) {
+      setStartedAt(Date.now());
+    }
+  }, [countdownStatus, startedAt]);
+
+  useEffect(() => {
+    if (startedAt === null) return;
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [startedAt]);
+
+  const elapsed = startedAt ? Math.floor((now - startedAt) / 1000) : 0;
+  const hh = Math.floor(elapsed / 3600);
+  const mm = Math.floor((elapsed % 3600) / 60);
+  const ss = elapsed % 60;
+  const formatted = hh > 0
+    ? `${hh}:${String(mm).padStart(2, "0")}:${String(ss).padStart(2, "0")}`
+    : `${String(mm).padStart(2, "0")}:${String(ss).padStart(2, "0")}`;
+
+  const isRunning = startedAt !== null;
+
+  return (
+    <div
+      className="flex items-center justify-between w-full gap-3"
+      style={{
+        minHeight: 60,
+        padding: "10px 16px",
+        borderRadius: 3,
+        border: "1px solid #2c2a27",
+        background: "#1c1b19",
+        marginTop: 8,
+      }}
+      data-testid="overture-elapsed-display"
+    >
+      <span
+        style={{
+          fontFamily: "'Bebas Neue', Impact, 'Arial Narrow', sans-serif",
+          fontSize: 14,
+          fontWeight: 700,
+          letterSpacing: "0.18em",
+          color: isRunning ? "#a8a8a0" : "#5a5a54",
+        }}
+      >
+        OVERTURE
+      </span>
+      <span
+        style={{
+          fontFamily: "'JetBrains Mono', 'Menlo', monospace",
+          fontSize: 28,
+          fontWeight: 900,
+          letterSpacing: "0.02em",
+          color: isRunning ? "#e8b04a" : "#5a5a54",
+          lineHeight: 1,
+          flex: 1,
+          textAlign: "center",
+        }}
+      >
+        {formatted}
+      </span>
+      <button
+        onClick={() => setStartedAt(null)}
+        disabled={!isRunning}
+        style={{
+          fontFamily: "'Bebas Neue', Impact, 'Arial Narrow', sans-serif",
+          fontSize: 11,
+          fontWeight: 700,
+          letterSpacing: "0.15em",
+          color: isRunning ? "#a8a8a0" : "#3a3a35",
+          background: isRunning ? "#222220" : "transparent",
+          border: isRunning ? "1px solid #2c2a27" : "1px solid transparent",
+          padding: "4px 10px",
+          borderRadius: 2,
+          cursor: isRunning ? "pointer" : "not-allowed",
+        }}
+        title="Reset overture timer"
+        data-testid="button-reset-overture"
+      >
+        RESET
+      </button>
+    </div>
+  );
+}
+
+// ==================================================================
 // LiveMidiBigDisplay: left half = MIDI ON/OFF toggle,
 // right half = incoming MIDI signal (large readout when ON).
 // ==================================================================
@@ -821,8 +914,7 @@ export function PerformanceEditor({
         className="flex flex-col shrink-0 w-1/2 h-full"
         style={{ background: "#1a1918" }}
       >
-        {/* Top spacer — warm gray */}
-        <div className="flex-1 min-h-[16px]" style={{ background: "#1a1918" }} />
+        {/* No top spacer — preview aligns with row 1 on the right side */}
 
         {/* 16:9 preview rectangle — ONLY this is pure black, capped so it never overflows */}
         <div className="px-6 w-full shrink-0" style={{ background: "#1a1918" }}>
@@ -878,7 +970,6 @@ export function PerformanceEditor({
           style={{
             background: "#1a1918",
             marginTop: "14px",
-            minHeight: 148,
           }}
           data-testid="editor-control-bar"
         >
@@ -930,6 +1021,8 @@ export function PerformanceEditor({
             enabled={midiEnabled}
             onToggle={() => onToggleMidi?.()}
           />
+          {/* Overture elapsed timer — starts when first song begins */}
+          <OvertureElapsedDisplay countdownStatus={countdownStatus} />
         </div>
 
         {/* Bottom spacer — warm gray (mirrors top spacer, centers the preview+controls) */}
