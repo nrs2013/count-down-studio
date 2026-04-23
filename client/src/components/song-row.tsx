@@ -485,7 +485,7 @@ export function SongRow({
             onFocusField={() => { if (!song.xTime) focusedFieldRef.current = "duration"; }}
             placeholder="0:00"
             testId={`${pid}-input-duration-${song.id}`}
-            color={song.xTime ? "#b8d9b0" : "#e8b04a"}
+            color={song.xTime ? "#7ed472" : "#e8b04a"}
             disabled={song.xTime}
           />
 
@@ -500,14 +500,15 @@ export function SongRow({
               height: "38px",
               ...(song.xTime
                 ? {
-                    background: "rgba(106,138,102,0.15)",
-                    color: "#9ec29a",
-                    border: "1px solid rgba(106,138,102,0.4)",
+                    background: "#5a8056",
+                    color: "#0a0a08",
+                    border: "1px solid #7aa876",
+                    boxShadow: "0 0 0 1px rgba(106,138,102,0.3)",
                   }
                 : {
-                    background: "#323230",
-                    color: "#76766f",
-                    border: "1px solid #46463f",
+                    background: "#1c1c1a",
+                    color: "#5a5a54",
+                    border: "1px solid #3a3a35",
                   }),
             }}
             onClick={() => {
