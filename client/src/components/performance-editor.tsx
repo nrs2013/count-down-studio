@@ -75,26 +75,26 @@ function TotalTimeAndClockDisplay({ countdownStatus }: { countdownStatus: Countd
 
   const panelStyle: React.CSSProperties = {
     flex: 1,
-    minHeight: 60,
-    padding: "10px 16px",
+    minHeight: 80,
+    padding: "14px 20px",
     borderRadius: 3,
     border: "1px solid #2c2a27",
     background: "#1c1b19",
     display: "flex",
     alignItems: "center",
-    gap: 12,
+    gap: 14,
   };
 
   const labelStyle: React.CSSProperties = {
     fontFamily: "'Bebas Neue', Impact, 'Arial Narrow', sans-serif",
-    fontSize: 13,
+    fontSize: 18,
     fontWeight: 700,
     letterSpacing: "0.18em",
   };
 
   const valueStyle: React.CSSProperties = {
     fontFamily: "'JetBrains Mono', 'Menlo', monospace",
-    fontSize: 24,
+    fontSize: 40,
     fontWeight: 900,
     letterSpacing: "0.02em",
     lineHeight: 1,
