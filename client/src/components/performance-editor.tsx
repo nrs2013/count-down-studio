@@ -598,9 +598,9 @@ export function PerformanceEditor({
 
   return (
     <div className="flex flex-col h-full w-full" style={{
-      background: "#262624",
+      background: "#1f1f1d",
       backgroundImage:
-        "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(193,134,200,0.06), transparent 70%), radial-gradient(ellipse 90% 70% at 50% 100%, rgba(60,40,70,0.09), transparent 60%)",
+        "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(193,134,200,0.08), transparent 65%), radial-gradient(ellipse 90% 70% at 50% 100%, rgba(60,40,70,0.12), transparent 60%)",
     }} data-testid="performance-editor">
       {/* ===== FULL-WIDTH TOP STRIP: COUNT DOWN STUDIO logo + wordmark (click → home) ===== */}
       <div

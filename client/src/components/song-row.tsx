@@ -305,17 +305,17 @@ export function SongRow({
       className={`flex items-center gap-1 ${isCompactRow ? "py-0.5" : "py-1.5"} px-2 transition-all duration-200 group`}
       style={{
         ...sortableStyle,
-        // Claude-style: subtle top-to-bottom gradient creates depth (not flat).
-        // Active: rich purple tint gradient + accent border.
+        // Claude-style: strong top-to-bottom gradient for depth.
+        // Top is lit, bottom sinks into shadow → clear elevation off the dark bg.
         background: isCurrent
-          ? "linear-gradient(180deg, rgba(193,134,200,0.16) 0%, rgba(193,134,200,0.08) 100%), #323230"
-          : "linear-gradient(180deg, #363634 0%, #2e2e2c 100%)",
+          ? "linear-gradient(180deg, rgba(193,134,200,0.22) 0%, rgba(193,134,200,0.08) 100%), linear-gradient(180deg, #3a3a38 0%, #2c2c2a 100%)"
+          : "linear-gradient(180deg, #3c3c39 0%, #282826 100%)",
         borderRadius: "10px",
         marginBottom: "6px",
-        border: isCurrent ? "1px solid #c186c8" : "1px solid #46463f",
+        border: isCurrent ? "1px solid #c186c8" : "1px solid #4a4a43",
         boxShadow: isCurrent
-          ? "0 0 0 1px rgba(193,134,200,0.18), 0 4px 12px rgba(0,0,0,0.3), 0 1px 0 rgba(255,255,255,0.04) inset"
-          : "0 1px 2px rgba(0,0,0,0.25), 0 1px 0 rgba(255,255,255,0.03) inset",
+          ? "0 0 0 1px rgba(193,134,200,0.25), 0 6px 18px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.07) inset"
+          : "0 3px 8px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.06) inset",
       }}
       data-testid={`${pid}-song-${song.id}`}
       data-song-row=""
@@ -331,7 +331,8 @@ export function SongRow({
         <GripVertical className="w-3.5 h-3.5" />
       </div>
 
-      {/* Category badge for MC/SP/EN — muted colored tint (distinguishable at a glance, not neon) */}
+      {/* Category badge for MC/SP/EN — muted colored tint (distinguishable at a glance, not neon).
+          Width locked to 30px to match the song number box → input fields stay aligned. */}
       {(isEncore || isMC || isEvent) ? (
         <span
           className="text-center shrink-0 flex items-center justify-center"
@@ -339,21 +340,22 @@ export function SongRow({
             fontFamily: MONO_FONT,
             fontSize: "10px",
             fontWeight: 900,
-            letterSpacing: "0.10em",
+            letterSpacing: "0.05em",
             color: isEncore ? "#9ec29a" : isMC ? "#9cc4d8" : "#d4b886",
             background: isEncore
-              ? "rgba(106,138,102,0.18)"
+              ? "rgba(106,138,102,0.2)"
               : isMC
-              ? "rgba(106,150,184,0.18)"
-              : "rgba(184,149,88,0.18)",
+              ? "rgba(106,150,184,0.2)"
+              : "rgba(184,149,88,0.2)",
             border: isEncore
-              ? "1px solid rgba(106,138,102,0.4)"
+              ? "1px solid rgba(106,138,102,0.45)"
               : isMC
-              ? "1px solid rgba(106,150,184,0.4)"
-              : "1px solid rgba(184,149,88,0.4)",
+              ? "1px solid rgba(106,150,184,0.45)"
+              : "1px solid rgba(184,149,88,0.45)",
             borderRadius: "5px",
-            padding: "3px 7px",
-            minWidth: 28,
+            padding: "3px 0",
+            width: 30, minWidth: 30, maxWidth: 30,
+            lineHeight: 1,
           }}
           data-testid={`text-song-index-${song.id}`}
         >
@@ -361,13 +363,15 @@ export function SongRow({
         </span>
       ) : (
         <span
-          className="text-center shrink-0"
+          className="text-center shrink-0 flex items-center justify-center"
           style={{
             fontFamily: MONO_FONT,
             fontSize: "12px",
             fontWeight: 700,
             color: isCurrent ? "#c186c8" : "#76766f",
-            width: 22, minWidth: 22, maxWidth: 22,
+            width: 30, minWidth: 30, maxWidth: 30,
+            height: 22,
+            lineHeight: 1,
           }}
           data-testid={`text-song-index-${song.id}`}
         >
