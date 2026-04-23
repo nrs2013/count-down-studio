@@ -73,8 +73,8 @@ export const MIDI_NOTES_BY_NAME: { noteName: string; notes: { value: number; lab
 // Claude-style: inputs are "pressed into" the card surface (darker than card).
 // Gives clear visual hierarchy: card raised, input sunken.
 export const INPUT_STYLES = {
-  border: "1px solid #3a3833",
-  background: "#2a2825",                // warm medium-gray — distinctly not black, reads as a gentle inset next to #242320 card
+  border: "1px solid #33302c",
+  background: "#242220",                // warm gray, a touch below the #242320 card — gentle depth, no black hole
   glowFocused: (accent: string) => {
     const match = accent.match(/rgba\(([^)]+)\)/);
     if (match) {
