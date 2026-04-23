@@ -997,7 +997,7 @@ export default function Manage() {
         className="fixed top-0 left-0 right-0 z-40 flex items-center"
         style={{
           height: 56,
-          background: "#2e2e2b",                      // deeper than canvas for strong anchor
+          background: "#262624",                      // deeper than canvas for strong anchor
           borderBottom: "1px solid #46463f",
         }}
       >
@@ -1060,7 +1060,7 @@ export default function Manage() {
           className="px-3 py-2"
           style={{
             borderBottom: "1px solid #46463f",
-            background: "#2e2e2b",
+            background: "#262624",
           }}
         >
           <div className="flex items-center gap-1.5 flex-wrap max-w-7xl mx-auto">
@@ -1165,7 +1165,7 @@ export default function Manage() {
             <div className="flex items-center gap-2 mb-3">
               <button
                 className="w-8 h-8 rounded-full flex items-center justify-center text-white/30 transition-all duration-200 disabled:opacity-20"
-                style={{ background: "#2e2e2b", border: "1px solid #3d3d3a" }}
+                style={{ background: "#262624", border: "1px solid #3d3d3a" }}
                 disabled={currentSetlistIndex <= 0}
                 onClick={goToPrevSetlist}
                 data-testid="button-prev-setlist"
@@ -1177,7 +1177,7 @@ export default function Manage() {
               </span>
               <button
                 className="w-8 h-8 rounded-full flex items-center justify-center text-white/30 transition-all duration-200 disabled:opacity-20"
-                style={{ background: "#2e2e2b", border: "1px solid #3d3d3a" }}
+                style={{ background: "#262624", border: "1px solid #3d3d3a" }}
                 disabled={currentSetlistIndex >= setlists.length - 1}
                 onClick={goToNextSetlist}
                 data-testid="button-next-setlist"
