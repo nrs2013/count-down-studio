@@ -683,103 +683,16 @@ export function PerformanceEditor({
       backgroundImage:
         "radial-gradient(ellipse 70% 50% at 50% 0%, rgba(193,134,200,0.08), transparent 60%), radial-gradient(ellipse 80% 60% at 50% 100%, rgba(60,40,70,0.1), transparent 60%)",
     }} data-testid="performance-editor">
-      {/* ===== FULL-WIDTH TOP STRIP: CD logo + wordmark (left) / SAVE + IMPORT (right) ===== */}
+      {/* ===== COMPACT HEADER: Concert Title + schedule + SAVE/IMPORT (one row) =====
+          Reserve right padding for ModeTabBar (fixed topbar on the right in App.tsx). */}
       <div
-        className="shrink-0 flex items-center justify-between px-4 w-full"
+        className="shrink-0 w-full px-4 py-2"
         style={{
           background: "#1a1918",
-          height: 56,
+          paddingRight: 260,
         }}
       >
-        <button
-          className="flex items-center gap-3 transition-opacity duration-150 hover:opacity-80"
-          style={{ background: "transparent", border: "none", cursor: "pointer" }}
-          onClick={() => navigate("/")}
-          title="ホームに戻る"
-          data-testid="button-home-show"
-        >
-          {/* Solid fuchsia logo square (PROMPTER-style, no glow) */}
-          <div
-            style={{
-              width: 30,
-              height: 30,
-              borderRadius: 2,
-              background: "#c186c8",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-            }}
-          >
-            <span style={{ fontSize: 14, fontFamily: "'Helvetica Neue','Inter',sans-serif", fontWeight: 900, color: "#0a0a08", lineHeight: 1, letterSpacing: "-0.03em" }}>CD</span>
-          </div>
-          {/* Wordmark: **COUNT DOWN** STUDIO */}
-          <div style={{ lineHeight: 1, textAlign: "left" }}>
-            <div style={{ fontSize: 14, fontFamily: "'Helvetica Neue','Inter',sans-serif", letterSpacing: "0.03em", color: "#e8e8e2" }}>
-              <b style={{ fontWeight: 800, color: "#c186c8" }}>COUNT DOWN</b>
-              <span style={{ fontWeight: 300, marginLeft: 6 }}>STUDIO</span>
-            </div>
-            <div style={{ fontSize: 9, color: "#76766f", letterSpacing: "0.22em", marginTop: 3, fontWeight: 700, textTransform: "uppercase" }}>
-              Concert Countdown Timer
-            </div>
-          </div>
-        </button>
-
-        {/* Right side: SAVE + IMPORT shortcut buttons */}
         <div className="flex items-center gap-2">
-          <button
-            onClick={handleExport}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold tracking-wider uppercase transition-colors duration-150"
-            style={{ color: "#a8a8a0", background: "#1c1b19", border: "1px solid #2c2a27" }}
-            data-testid="editor-button-save-top"
-            title="Save setlist"
-          >
-            <Download className="w-3.5 h-3.5" /> Save
-          </button>
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold tracking-wider uppercase transition-colors duration-150"
-            style={{ color: "#a8a8a0", background: "#1c1b19", border: "1px solid #2c2a27" }}
-            data-testid="editor-button-import-top"
-            title="Import setlist"
-          >
-            <Upload className="w-3.5 h-3.5" /> Import
-          </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".json,.scd"
-            className="hidden"
-            onChange={handleImportInput}
-            data-testid="editor-file-input"
-          />
-        </div>
-      </div>
-
-      {/* ===== FULL-WIDTH SECOND STRIP: Concert Title + REHEARSAL / DOOR OPEN / SHOW TIME =====
-          Spans entire width so the concert schedule lives at the top, unified across L/R. */}
-      <div
-        className="shrink-0 w-full px-4 pt-2 pb-3"
-        style={{
-          background: "#1a1918",
-        }}
-      >
-        <div className="flex items-center gap-3 mb-1.5">
-          <div className="w-9 shrink-0" />
-          <span className="flex-1 text-[11px] uppercase font-bold"
-            style={{ fontFamily: UI_FONT, letterSpacing: "0.15em", color: "#c186c8" }}
-          >Concert Title</span>
-          <span className="text-[11px] uppercase font-bold text-center"
-            style={{ fontFamily: UI_FONT, letterSpacing: "0.15em", color: "#a8a8a0", width: "72px", minWidth: "72px" }}
-          >REHEARSAL</span>
-          <span className="text-[11px] uppercase font-bold text-center"
-            style={{ fontFamily: UI_FONT, letterSpacing: "0.15em", color: "#a8a8a0", width: "72px", minWidth: "72px" }}
-          >DOOR OPEN</span>
-          <span className="text-[11px] uppercase font-bold text-center"
-            style={{ fontFamily: UI_FONT, letterSpacing: "0.15em", color: "#a8a8a0", width: "72px", minWidth: "72px" }}
-          >SHOW TIME</span>
-        </div>
-        <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={toggleEventInfo}
@@ -810,58 +723,96 @@ export function PerformanceEditor({
             placeholder="Concert Title"
             data-testid="editor-input-setlist-name"
           />
+          {/* REHEARSAL */}
+          <div className="flex flex-col items-center shrink-0" style={{ width: "72px" }}>
+            <span className="text-[9px] uppercase font-bold leading-none mb-1" style={{ fontFamily: UI_FONT, letterSpacing: "0.12em", color: "#a8a8a0" }}>REHEARSAL</span>
+            <input
+              type="text"
+              inputMode="numeric"
+              className="w-full h-8 text-sm rounded-sm px-2 text-center font-semibold placeholder:text-[#76766f] focus:outline-none focus:ring-1 focus:ring-[#2c2a27] transition-all duration-150"
+              style={{ background: "#1c1b19", border: "1px solid #2c2a27", color: "#e8e8e2", fontFamily: MONO_FONT }}
+              value={rehearsalValue}
+              onChange={(e) => { setRehearsalValue(imeRehearsalRef.current ? e.target.value : filterTimeInput(e.target.value)); }}
+              onCompositionStart={() => { imeRehearsalRef.current = true; clearTimeout(imeRehearsalTimerRef.current); }}
+              onCompositionEnd={(e) => { clearTimeout(imeRehearsalTimerRef.current); imeRehearsalTimerRef.current = setTimeout(() => { imeRehearsalRef.current = false; }, 300); setRehearsalValue(filterTimeInput((e.target as HTMLInputElement).value)); }}
+              onFocus={() => { rehearsalFocusedRef.current = true; }}
+              onBlur={commitRehearsal}
+              onKeyDown={(e) => { if (e.nativeEvent.isComposing || e.keyCode === 229 || imeRehearsalRef.current) return; if (e.key === "Enter") { e.preventDefault(); commitRehearsal(); } }}
+              placeholder="00:00"
+              data-testid="editor-input-rehearsal"
+            />
+          </div>
+          {/* DOOR OPEN */}
+          <div className="flex flex-col items-center shrink-0" style={{ width: "72px" }}>
+            <span className="text-[9px] uppercase font-bold leading-none mb-1" style={{ fontFamily: UI_FONT, letterSpacing: "0.12em", color: "#a8a8a0" }}>DOOR OPEN</span>
+            <input
+              type="text"
+              inputMode="numeric"
+              className="w-full h-8 text-sm rounded-sm px-2 text-center font-semibold placeholder:text-[#76766f] focus:outline-none focus:ring-1 focus:ring-[#2c2a27] transition-all duration-150"
+              style={{ background: "#1c1b19", border: "1px solid #2c2a27", color: "#e8e8e2", fontFamily: MONO_FONT }}
+              value={doorOpenValue}
+              onChange={(e) => { setDoorOpenValue(imeDoorRef.current ? e.target.value : filterTimeInput(e.target.value)); }}
+              onCompositionStart={() => { imeDoorRef.current = true; clearTimeout(imeDoorTimerRef.current); }}
+              onCompositionEnd={(e) => { clearTimeout(imeDoorTimerRef.current); imeDoorTimerRef.current = setTimeout(() => { imeDoorRef.current = false; }, 300); setDoorOpenValue(filterTimeInput((e.target as HTMLInputElement).value)); }}
+              onFocus={() => { doorOpenFocusedRef.current = true; }}
+              onBlur={commitDoorOpen}
+              onKeyDown={(e) => { if (e.nativeEvent.isComposing || e.keyCode === 229 || imeDoorRef.current) return; if (e.key === "Enter") { e.preventDefault(); commitDoorOpen(); } }}
+              placeholder="00:00"
+              data-testid="editor-input-door-open"
+            />
+          </div>
+          {/* SHOW START (renamed from SHOW TIME) */}
+          <div className="flex flex-col items-center shrink-0" style={{ width: "72px" }}>
+            <span className="text-[9px] uppercase font-bold leading-none mb-1" style={{ fontFamily: UI_FONT, letterSpacing: "0.12em", color: "#a8a8a0" }}>SHOW START</span>
+            <input
+              type="text"
+              inputMode="numeric"
+              className="w-full h-8 text-sm rounded-sm px-2 text-center font-semibold placeholder:text-[#76766f] focus:outline-none focus:ring-1 focus:ring-[#2c2a27] transition-all duration-150"
+              style={{ background: "#1c1b19", border: "1px solid #2c2a27", color: "#e8e8e2", fontFamily: MONO_FONT }}
+              value={showTimeValue}
+              onChange={(e) => { setShowTimeValue(imeShowRef.current ? e.target.value : filterTimeInput(e.target.value)); }}
+              onCompositionStart={() => { imeShowRef.current = true; clearTimeout(imeShowTimerRef.current); }}
+              onCompositionEnd={(e) => { clearTimeout(imeShowTimerRef.current); imeShowTimerRef.current = setTimeout(() => { imeShowRef.current = false; }, 300); setShowTimeValue(filterTimeInput((e.target as HTMLInputElement).value)); }}
+              onFocus={() => { showTimeFocusedRef.current = true; }}
+              onBlur={commitShowTime}
+              onKeyDown={(e) => { if (e.nativeEvent.isComposing || e.keyCode === 229 || imeShowRef.current) return; if (e.key === "Enter") { e.preventDefault(); commitShowTime(); } }}
+              placeholder="00:00"
+              data-testid="editor-input-show-time"
+            />
+          </div>
+          {/* SAVE + IMPORT buttons */}
+          <button
+            onClick={handleExport}
+            className="flex items-center gap-1.5 px-3 h-9 rounded-sm text-[11px] font-bold tracking-wider uppercase transition-colors duration-150 shrink-0"
+            style={{ fontFamily: HEADER_FONT, color: "#a8a8a0", background: "#1c1b19", border: "1px solid #2c2a27" }}
+            data-testid="editor-button-save-top"
+            title="Save setlist"
+          >
+            <Download className="w-3.5 h-3.5" /> Save
+          </button>
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="flex items-center gap-1.5 px-3 h-9 rounded-sm text-[11px] font-bold tracking-wider uppercase transition-colors duration-150 shrink-0"
+            style={{ fontFamily: HEADER_FONT, color: "#a8a8a0", background: "#1c1b19", border: "1px solid #2c2a27" }}
+            data-testid="editor-button-import-top"
+            title="Import setlist"
+          >
+            <Upload className="w-3.5 h-3.5" /> Import
+          </button>
           <input
-            type="text"
-            inputMode="numeric"
-            className="h-9 text-sm rounded-sm px-2 text-center font-semibold placeholder:text-[#76766f] focus:outline-none focus:ring-1 focus:ring-[#2c2a27] transition-all duration-150"
-            style={{ width: "72px", minWidth: "72px", background: "#1c1b19", border: "1px solid #2c2a27", color: "#e8e8e2", fontFamily: MONO_FONT }}
-            value={rehearsalValue}
-            onChange={(e) => { setRehearsalValue(imeRehearsalRef.current ? e.target.value : filterTimeInput(e.target.value)); }}
-            onCompositionStart={() => { imeRehearsalRef.current = true; clearTimeout(imeRehearsalTimerRef.current); }}
-            onCompositionEnd={(e) => { clearTimeout(imeRehearsalTimerRef.current); imeRehearsalTimerRef.current = setTimeout(() => { imeRehearsalRef.current = false; }, 300); setRehearsalValue(filterTimeInput((e.target as HTMLInputElement).value)); }}
-            onFocus={() => { rehearsalFocusedRef.current = true; }}
-            onBlur={commitRehearsal}
-            onKeyDown={(e) => { if (e.nativeEvent.isComposing || e.keyCode === 229 || imeRehearsalRef.current) return; if (e.key === "Enter") { e.preventDefault(); commitRehearsal(); } }}
-            placeholder="00:00"
-            data-testid="editor-input-rehearsal"
-          />
-          <input
-            type="text"
-            inputMode="numeric"
-            className="h-9 text-sm rounded-sm px-2 text-center font-semibold placeholder:text-[#76766f] focus:outline-none focus:ring-1 focus:ring-[#2c2a27] transition-all duration-150"
-            style={{ width: "72px", minWidth: "72px", background: "#1c1b19", border: "1px solid #2c2a27", color: "#e8e8e2", fontFamily: MONO_FONT }}
-            value={doorOpenValue}
-            onChange={(e) => { setDoorOpenValue(imeDoorRef.current ? e.target.value : filterTimeInput(e.target.value)); }}
-            onCompositionStart={() => { imeDoorRef.current = true; clearTimeout(imeDoorTimerRef.current); }}
-            onCompositionEnd={(e) => { clearTimeout(imeDoorTimerRef.current); imeDoorTimerRef.current = setTimeout(() => { imeDoorRef.current = false; }, 300); setDoorOpenValue(filterTimeInput((e.target as HTMLInputElement).value)); }}
-            onFocus={() => { doorOpenFocusedRef.current = true; }}
-            onBlur={commitDoorOpen}
-            onKeyDown={(e) => { if (e.nativeEvent.isComposing || e.keyCode === 229 || imeDoorRef.current) return; if (e.key === "Enter") { e.preventDefault(); commitDoorOpen(); } }}
-            placeholder="00:00"
-            data-testid="editor-input-door-open"
-          />
-          <input
-            type="text"
-            inputMode="numeric"
-            className="h-9 text-sm rounded-sm px-2 text-center font-semibold placeholder:text-[#76766f] focus:outline-none focus:ring-1 focus:ring-[#2c2a27] transition-all duration-150"
-            style={{ width: "72px", minWidth: "72px", background: "#1c1b19", border: "1px solid #2c2a27", color: "#e8e8e2", fontFamily: MONO_FONT }}
-            value={showTimeValue}
-            onChange={(e) => { setShowTimeValue(imeShowRef.current ? e.target.value : filterTimeInput(e.target.value)); }}
-            onCompositionStart={() => { imeShowRef.current = true; clearTimeout(imeShowTimerRef.current); }}
-            onCompositionEnd={(e) => { clearTimeout(imeShowTimerRef.current); imeShowTimerRef.current = setTimeout(() => { imeShowRef.current = false; }, 300); setShowTimeValue(filterTimeInput((e.target as HTMLInputElement).value)); }}
-            onFocus={() => { showTimeFocusedRef.current = true; }}
-            onBlur={commitShowTime}
-            onKeyDown={(e) => { if (e.nativeEvent.isComposing || e.keyCode === 229 || imeShowRef.current) return; if (e.key === "Enter") { e.preventDefault(); commitShowTime(); } }}
-            placeholder="00:00"
-            data-testid="editor-input-show-time"
+            ref={fileInputRef}
+            type="file"
+            accept=".json,.scd"
+            className="hidden"
+            onChange={handleImportInput}
+            data-testid="editor-file-input"
           />
         </div>
       </div>
 
       {/* ===== MAIN CONTENT: LEFT preview + RIGHT editor (flex row) =====
-          pt-6 adds breathing room below the Concert Title strip (matches LEFT preview vertical balance).
-          pr-6 on the whole row adds right-edge margin that mirrors the LEFT preview's px-6 padding. */}
-      <div className="flex flex-1 min-h-0 w-full pt-6 pr-6">
+          pt-2 keeps header compact so song list gets more vertical space. */}
+      <div className="flex flex-1 min-h-0 w-full pt-2 pr-6">
 
       {/* LEFT: External display preview area.
           Outer container is WARM GRAY (#1a1918). ONLY the 16:9 preview rectangle is pure BLACK.
