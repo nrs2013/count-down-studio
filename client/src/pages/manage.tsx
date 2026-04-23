@@ -1113,6 +1113,7 @@ export default function Manage() {
             subTimerActive={subTimerActive}
             onEndConcert={endConcert}
             onResetConcertTracking={resetConcertTracking}
+            summaryActive={summaryActive}
           />
         </div>
       </div>

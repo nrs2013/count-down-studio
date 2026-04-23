@@ -256,6 +256,9 @@ interface PerformanceEditorProps {
   subTimerActive?: boolean;
   onEndConcert?: () => void;
   onResetConcertTracking?: () => void;
+  // When true, the concert-end summary is showing on the sub-display. We use this to
+  // suppress the screensaver (event-info overlay) so it doesn't overwrite the summary.
+  summaryActive?: boolean;
 }
 
 export function PerformanceEditor({
@@ -296,6 +299,7 @@ export function PerformanceEditor({
   subTimerActive,
   onEndConcert,
   onResetConcertTracking,
+  summaryActive,
 }: PerformanceEditorProps) {
   const addSong = useCreateSong();
   const reorderSongs = useReorderSongs();
@@ -310,6 +314,9 @@ export function PerformanceEditor({
   const screensaverTimerRef = useRef<ReturnType<typeof setTimeout>>();
   const screensaverActiveRef = useRef(false);
   const SCREENSAVER_TIMEOUT = 10 * 60 * 1000;
+  // Mirror summaryActive into a ref so the timer callback always sees the latest value.
+  const summaryActiveRef = useRef(false);
+  summaryActiveRef.current = !!summaryActive;
 
   const stopEventInfoBroadcast = useCallback(() => {
     showingEventInfoRef.current = false;
@@ -364,13 +371,32 @@ export function PerformanceEditor({
   const resetScreensaverTimer = useCallback(() => {
     clearTimeout(screensaverTimerRef.current);
     if (!outputOpen) return;
+    // Don't schedule a screensaver while the concert-end summary is showing — it would
+    // overwrite the director's closing screen with the DOOR OPEN / SHOW START overlay.
+    if (summaryActiveRef.current) return;
     screensaverTimerRef.current = setTimeout(() => {
+      if (summaryActiveRef.current) return;
       if (!showingEventInfoRef.current) {
         screensaverActiveRef.current = true;
         startEventInfoBroadcastRef.current();
       }
     }, SCREENSAVER_TIMEOUT);
   }, [outputOpen]);
+
+  // When the summary turns on, immediately kill any pending screensaver timer AND
+  // dismiss the event-info overlay if it happens to be active. When it turns off,
+  // re-arm the screensaver like normal.
+  useEffect(() => {
+    if (summaryActive) {
+      clearTimeout(screensaverTimerRef.current);
+      if (screensaverActiveRef.current) {
+        screensaverActiveRef.current = false;
+        stopEventInfoBroadcastRef.current();
+      }
+    } else {
+      resetScreensaverTimer();
+    }
+  }, [summaryActive, resetScreensaverTimer]);
 
   useEffect(() => {
     if (!outputOpen) {
