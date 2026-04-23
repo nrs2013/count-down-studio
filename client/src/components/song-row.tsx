@@ -331,7 +331,7 @@ export function SongRow({
         <GripVertical className="w-3.5 h-3.5" />
       </div>
 
-      {/* Muted outline badge for MC/SP/EN — category only, no strong neon */}
+      {/* Category badge for MC/SP/EN — muted colored tint (distinguishable at a glance, not neon) */}
       {(isEncore || isMC || isEvent) ? (
         <span
           className="text-center shrink-0 flex items-center justify-center"
@@ -340,9 +340,17 @@ export function SongRow({
             fontSize: "10px",
             fontWeight: 900,
             letterSpacing: "0.10em",
-            color: "#a8a8a0",                     // muted warm gray text
-            background: "#323230",
-            border: "1px solid #46463f",
+            color: isEncore ? "#9ec29a" : isMC ? "#9cc4d8" : "#d4b886",
+            background: isEncore
+              ? "rgba(106,138,102,0.18)"
+              : isMC
+              ? "rgba(106,150,184,0.18)"
+              : "rgba(184,149,88,0.18)",
+            border: isEncore
+              ? "1px solid rgba(106,138,102,0.4)"
+              : isMC
+              ? "1px solid rgba(106,150,184,0.4)"
+              : "1px solid rgba(184,149,88,0.4)",
             borderRadius: "5px",
             padding: "3px 7px",
             minWidth: 28,
@@ -826,9 +834,9 @@ export function InsertionRow({ onAddSong, onAddSpecial, onAddMC, onAddEncore, di
         disabled={disabled}
         className="flex-1 flex items-center justify-center gap-1 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase transition-all duration-200 disabled:opacity-30"
         style={{
-          color: "#a8a8a0",
-          background: "#323230",
-          border: "1px dashed #46463f",
+          color: "#d8b8de",
+          background: "linear-gradient(180deg, rgba(193,134,200,0.15) 0%, rgba(193,134,200,0.06) 100%), #323230",
+          border: "1px dashed rgba(193,134,200,0.35)",
         }}
         data-testid={`${pfx}insert-song`}
       >
@@ -840,9 +848,9 @@ export function InsertionRow({ onAddSong, onAddSpecial, onAddMC, onAddEncore, di
         disabled={disabled}
         className="flex-1 flex items-center justify-center gap-1 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase transition-all duration-200 disabled:opacity-30"
         style={{
-          color: "#a8a8a0",
-          background: "#323230",
-          border: "1px dashed #46463f",
+          color: "#d4b886",
+          background: "linear-gradient(180deg, rgba(184,149,88,0.14) 0%, rgba(184,149,88,0.06) 100%), #323230",
+          border: "1px dashed rgba(184,149,88,0.35)",
         }}
         data-testid={`${pfx}insert-special`}
       >
@@ -854,9 +862,9 @@ export function InsertionRow({ onAddSong, onAddSpecial, onAddMC, onAddEncore, di
         disabled={disabled}
         className="flex-1 flex items-center justify-center gap-1 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase transition-all duration-200 disabled:opacity-30"
         style={{
-          color: "#a8a8a0",
-          background: "#323230",
-          border: "1px dashed #46463f",
+          color: "#9cc4d8",
+          background: "linear-gradient(180deg, rgba(106,150,184,0.14) 0%, rgba(106,150,184,0.06) 100%), #323230",
+          border: "1px dashed rgba(106,150,184,0.35)",
         }}
         data-testid={`${pfx}insert-mc`}
       >
@@ -868,9 +876,9 @@ export function InsertionRow({ onAddSong, onAddSpecial, onAddMC, onAddEncore, di
         disabled={disabled}
         className="flex-1 flex items-center justify-center gap-1 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase transition-all duration-200 disabled:opacity-30"
         style={{
-          color: "#a8a8a0",
-          background: "#323230",
-          border: "1px dashed #46463f",
+          color: "#9ec29a",
+          background: "linear-gradient(180deg, rgba(106,138,102,0.14) 0%, rgba(106,138,102,0.06) 100%), #323230",
+          border: "1px dashed rgba(106,138,102,0.35)",
         }}
         data-testid={`${pfx}insert-encore`}
       >
