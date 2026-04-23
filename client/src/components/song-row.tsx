@@ -297,7 +297,8 @@ export function SongRow({
   const isEvent = song.isEvent === true;
   const isMC = song.isMC === true;
   const isEncore = song.isEncore === true;
-  const isCompactRow = isMC || isEncore;
+  const isEnd = (song as any).isEnd === true;
+  const isCompactRow = isMC || isEncore || isEnd;
 
   return (
     <div
@@ -328,8 +329,8 @@ export function SongRow({
         <GripVertical className="w-3.5 h-3.5" />
       </div>
 
-      {/* Category badge for MC/SP/EN — distinct colored tint with confident edges. */}
-      {(isEncore || isMC || isEvent) ? (
+      {/* Category badge for MC/SP/EN/END — distinct colored tint with confident edges. */}
+      {(isEncore || isMC || isEvent || isEnd) ? (
         <span
           className="text-center shrink-0 flex items-center justify-center"
           style={{
@@ -337,13 +338,17 @@ export function SongRow({
             fontSize: "10px",
             fontWeight: 900,
             letterSpacing: "0.05em",
-            color: isEncore ? "#b8d9b0" : isMC ? "#a8d4e8" : "#e8c890",
-            background: isEncore
+            color: isEnd ? "#f0c77a" : isEncore ? "#b8d9b0" : isMC ? "#a8d4e8" : "#e8c890",
+            background: isEnd
+              ? "rgba(232,176,74,0.38)"
+              : isEncore
               ? "rgba(106,138,102,0.32)"
               : isMC
               ? "rgba(106,150,184,0.32)"
               : "rgba(184,149,88,0.32)",
-            border: isEncore
+            border: isEnd
+              ? "1px solid rgba(232,176,74,0.8)"
+              : isEncore
               ? "1px solid rgba(106,138,102,0.7)"
               : isMC
               ? "1px solid rgba(106,150,184,0.7)"
@@ -356,7 +361,7 @@ export function SongRow({
           }}
           data-testid={`text-song-index-${song.id}`}
         >
-          {isEncore ? "EN" : isMC ? "MC" : "SP"}
+          {isEnd ? "END" : isEncore ? "EN" : isMC ? "MC" : "SP"}
         </span>
       ) : (
         <span
@@ -391,9 +396,18 @@ export function SongRow({
         </button>
       )}
 
-      {(isMC || isEncore) ? (
+      {(isMC || isEncore || isEnd) ? (
         <>
-          <span className="flex-[0.8] min-w-0" />
+          {isEnd ? (
+            <span
+              className="flex-[0.8] min-w-0 flex items-center px-2 font-bold tracking-widest"
+              style={{ color: "#f0c77a", fontFamily: MONO_FONT, fontSize: 12, letterSpacing: "0.25em" }}
+            >
+              END OF SHOW
+            </span>
+          ) : (
+            <span className="flex-[0.8] min-w-0" />
+          )}
           <span className="flex-[0.8] min-w-0" />
         </>
       ) : (
@@ -410,7 +424,7 @@ export function SongRow({
         />
       )}
 
-      {!isMC && !isEncore && (
+      {!isMC && !isEncore && !isEnd && (
         <StyledInput
           value={nextTitle}
           onChange={(e) => { setNextTitle(e.target.value); onLiveTitleChange?.(song.id, title, e.target.value); }}
@@ -444,6 +458,16 @@ export function SongRow({
             testId={`${pid}-input-${isEncore ? "encore" : "mc"}-target-${song.id}`}
             color={"#e8b04a"}
           />
+          <span className="shrink-0" style={{ width: "42px" }} />
+          {!hideSubStartEnd && <span className="w-[60px] shrink-0" />}
+          {!hideSubStartEnd && <span className="w-[60px] shrink-0" />}
+          <span className="w-[60px] shrink-0" />
+        </>
+      ) : isEnd ? (
+        <>
+          <span className="w-[60px] shrink-0" />
+          <span className="w-[60px] shrink-0" />
+          <span className="w-[60px] shrink-0" />
           <span className="shrink-0" style={{ width: "42px" }} />
           {!hideSubStartEnd && <span className="w-[60px] shrink-0" />}
           {!hideSubStartEnd && <span className="w-[60px] shrink-0" />}
@@ -817,12 +841,13 @@ interface InsertionRowProps {
   onAddSong: () => void;
   onAddSpecial: () => void;
   onAddMC: () => void;
-  onAddEncore: () => void;
+  onAddEncore?: () => void;
+  onAddEnd?: () => void;
   disabled?: boolean;
   testIdPrefix?: string;
 }
 
-export function InsertionRow({ onAddSong, onAddSpecial, onAddMC, onAddEncore, disabled = false, testIdPrefix = "" }: InsertionRowProps) {
+export function InsertionRow({ onAddSong, onAddSpecial, onAddMC, onAddEncore, onAddEnd, disabled = false, testIdPrefix = "" }: InsertionRowProps) {
   const pfx = testIdPrefix ? `${testIdPrefix}-` : "";
   return (
     <div
@@ -876,21 +901,40 @@ export function InsertionRow({ onAddSong, onAddSpecial, onAddMC, onAddEncore, di
         <Plus className="w-3 h-3" />
         MC
       </button>
-      <button
-        onClick={onAddEncore}
-        disabled={disabled}
-        className="flex-1 flex items-center justify-center gap-1 py-1 rounded text-[10px] font-bold tracking-wider uppercase transition-all duration-200 disabled:opacity-30"
-        style={{
-          color: "#b8d9b0",
-          background: "linear-gradient(180deg, rgba(106,138,102,0.28) 0%, rgba(106,138,102,0.1) 100%), #2a2a28",
-          border: "1px solid rgba(106,138,102,0.55)",
-          boxShadow: "0 2px 6px rgba(0,0,0,0.3), 0 1px 0 rgba(255,255,255,0.05) inset",
-        }}
-        data-testid={`${pfx}insert-encore`}
-      >
-        <Plus className="w-3 h-3" />
-        ENCORE
-      </button>
+      {onAddEncore && (
+        <button
+          onClick={onAddEncore}
+          disabled={disabled}
+          className="flex-1 flex items-center justify-center gap-1 py-1 rounded text-[10px] font-bold tracking-wider uppercase transition-all duration-200 disabled:opacity-30"
+          style={{
+            color: "#b8d9b0",
+            background: "linear-gradient(180deg, rgba(106,138,102,0.28) 0%, rgba(106,138,102,0.1) 100%), #2a2a28",
+            border: "1px solid rgba(106,138,102,0.55)",
+            boxShadow: "0 2px 6px rgba(0,0,0,0.3), 0 1px 0 rgba(255,255,255,0.05) inset",
+          }}
+          data-testid={`${pfx}insert-encore`}
+        >
+          <Plus className="w-3 h-3" />
+          ENCORE
+        </button>
+      )}
+      {onAddEnd && (
+        <button
+          onClick={onAddEnd}
+          disabled={disabled}
+          className="flex-1 flex items-center justify-center gap-1 py-1 rounded text-[10px] font-bold tracking-wider uppercase transition-all duration-200 disabled:opacity-30"
+          style={{
+            color: "#f0c77a",
+            background: "linear-gradient(180deg, rgba(232,176,74,0.32) 0%, rgba(232,176,74,0.1) 100%), #2a2a28",
+            border: "1px solid rgba(232,176,74,0.6)",
+            boxShadow: "0 2px 6px rgba(0,0,0,0.3), 0 1px 0 rgba(255,255,255,0.05) inset",
+          }}
+          data-testid={`${pfx}insert-end`}
+        >
+          <Plus className="w-3 h-3" />
+          END
+        </button>
+      )}
     </div>
   );
 }

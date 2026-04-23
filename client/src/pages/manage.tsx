@@ -358,13 +358,14 @@ export default function Manage() {
   const [showEventInfoOnPrimary, setShowEventInfoOnPrimary] = useState(false);
   const stopEventInfoRef = useRef<(() => void) | null>(null);
 
-  // Concert summary tracking: records when the concert began and accumulates MC / ENCORE time.
+  // Concert summary tracking: records when the concert began and collects each MC/ENCORE
+  // segment individually (MC1, MC2, …) so the summary screen can break them out.
   const concertStartAtRef = useRef<number | null>(null);
   const segmentStartAtRef = useRef<number | null>(null);
   const segmentTypeRef = useRef<"song" | "mc" | "encore" | null>(null);
   const prevTrackedSongIdRef = useRef<number | null>(null);
-  const [mcTotalMs, setMcTotalMs] = useState(0);
-  const [encoreTotalMs, setEncoreTotalMs] = useState(0);
+  const [mcSegments, setMcSegments] = useState<number[]>([]);
+  const [encoreSegments, setEncoreSegments] = useState<number[]>([]);
   // When true, suppress the recurring countdown broadcast so the summary screen on the
   // sub-display isn't overwritten by stale idle state.
   const [summaryActive, setSummaryActive] = useState(false);
@@ -430,15 +431,14 @@ export default function Manage() {
 
   // Concert summary tracking — finalize previous segment whenever currentSongId changes,
   // then start a fresh segment for the new song. Concert start time recorded on first song.
+  // Each MC / ENCORE segment is pushed individually so we can display MC1, MC2, … separately.
   useEffect(() => {
     const now = Date.now();
-    // Finalize previous segment (add to MC/ENCORE totals if applicable)
     if (segmentStartAtRef.current !== null && segmentTypeRef.current !== null) {
       const duration = now - segmentStartAtRef.current;
-      if (segmentTypeRef.current === "mc") setMcTotalMs((v) => v + duration);
-      else if (segmentTypeRef.current === "encore") setEncoreTotalMs((v) => v + duration);
+      if (segmentTypeRef.current === "mc") setMcSegments((arr) => [...arr, duration]);
+      else if (segmentTypeRef.current === "encore") setEncoreSegments((arr) => [...arr, duration]);
     }
-    // Start new segment if there's an active song
     if (currentSongId !== null) {
       const song = sortedSongs.find((s) => s.id === currentSongId);
       if (song) {
@@ -458,14 +458,14 @@ export default function Manage() {
   // End-concert handler: finalize current segment, then broadcast the summary to the sub-display.
   const endConcert = useCallback(() => {
     const now = Date.now();
-    let finalMcMs = mcTotalMs;
-    let finalEncoreMs = encoreTotalMs;
+    let finalMcSegments = [...mcSegments];
+    let finalEncoreSegments = [...encoreSegments];
     if (segmentStartAtRef.current !== null && segmentTypeRef.current !== null) {
       const duration = now - segmentStartAtRef.current;
-      if (segmentTypeRef.current === "mc") finalMcMs += duration;
-      else if (segmentTypeRef.current === "encore") finalEncoreMs += duration;
-      setMcTotalMs(finalMcMs);
-      setEncoreTotalMs(finalEncoreMs);
+      if (segmentTypeRef.current === "mc") finalMcSegments.push(duration);
+      else if (segmentTypeRef.current === "encore") finalEncoreSegments.push(duration);
+      setMcSegments(finalMcSegments);
+      setEncoreSegments(finalEncoreSegments);
       segmentStartAtRef.current = null;
       segmentTypeRef.current = null;
     }
@@ -478,12 +478,8 @@ export default function Manage() {
     setCurrentSongId(null);
     const totalMs = now - startAt;
     const fmt = (ms: number) => {
-      const s = Math.floor(ms / 1000);
-      const startD = new Date(ms);
-      return {
-        hms: `${String(startD.getHours()).padStart(2, "0")}:${String(startD.getMinutes()).padStart(2, "0")}:${String(startD.getSeconds()).padStart(2, "0")}`,
-        sec: s,
-      };
+      const d = new Date(ms);
+      return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}:${String(d.getSeconds()).padStart(2, "0")}`;
     };
     setSummaryActive(true);
     broadcast({
@@ -493,20 +489,20 @@ export default function Manage() {
       remainingSeconds: 0,
       showConcertSummary: true,
       summaryTotalMs: totalMs,
-      summaryMcMs: finalMcMs,
-      summaryEncoreMs: finalEncoreMs,
-      summaryStartTime: fmt(startAt).hms,
-      summaryEndTime: fmt(now).hms,
+      summaryMcSegments: finalMcSegments,
+      summaryEncoreSegments: finalEncoreSegments,
+      summaryStartTime: fmt(startAt),
+      summaryEndTime: fmt(now),
     });
     toast({ title: "End of Show", description: "サマリーをサブディスプレイに表示中" });
-  }, [mcTotalMs, encoreTotalMs, broadcast, countdown, toast]);
+  }, [mcSegments, encoreSegments, broadcast, countdown, toast]);
 
   const resetConcertTracking = useCallback(() => {
     concertStartAtRef.current = null;
     segmentStartAtRef.current = null;
     segmentTypeRef.current = null;
-    setMcTotalMs(0);
-    setEncoreTotalMs(0);
+    setMcSegments([]);
+    setEncoreSegments([]);
     setSummaryActive(false);
     // Clear the summary overlay on the sub-display.
     broadcast({
@@ -516,8 +512,8 @@ export default function Manage() {
       remainingSeconds: 0,
       showConcertSummary: false,
       summaryTotalMs: 0,
-      summaryMcMs: 0,
-      summaryEncoreMs: 0,
+      summaryMcSegments: [],
+      summaryEncoreSegments: [],
       summaryStartTime: "",
       summaryEndTime: "",
     });
@@ -529,10 +525,15 @@ export default function Manage() {
       if (stopEventInfoRef.current) {
         stopEventInfoRef.current();
       }
+      const song = sortedSongs[index];
+      // END row → trigger the concert-end summary instead of starting a countdown.
+      if ((song as any).isEnd) {
+        endConcert();
+        return;
+      }
       // If the director starts a song after an End-of-Show summary, clear it so the
       // countdown display takes over again.
       if (summaryActive) setSummaryActive(false);
-      const song = sortedSongs[index];
       setCurrentSongId(song.id);
       setLiveTitleOverrides(null);
       setLiveDurationOverride(null);
@@ -545,7 +546,7 @@ export default function Manage() {
         countdown.start(dur);
       }
     },
-    [sortedSongs, countdown, liveDurationOverride],
+    [sortedSongs, countdown, liveDurationOverride, summaryActive, endConcert],
   );
 
   const nextSong = useCallback(() => {
@@ -948,6 +949,29 @@ export default function Manage() {
       subTimerSeconds: 0,
       subTimerTimeRange: null,
     });
+  }, [activeSetlist, addSong]);
+
+  const handleAddEndAt = useCallback((afterIndex: number) => {
+    if (!activeSetlist) return;
+    pendingScrollIndexRef.current = afterIndex + 1;
+    addSong.mutate({
+      setlistId: activeSetlist.id,
+      title: "END",
+      nextTitle: null,
+      artist: null,
+      durationSeconds: 0,
+      orderIndex: afterIndex + 1,
+      midiNote: null,
+      midiChannel: null,
+      timeRange: null,
+      isEvent: false,
+      xTime: false,
+      isMC: false,
+      isEncore: false,
+      isEnd: true,
+      subTimerSeconds: 0,
+      subTimerTimeRange: null,
+    } as any);
   }, [activeSetlist, addSong]);
 
   const handleNewConcert = () => {
@@ -1435,6 +1459,7 @@ export default function Manage() {
                     onAddSpecial={() => handleAddEventAt(sortedSongs.length)}
                     onAddMC={() => handleAddMCAt(sortedSongs.length)}
                     onAddEncore={() => handleAddEncoreAt(sortedSongs.length)}
+                    onAddEnd={() => handleAddEndAt(sortedSongs.length)}
                     disabled={!activeSetlist}
                     testIdPrefix="manage-bottom"
                   />

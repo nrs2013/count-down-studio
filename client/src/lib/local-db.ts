@@ -25,6 +25,8 @@ export interface LocalSong {
   xTime: boolean;
   isMC: boolean;
   isEncore: boolean;
+  // END row — when played (by click or MIDI), triggers the concert-end summary.
+  isEnd?: boolean;
   subTimerSeconds: number;
   subTimerTimeRange: string | null;
 }
@@ -103,7 +105,7 @@ export const localDB = {
     const songs = await index.getAll(setlistId);
     await tx.done;
     return songs
-      .map((s: any) => ({ ...s, isEvent: s.isEvent ?? false, xTime: s.xTime ?? false, isMC: s.isMC ?? false, isEncore: s.isEncore ?? false, subTimerSeconds: s.subTimerSeconds ?? 0, subTimerTimeRange: s.subTimerTimeRange ?? null }))
+      .map((s: any) => ({ ...s, isEvent: s.isEvent ?? false, xTime: s.xTime ?? false, isMC: s.isMC ?? false, isEncore: s.isEncore ?? false, isEnd: s.isEnd ?? false, subTimerSeconds: s.subTimerSeconds ?? 0, subTimerTimeRange: s.subTimerTimeRange ?? null }))
       .sort((a: LocalSong, b: LocalSong) => a.orderIndex - b.orderIndex);
   },
 
@@ -211,6 +213,7 @@ export const localDB = {
         isMC: s.isMC === true,
         xTime: s.xTime === true,
         isEncore: s.isEncore === true,
+        isEnd: (s as any).isEnd === true,
         subTimerSeconds: typeof s.subTimerSeconds === "number" ? s.subTimerSeconds : 0,
         subTimerTimeRange: s.subTimerTimeRange ?? null,
       });
@@ -256,6 +259,7 @@ export const localDB = {
         isMC: s.isMC === true,
         xTime: s.xTime === true,
         isEncore: s.isEncore === true,
+        isEnd: (s as any).isEnd === true,
         subTimerSeconds: typeof s.subTimerSeconds === "number" ? s.subTimerSeconds : 0,
         subTimerTimeRange: s.subTimerTimeRange ?? null,
       });

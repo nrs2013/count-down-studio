@@ -28,8 +28,8 @@ export interface CountdownState {
   // Concert End Summary (shown on sub-display when the director ends the show)
   showConcertSummary?: boolean;
   summaryTotalMs?: number;
-  summaryMcMs?: number;
-  summaryEncoreMs?: number;
+  summaryMcSegments?: number[]; // each MC (MC1, MC2, …) in milliseconds
+  summaryEncoreSegments?: number[]; // each ENCORE (EN1, EN2, …) in milliseconds
   summaryStartTime?: string;
   summaryEndTime?: string;
 }

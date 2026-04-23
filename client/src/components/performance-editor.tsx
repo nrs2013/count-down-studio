@@ -782,6 +782,30 @@ export function PerformanceEditor({
     });
   }, [setlist, addSong]);
 
+  const handleAddEndAt = useCallback((afterIndex: number) => {
+    if (!setlist) return;
+    const orderIndex = afterIndex + 1;
+    pendingScrollIndexRef.current = orderIndex;
+    addSong.mutate({
+      setlistId: setlist.id,
+      title: "END",
+      nextTitle: null,
+      artist: null,
+      durationSeconds: 0,
+      orderIndex,
+      midiNote: null,
+      midiChannel: null,
+      timeRange: null,
+      isEvent: false,
+      xTime: false,
+      isMC: false,
+      isEncore: false,
+      isEnd: true,
+      subTimerSeconds: 0,
+      subTimerTimeRange: null,
+    } as any);
+  }, [setlist, addSong]);
+
   const ctrlBtnClass = "flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[11px] font-bold tracking-wider uppercase transition-all duration-200";
 
   return (
@@ -1154,6 +1178,7 @@ export function PerformanceEditor({
             onAddSpecial={() => handleAddEventAt(songs.length)}
             onAddMC={() => handleAddMCAt(songs.length)}
             onAddEncore={() => handleAddEncoreAt(songs.length)}
+            onAddEnd={() => handleAddEndAt(songs.length)}
             disabled={!setlist}
             testIdPrefix="editor-bottom"
           />

@@ -19,74 +19,98 @@ function formatHMS(ms: number): string {
 
 function ConcertSummaryDisplay({
   totalMs,
-  mcMs,
-  encoreMs,
+  mcSegments,
+  encoreSegments,
   startTime,
   endTime,
 }: {
   totalMs: number;
-  mcMs: number;
-  encoreMs: number;
+  mcSegments: number[];
+  encoreSegments: number[];
   startTime: string;
   endTime: string;
 }) {
-  // Cinematic-theater typography:
-  //   - Cormorant Garamond (italic thin) for the title — movie-credit / program-book elegance
-  //   - Archivo (ultra-thin, tabular) for big numbers — sleek, modern, not "programmer mono"
-  //   - Archivo (500 uppercase, wide-spaced) for labels
+  // Cinematic-theater typography: elegant italic serif for titles, thin Archivo for numbers.
   const SERIF = "'Cormorant Garamond', 'Playfair Display', Georgia, serif";
   const DISPLAY = "'Archivo', 'Inter', system-ui, sans-serif";
 
-  const StatColumn = ({
+  const SegmentList = ({
+    title,
     label,
-    value,
-    size = "md",
-    accent,
+    segments,
   }: {
+    title: string;
     label: string;
-    value: string;
-    size?: "xl" | "md" | "sm";
-    accent?: boolean;
-  }) => {
-    const valueSize = size === "xl" ? 180 : size === "md" ? 78 : 44;
-    const labelSize = size === "xl" ? 15 : size === "md" ? 12 : 11;
-    const valueWeight = size === "xl" ? 100 : 200;
-    return (
-      <div className="flex flex-col items-center">
-        <div
-          style={{
-            fontFamily: DISPLAY,
-            letterSpacing: "0.4em",
-            fontSize: labelSize,
-            fontWeight: 500,
-            color: accent ? "rgba(232,176,74,0.85)" : "rgba(168,168,160,0.6)",
-            marginBottom: size === "xl" ? 22 : 12,
-            textTransform: "uppercase",
-          }}
-        >
-          {label}
-        </div>
-        <div
-          style={{
-            fontFamily: DISPLAY,
-            fontSize: valueSize,
-            fontWeight: valueWeight,
-            lineHeight: 1,
-            color: accent ? "#f0c77a" : "#e8e8e2",
-            letterSpacing: size === "xl" ? "0.02em" : "0.04em",
-            fontVariantNumeric: "tabular-nums",
-            textShadow: accent ? "0 0 60px rgba(232,176,74,0.3)" : "none",
-          }}
-        >
-          {value}
-        </div>
+    segments: number[];
+  }) => (
+    <div className="flex flex-col items-start" style={{ minWidth: 240 }}>
+      <div
+        style={{
+          fontFamily: DISPLAY,
+          letterSpacing: "0.4em",
+          fontSize: 13,
+          fontWeight: 500,
+          color: "rgba(168,168,160,0.6)",
+          marginBottom: 18,
+          textTransform: "uppercase",
+          alignSelf: "center",
+        }}
+      >
+        {title}
       </div>
-    );
-  };
+      {segments.length === 0 ? (
+        <div
+          style={{
+            fontFamily: DISPLAY,
+            fontSize: 22,
+            fontWeight: 200,
+            color: "rgba(168,168,160,0.3)",
+            alignSelf: "center",
+            letterSpacing: "0.1em",
+          }}
+        >
+          —
+        </div>
+      ) : (
+        <div className="flex flex-col gap-2 w-full">
+          {segments.map((ms, i) => (
+            <div key={i} className="flex items-baseline justify-between w-full" style={{ gap: 28 }}>
+              <div
+                style={{
+                  fontFamily: DISPLAY,
+                  fontSize: 14,
+                  fontWeight: 500,
+                  letterSpacing: "0.28em",
+                  color: "rgba(168,168,160,0.55)",
+                  textTransform: "uppercase",
+                  minWidth: 60,
+                }}
+              >
+                {label} {i + 1}
+              </div>
+              <div
+                style={{
+                  fontFamily: DISPLAY,
+                  fontSize: 34,
+                  fontWeight: 200,
+                  lineHeight: 1,
+                  color: "#e8e8e2",
+                  letterSpacing: "0.04em",
+                  fontVariantNumeric: "tabular-nums",
+                }}
+              >
+                {formatHMS(ms)}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <div
-      className="w-screen h-screen flex flex-col items-center justify-center"
+      className="w-screen h-screen flex flex-col items-center justify-center overflow-auto py-8"
       style={{
         background: "#0c0b0a",
         backgroundImage:
@@ -95,12 +119,12 @@ function ConcertSummaryDisplay({
       }}
       data-testid="concert-summary"
     >
-      {/* Elegant italic serif heading — like a program book closing page */}
+      {/* Elegant italic serif heading */}
       <div
         style={{
           fontFamily: SERIF,
           fontStyle: "italic",
-          fontSize: 92,
+          fontSize: 88,
           fontWeight: 300,
           color: "rgba(232,176,74,0.95)",
           marginBottom: 4,
@@ -114,10 +138,10 @@ function ConcertSummaryDisplay({
         style={{
           fontFamily: SERIF,
           fontStyle: "italic",
-          fontSize: 22,
+          fontSize: 20,
           fontWeight: 300,
           color: "rgba(168,168,160,0.55)",
-          marginBottom: 68,
+          marginBottom: 52,
           letterSpacing: "0.15em",
         }}
       >
@@ -125,15 +149,41 @@ function ConcertSummaryDisplay({
       </div>
 
       {/* Central TOTAL TIME — huge, thin display number, amber glow */}
-      <div style={{ marginBottom: 68 }}>
-        <StatColumn label="Total Time" value={formatHMS(totalMs)} size="xl" accent />
+      <div className="flex flex-col items-center" style={{ marginBottom: 52 }}>
+        <div
+          style={{
+            fontFamily: DISPLAY,
+            letterSpacing: "0.4em",
+            fontSize: 15,
+            fontWeight: 500,
+            color: "rgba(232,176,74,0.85)",
+            marginBottom: 20,
+            textTransform: "uppercase",
+          }}
+        >
+          Total Time
+        </div>
+        <div
+          style={{
+            fontFamily: DISPLAY,
+            fontSize: 160,
+            fontWeight: 100,
+            lineHeight: 1,
+            color: "#f0c77a",
+            letterSpacing: "0.02em",
+            fontVariantNumeric: "tabular-nums",
+            textShadow: "0 0 60px rgba(232,176,74,0.3)",
+          }}
+        >
+          {formatHMS(totalMs)}
+        </div>
       </div>
 
-      {/* MC / ENCORE side by side — mid size */}
-      <div className="flex items-start" style={{ gap: 140, marginBottom: 56 }}>
-        <StatColumn label="MC Time" value={formatHMS(mcMs)} size="md" />
-        <div style={{ width: 1, height: 100, background: "rgba(168,168,160,0.18)", marginTop: 28 }} />
-        <StatColumn label="Encore Time" value={formatHMS(encoreMs)} size="md" />
+      {/* MC / ENCORE breakdowns — listed individually (MC 1, MC 2, …) */}
+      <div className="flex items-start" style={{ gap: 80, marginBottom: 48 }}>
+        <SegmentList title="MC Breakdown" label="MC" segments={mcSegments} />
+        <div style={{ width: 1, height: "100%", minHeight: 60, background: "rgba(168,168,160,0.18)" }} />
+        <SegmentList title="Encore Breakdown" label="EN" segments={encoreSegments} />
       </div>
 
       {/* Thin amber divider */}
@@ -142,14 +192,68 @@ function ConcertSummaryDisplay({
           width: 220,
           height: 1,
           background: "linear-gradient(to right, transparent, rgba(232,176,74,0.35), transparent)",
-          marginBottom: 40,
+          marginBottom: 32,
         }}
       />
 
-      {/* START / END wall clocks — small, sleek */}
-      <div className="flex items-start" style={{ gap: 140 }}>
-        <StatColumn label="Start Time" value={startTime || "--:--:--"} size="sm" />
-        <StatColumn label="End Time" value={endTime || "--:--:--"} size="sm" />
+      {/* START / END wall clocks */}
+      <div className="flex items-start" style={{ gap: 120 }}>
+        <div className="flex flex-col items-center">
+          <div
+            style={{
+              fontFamily: DISPLAY,
+              letterSpacing: "0.4em",
+              fontSize: 11,
+              fontWeight: 500,
+              color: "rgba(168,168,160,0.6)",
+              marginBottom: 10,
+              textTransform: "uppercase",
+            }}
+          >
+            Start Time
+          </div>
+          <div
+            style={{
+              fontFamily: DISPLAY,
+              fontSize: 40,
+              fontWeight: 200,
+              lineHeight: 1,
+              color: "#e8e8e2",
+              letterSpacing: "0.04em",
+              fontVariantNumeric: "tabular-nums",
+            }}
+          >
+            {startTime || "--:--:--"}
+          </div>
+        </div>
+        <div className="flex flex-col items-center">
+          <div
+            style={{
+              fontFamily: DISPLAY,
+              letterSpacing: "0.4em",
+              fontSize: 11,
+              fontWeight: 500,
+              color: "rgba(168,168,160,0.6)",
+              marginBottom: 10,
+              textTransform: "uppercase",
+            }}
+          >
+            End Time
+          </div>
+          <div
+            style={{
+              fontFamily: DISPLAY,
+              fontSize: 40,
+              fontWeight: 200,
+              lineHeight: 1,
+              color: "#e8e8e2",
+              letterSpacing: "0.04em",
+              fontVariantNumeric: "tabular-nums",
+            }}
+          >
+            {endTime || "--:--:--"}
+          </div>
+        </div>
       </div>
 
       <style>{`
@@ -325,8 +429,8 @@ export default function Output() {
       {state.showConcertSummary ? (
         <ConcertSummaryDisplay
           totalMs={state.summaryTotalMs || 0}
-          mcMs={state.summaryMcMs || 0}
-          encoreMs={state.summaryEncoreMs || 0}
+          mcSegments={state.summaryMcSegments || []}
+          encoreSegments={state.summaryEncoreSegments || []}
           startTime={state.summaryStartTime || ""}
           endTime={state.summaryEndTime || ""}
         />
