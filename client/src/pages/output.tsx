@@ -29,6 +29,7 @@ function ConcertSummaryDisplay({
   startTime,
   endTime,
   date,
+  concertTitle,
 }: {
   totalMs: number;
   mcSegments: number[];
@@ -36,6 +37,7 @@ function ConcertSummaryDisplay({
   startTime: string;
   endTime: string;
   date: string;
+  concertTitle: string;
 }) {
   // Cinematic-theater typography.
   const SERIF = "'Cormorant Garamond', 'Playfair Display', Georgia, serif";
@@ -59,6 +61,10 @@ function ConcertSummaryDisplay({
     return () => ro.disconnect();
   }, [updateScale]);
 
+  // Auto-shrink concert title if it's very long, so it fits the hero band on one line.
+  const titleLen = concertTitle?.length || 0;
+  const titleFontSize = titleLen > 28 ? 90 : titleLen > 20 ? 120 : titleLen > 14 ? 150 : 180;
+
   // ---- Inner sub-components (coord system = 1920x1080 design px) ----
   const SegmentCard = ({
     title,
@@ -71,21 +77,21 @@ function ConcertSummaryDisplay({
   }) => (
     <div
       style={{
-        width: 560,
-        padding: "32px 44px",
-        background: "rgba(255,255,255,0.015)",
-        border: "1px solid rgba(232,176,74,0.12)",
-        borderRadius: 8,
+        width: 640,
+        padding: "36px 48px",
+        background: "rgba(255,255,255,0.018)",
+        border: "1px solid rgba(232,176,74,0.14)",
+        borderRadius: 10,
       }}
     >
       <div
         style={{
           fontFamily: DISPLAY,
           letterSpacing: "0.5em",
-          fontSize: 22,
+          fontSize: 26,
           fontWeight: 500,
-          color: "rgba(232,176,74,0.75)",
-          marginBottom: 24,
+          color: "rgba(232,176,74,0.8)",
+          marginBottom: 26,
           textTransform: "uppercase",
           textAlign: "center",
         }}
@@ -97,17 +103,17 @@ function ConcertSummaryDisplay({
           style={{
             fontFamily: SERIF,
             fontStyle: "italic",
-            fontSize: 28,
+            fontSize: 32,
             fontWeight: 300,
             color: "rgba(168,168,160,0.35)",
             textAlign: "center",
-            padding: "18px 0",
+            padding: "20px 0",
           }}
         >
           — none —
         </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {segments.map((ms, i) => (
             <div
               key={i}
@@ -116,17 +122,17 @@ function ConcertSummaryDisplay({
                 alignItems: "baseline",
                 justifyContent: "space-between",
                 gap: 24,
-                paddingBottom: 8,
+                paddingBottom: 10,
                 borderBottom: i === segments.length - 1 ? "none" : "1px solid rgba(168,168,160,0.08)",
               }}
             >
               <div
                 style={{
                   fontFamily: DISPLAY,
-                  fontSize: 22,
+                  fontSize: 28,
                   fontWeight: 500,
                   letterSpacing: "0.3em",
-                  color: "rgba(168,168,160,0.7)",
+                  color: "rgba(168,168,160,0.75)",
                   textTransform: "uppercase",
                 }}
               >
@@ -135,7 +141,7 @@ function ConcertSummaryDisplay({
               <div
                 style={{
                   fontFamily: DISPLAY,
-                  fontSize: 48,
+                  fontSize: 60,
                   fontWeight: 200,
                   lineHeight: 1,
                   color: "#e8e8e2",
@@ -153,14 +159,14 @@ function ConcertSummaryDisplay({
   );
 
   const ClockStat = ({ label, value }: { label: string; value: string }) => (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
       <div
         style={{
           fontFamily: DISPLAY,
           letterSpacing: "0.5em",
-          fontSize: 18,
+          fontSize: 22,
           fontWeight: 500,
-          color: "rgba(168,168,160,0.65)",
+          color: "rgba(168,168,160,0.7)",
           textTransform: "uppercase",
         }}
       >
@@ -169,7 +175,7 @@ function ConcertSummaryDisplay({
       <div
         style={{
           fontFamily: DISPLAY,
-          fontSize: 72,
+          fontSize: 88,
           fontWeight: 200,
           lineHeight: 1,
           color: "#e8e8e2",
@@ -205,8 +211,8 @@ function ConcertSummaryDisplay({
           position: "relative",
         }}
       >
-        {/* Inner layout — absolute values sized for a 1920x1080 canvas.
-            Rough vertical budget: 260 (header) / 360 (total time) / 310 (breakdowns) / 150 (footer) = 1080. */}
+        {/* Inner layout — absolute values on a 1920x1080 design canvas.
+            Budget: 300 (hero title) / 360 (total time) / 260 (breakdowns) / 160 (footer) = 1080. */}
         <div
           style={{
             position: "absolute",
@@ -215,47 +221,85 @@ function ConcertSummaryDisplay({
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: "70px 120px 70px",
+            padding: "60px 80px",
           }}
         >
-          {/* ====== TOP: Title + Date ====== */}
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+          {/* ====== HERO BAND: Concert Title (big italic serif) + End of Show / Date meta ====== */}
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+            {/* Tiny top accent line */}
+            <div
+              style={{
+                width: 140,
+                height: 1,
+                background: "linear-gradient(to right, transparent, rgba(232,176,74,0.5), transparent)",
+                marginBottom: 14,
+              }}
+            />
+            {/* Concert Title — grand italic serif, white/amber glow */}
             <div
               style={{
                 fontFamily: SERIF,
                 fontStyle: "italic",
-                fontSize: 148,
-                fontWeight: 300,
-                color: "rgba(232,176,74,0.95)",
-                letterSpacing: "0.005em",
-                lineHeight: 0.95,
-                textShadow: "0 0 80px rgba(232,176,74,0.2)",
+                fontSize: titleFontSize,
+                fontWeight: 400,
+                color: "#f2e3c2",
+                letterSpacing: "0.01em",
+                lineHeight: 1,
+                textAlign: "center",
+                maxWidth: 1600,
+                textShadow: "0 0 60px rgba(232,176,74,0.25)",
+                padding: "0 40px",
               }}
             >
-              End of Show
+              {concertTitle || "Untitled Concert"}
             </div>
-            {date ? (
+            {/* meta row: End of Show · Date */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 28,
+                marginTop: 22,
+              }}
+            >
               <div
                 style={{
                   fontFamily: DISPLAY,
+                  letterSpacing: "0.55em",
                   fontSize: 24,
-                  fontWeight: 300,
-                  color: "rgba(232,176,74,0.6)",
-                  marginTop: 18,
-                  letterSpacing: "0.4em",
-                  fontVariantNumeric: "tabular-nums",
+                  fontWeight: 500,
+                  color: "rgba(232,176,74,0.9)",
+                  textTransform: "uppercase",
                 }}
               >
-                {date}
+                End of Show
               </div>
-            ) : null}
+              {date ? (
+                <>
+                  <div style={{ width: 8, height: 8, background: "rgba(232,176,74,0.4)", borderRadius: "50%" }} />
+                  <div
+                    style={{
+                      fontFamily: DISPLAY,
+                      fontSize: 24,
+                      fontWeight: 300,
+                      color: "rgba(232,176,74,0.75)",
+                      letterSpacing: "0.3em",
+                      fontVariantNumeric: "tabular-nums",
+                    }}
+                  >
+                    {date}
+                  </div>
+                </>
+              ) : null}
+            </div>
+            {/* subtitle */}
             <div
               style={{
                 fontFamily: SERIF,
                 fontStyle: "italic",
                 fontSize: 28,
                 fontWeight: 300,
-                color: "rgba(168,168,160,0.5)",
+                color: "rgba(168,168,160,0.55)",
                 marginTop: 10,
                 letterSpacing: "0.18em",
               }}
@@ -264,28 +308,28 @@ function ConcertSummaryDisplay({
             </div>
           </div>
 
-          {/* ====== TOTAL TIME — hero ====== */}
+          {/* ====== TOTAL TIME — hero stat ====== */}
           <div
             style={{
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              padding: "28px 100px 34px",
-              background: "rgba(232,176,74,0.025)",
-              border: "1px solid rgba(232,176,74,0.22)",
-              borderRadius: 12,
-              boxShadow: "0 0 120px rgba(232,176,74,0.08) inset",
+              padding: "32px 120px 40px",
+              background: "rgba(232,176,74,0.03)",
+              border: "1px solid rgba(232,176,74,0.25)",
+              borderRadius: 14,
+              boxShadow: "0 0 140px rgba(232,176,74,0.1) inset",
             }}
           >
             <div
               style={{
                 fontFamily: DISPLAY,
                 letterSpacing: "0.55em",
-                fontSize: 22,
+                fontSize: 26,
                 fontWeight: 500,
-                color: "rgba(232,176,74,0.9)",
-                marginBottom: 16,
+                color: "rgba(232,176,74,0.95)",
+                marginBottom: 18,
                 textTransform: "uppercase",
               }}
             >
@@ -294,13 +338,13 @@ function ConcertSummaryDisplay({
             <div
               style={{
                 fontFamily: DISPLAY,
-                fontSize: 220,
+                fontSize: 240,
                 fontWeight: 100,
                 lineHeight: 0.9,
                 color: "#f0c77a",
                 letterSpacing: "0.02em",
                 fontVariantNumeric: "tabular-nums",
-                textShadow: "0 0 80px rgba(232,176,74,0.35)",
+                textShadow: "0 0 100px rgba(232,176,74,0.4)",
               }}
             >
               {formatHMS(totalMs)}
@@ -308,19 +352,19 @@ function ConcertSummaryDisplay({
           </div>
 
           {/* ====== MC / ENCORE breakdowns ====== */}
-          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "center", gap: 60 }}>
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "center", gap: 70 }}>
             <SegmentCard title="MC Times" label="MC" segments={mcSegments} />
             <SegmentCard title="Encore Times" label="EN" segments={encoreSegments} />
           </div>
 
-          {/* ====== BOTTOM: START / END wall clocks ====== */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 120 }}>
+          {/* ====== FOOTER: START / END wall clocks ====== */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 160 }}>
             <ClockStat label="Start" value={startTime} />
             <div
               style={{
                 width: 1,
-                height: 64,
-                background: "linear-gradient(to bottom, transparent, rgba(232,176,74,0.3), transparent)",
+                height: 80,
+                background: "linear-gradient(to bottom, transparent, rgba(232,176,74,0.35), transparent)",
               }}
             />
             <ClockStat label="End" value={endTime} />
@@ -506,6 +550,7 @@ export default function Output() {
           startTime={state.summaryStartTime || ""}
           endTime={state.summaryEndTime || ""}
           date={state.summaryDate || ""}
+          concertTitle={state.summaryConcertTitle || ""}
         />
       ) : state.showEventInfo ? (
         <EventInfoDisplay

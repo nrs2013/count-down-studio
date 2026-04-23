@@ -510,9 +510,10 @@ export default function Manage() {
       summaryStartTime: fmt(startAt),
       summaryEndTime: fmt(now),
       summaryDate: dateFmt(startAt),
+      summaryConcertTitle: activeSetlist?.name || "",
     });
     toast({ title: "End of Show", description: "サマリーをサブディスプレイに表示中" });
-  }, [mcSegments, encoreSegments, broadcast, countdown, toast]);
+  }, [mcSegments, encoreSegments, broadcast, countdown, toast, activeSetlist?.name]);
 
   const resetConcertTracking = useCallback(() => {
     concertStartAtRef.current = null;
@@ -534,6 +535,7 @@ export default function Manage() {
       summaryStartTime: "",
       summaryEndTime: "",
       summaryDate: "",
+      summaryConcertTitle: "",
     });
   }, [broadcast]);
 

@@ -33,6 +33,7 @@ export interface CountdownState {
   summaryStartTime?: string;
   summaryEndTime?: string;
   summaryDate?: string; // e.g. "2026.04.24 (Thu)" — the show's date, printed on the closing card
+  summaryConcertTitle?: string; // the setlist's name, e.g. "Starlight Tour 2026 Final"
 }
 
 const LS_KEY = "countdown-state";
