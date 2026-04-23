@@ -1040,14 +1040,14 @@ export default function Manage() {
         <div
           className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none"
           style={{
-            background: "rgba(6,182,212,0.08)",
-            border: "3px dashed rgba(6,182,212,0.5)",
+            background: "rgba(100,100,90,0.06)",
+            border: "3px dashed #46463f",
             borderRadius: "12px",
           }}
         >
           <div
-            className="text-cyan-400 text-lg font-bold tracking-wider uppercase"
-            style={{ textShadow: "0 0 20px rgba(6,182,212,0.6)" }}
+            className="text-lg font-bold tracking-wider uppercase"
+            style={{ color: "#a8a8a0" }}
           >
             Drop to Import
           </div>
@@ -1073,14 +1073,14 @@ export default function Manage() {
               data-testid="input-import-file"
             />
             <button
-              className="flex items-center justify-center gap-1.5 rounded-md text-white/70 font-semibold uppercase transition-all duration-200 hover:text-white/90"
+              className="flex items-center justify-center gap-1.5 rounded-md font-semibold uppercase transition-all duration-200"
               style={{
                 fontFamily: HEADER_FONT,
                 fontSize: "15px",
                 letterSpacing: "0.12em",
-                background: "#2e2e2b",
+                background: "#323230",
                 border: "1px solid #46463f",
-                backdropFilter: "blur(8px)",
+                color: "#a8a8a0",
                 width: "96px",
                 height: "32px",
               }}
@@ -1091,14 +1091,14 @@ export default function Manage() {
               Import
             </button>
             <button
-              className="flex items-center justify-center gap-1.5 rounded-md text-white/70 font-semibold uppercase transition-all duration-200 hover:text-white/90 disabled:opacity-30 disabled:hover:text-white/70"
+              className="flex items-center justify-center gap-1.5 rounded-md font-semibold uppercase transition-all duration-200 disabled:opacity-30"
               style={{
                 fontFamily: HEADER_FONT,
                 fontSize: "15px",
                 letterSpacing: "0.12em",
-                background: "#2e2e2b",
+                background: "#323230",
                 border: "1px solid #46463f",
-                backdropFilter: "blur(8px)",
+                color: "#a8a8a0",
                 width: "96px",
                 height: "32px",
               }}
@@ -1112,13 +1112,14 @@ export default function Manage() {
             {setlists.length > 0 && (
               <>
                 <button
-                  className="flex items-center justify-center gap-1.5 rounded-md text-emerald-400/80 font-semibold uppercase transition-all duration-200 hover:text-emerald-300"
+                  className="flex items-center justify-center gap-1.5 rounded-md font-semibold uppercase transition-all duration-200"
                   style={{
                     fontFamily: HEADER_FONT,
                     fontSize: "15px",
                     letterSpacing: "0.12em",
-                    background: "linear-gradient(180deg, rgba(52,211,153,0.1) 0%, rgba(52,211,153,0.04) 100%)",
-                    border: "1px solid rgba(52,211,153,0.2)",
+                    background: "#323230",
+                    border: "1px solid #46463f",
+                    color: "#c186c8",
                     width: "96px",
                     height: "32px",
                   }}
@@ -1129,13 +1130,14 @@ export default function Manage() {
                   New
                 </button>
                 <button
-                  className="flex items-center justify-center gap-1.5 rounded-md text-red-400/80 font-semibold uppercase transition-all duration-200 hover:text-red-300"
+                  className="flex items-center justify-center gap-1.5 rounded-md font-semibold uppercase transition-all duration-200"
                   style={{
                     fontFamily: HEADER_FONT,
                     fontSize: "15px",
                     letterSpacing: "0.12em",
-                    background: "linear-gradient(180deg, rgba(248,113,113,0.1) 0%, rgba(248,113,113,0.04) 100%)",
-                    border: "1px solid rgba(248,113,113,0.2)",
+                    background: "#323230",
+                    border: "1px solid #46463f",
+                    color: "#8a6a6a",
                     width: "96px",
                     height: "32px",
                   }}

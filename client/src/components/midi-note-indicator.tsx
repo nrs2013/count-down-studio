@@ -58,19 +58,13 @@ export function MidiNoteIndicator({ lastMessage }: MidiNoteIndicatorProps) {
           fontFamily: MONO_FONT,
         }}
       >
-        <div
-          className="flex items-baseline gap-1"
-          style={{
-            filter: flash ? `drop-shadow(0 0 8px rgba(6,182,212,${0.4 + intensity * 0.4}))` : "none",
-            transition: "filter 0.15s ease",
-          }}
-        >
+        <div className="flex items-baseline gap-1">
           <span
             className="font-black tabular-nums"
             style={{
               fontSize: 28,
               lineHeight: 1,
-              color: flash ? "#22d3ee" : "rgba(6,182,212,0.7)",
+              color: flash ? "#c186c8" : "#76766f",
               transition: "color 0.15s ease",
               letterSpacing: "0.02em",
             }}
@@ -83,7 +77,7 @@ export function MidiNoteIndicator({ lastMessage }: MidiNoteIndicatorProps) {
             style={{
               fontSize: 11,
               lineHeight: 1,
-              color: flash ? "rgba(193,134,200,0.9)" : "rgba(193,134,200,0.5)",
+              color: flash ? "#a8a8a0" : "#76766f",
               transition: "color 0.15s ease",
               letterSpacing: "0.05em",
             }}
@@ -96,7 +90,7 @@ export function MidiNoteIndicator({ lastMessage }: MidiNoteIndicatorProps) {
         <div
           className="ml-2 flex flex-col items-start gap-0"
           style={{
-            opacity: flash ? 0.8 : 0.4,
+            opacity: flash ? 0.9 : 0.5,
             transition: "opacity 0.15s ease",
           }}
         >
@@ -104,7 +98,7 @@ export function MidiNoteIndicator({ lastMessage }: MidiNoteIndicatorProps) {
             style={{
               fontSize: 8,
               lineHeight: 1.2,
-              color: "rgba(255,255,255,0.4)",
+              color: "#76766f",
               fontFamily: MONO_FONT,
               letterSpacing: "0.1em",
             }}
@@ -116,16 +110,14 @@ export function MidiNoteIndicator({ lastMessage }: MidiNoteIndicatorProps) {
             style={{
               width: 28,
               height: 3,
-              background: "rgba(255,255,255,0.08)",
+              background: "#46463f",
             }}
           >
             <div
               className="h-full rounded-full"
               style={{
                 width: `${intensity * 100}%`,
-                background: flash
-                  ? "linear-gradient(90deg, #06b6d4, #c186c8)"
-                  : "rgba(6,182,212,0.4)",
+                background: flash ? "#c186c8" : "#76766f",
                 transition: "background 0.15s ease",
               }}
             />

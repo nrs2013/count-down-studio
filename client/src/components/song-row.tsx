@@ -302,7 +302,7 @@ export function SongRow({
   return (
     <div
       ref={setNodeRef}
-      className={`flex items-center gap-1 ${isCompactRow ? "py-0.5" : "py-1.5"} px-2 transition-all duration-200 group ${isCurrent ? "bg-fuchsia-500/10" : ""}`}
+      className={`flex items-center gap-1 ${isCompactRow ? "py-0.5" : "py-1.5"} px-2 transition-all duration-200 group`}
       style={{
         ...sortableStyle,
         // PROMPTER-style: card floats above canvas with surface color + clear border.
@@ -329,7 +329,7 @@ export function SongRow({
         <GripVertical className="w-3.5 h-3.5" />
       </div>
 
-      {/* PROMPTER-style BADGE (solid color pill) for MC/SP/EN, muted number for songs */}
+      {/* Muted outline badge for MC/SP/EN — category only, no strong neon */}
       {(isEncore || isMC || isEvent) ? (
         <span
           className="text-center shrink-0 flex items-center justify-center"
@@ -338,8 +338,9 @@ export function SongRow({
             fontSize: "10px",
             fontWeight: 900,
             letterSpacing: "0.10em",
-            color: "#0a0a08",                     // dark text on colored bg
-            background: isEncore ? "#81c784" : isMC ? "#5ac8fa" : "#ffd54f",
+            color: "#a8a8a0",                     // muted warm gray text
+            background: "#323230",
+            border: "1px solid #46463f",
             borderRadius: "5px",
             padding: "3px 7px",
             minWidth: 28,
@@ -430,7 +431,7 @@ export function SongRow({
             onFocusField={() => { focusedFieldRef.current = "duration"; }}
             placeholder="0:00"
             testId={`${pid}-input-${isEncore ? "encore" : "mc"}-target-${song.id}`}
-            color={isEncore ? "rgba(34,197,94,0.7)" : "rgba(56,189,248,0.7)"}
+            color={"#a8a8a0"}
           />
           <span className="shrink-0" style={{ width: "42px" }} />
           {!hideSubStartEnd && <span className="w-[60px] shrink-0" />}
@@ -472,7 +473,7 @@ export function SongRow({
             onFocusField={() => { if (!song.xTime) focusedFieldRef.current = "duration"; }}
             placeholder="0:00"
             testId={`${pid}-input-duration-${song.id}`}
-            color={song.xTime ? "rgba(34,197,94,0.7)" : "rgba(250,204,21,0.9)"}
+            color={song.xTime ? "#a8a8a0" : "#c186c8"}
             disabled={song.xTime}
           />
 
@@ -487,15 +488,14 @@ export function SongRow({
               height: "38px",
               ...(song.xTime
                 ? {
-                    background: "rgba(34,197,94,0.15)",
-                    color: "rgba(34,197,94,0.95)",
-                    border: "1px solid rgba(34,197,94,0.4)",
-                    boxShadow: "0 0 6px rgba(34,197,94,0.15)",
+                    background: "#323230",
+                    color: "#c186c8",
+                    border: "1px solid #46463f",
                   }
                 : {
-                    background: "rgba(255,255,255,0.02)",
-                    color: "rgba(255,255,255,0.15)",
-                    border: "1px solid #3d3d3a",
+                    background: "#323230",
+                    color: "#76766f",
+                    border: "1px solid #46463f",
                   }),
             }}
             onClick={() => {
@@ -515,7 +515,7 @@ export function SongRow({
               onFocusField={() => { focusedFieldRef.current = "subStartTime"; }}
               placeholder="0:00"
               testId={`${pid}-input-substart-${song.id}`}
-              color={subStartTime ? "rgba(255,255,255,0.8)" : undefined}
+              color={subStartTime ? "#a8a8a0" : undefined}
             />
           )}
           {!hideSubStartEnd && (
@@ -526,7 +526,7 @@ export function SongRow({
               onFocusField={() => { focusedFieldRef.current = "subEndTime"; }}
               placeholder="0:00"
               testId={`${pid}-input-subend-${song.id}`}
-              color={subEndTime ? "rgba(255,255,255,0.8)" : undefined}
+              color={subEndTime ? "#a8a8a0" : undefined}
             />
           )}
           <TimeInput
@@ -536,7 +536,7 @@ export function SongRow({
             onFocusField={() => { focusedFieldRef.current = "subTimer"; }}
             placeholder="着替"
             testId={`${pid}-input-subtimer-${song.id}`}
-            color={subTimer ? "rgba(251,146,60,0.9)" : undefined}
+            color={subTimer ? "#a8a8a0" : undefined}
           />
         </>
       )}
@@ -566,7 +566,7 @@ export function SongRow({
         tabIndex={-1}
         className="shrink-0 w-5 h-5 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110"
         style={{ color: "transparent", background: "transparent" }}
-        onMouseEnter={(e) => { e.currentTarget.style.color = "rgba(248,113,113,1)"; e.currentTarget.style.background = "rgba(239,68,68,0.15)"; }}
+        onMouseEnter={(e) => { e.currentTarget.style.color = "#a8a8a0"; e.currentTarget.style.background = "#323230"; }}
         onMouseLeave={(e) => { e.currentTarget.style.color = "transparent"; e.currentTarget.style.background = "transparent"; }}
         onClick={() => {
           deleteSong.mutate({ id: song.id, setlistId }, {
@@ -824,9 +824,9 @@ export function InsertionRow({ onAddSong, onAddSpecial, onAddMC, onAddEncore, di
         disabled={disabled}
         className="flex-1 flex items-center justify-center gap-1 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase transition-all duration-200 disabled:opacity-30"
         style={{
-          color: "#c186c8",
-          background: "rgba(155,102,175,0.12)",
-          border: "1px solid rgba(193,134,200,0.15)",
+          color: "#a8a8a0",
+          background: "#323230",
+          border: "1px dashed #46463f",
         }}
         data-testid={`${pfx}insert-song`}
       >
@@ -838,9 +838,9 @@ export function InsertionRow({ onAddSong, onAddSpecial, onAddMC, onAddEncore, di
         disabled={disabled}
         className="flex-1 flex items-center justify-center gap-1 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase transition-all duration-200 disabled:opacity-30"
         style={{
-          color: "#facc15",
-          background: "rgba(234,179,8,0.12)",
-          border: "1px solid rgba(250,204,21,0.15)",
+          color: "#a8a8a0",
+          background: "#323230",
+          border: "1px dashed #46463f",
         }}
         data-testid={`${pfx}insert-special`}
       >
@@ -852,9 +852,9 @@ export function InsertionRow({ onAddSong, onAddSpecial, onAddMC, onAddEncore, di
         disabled={disabled}
         className="flex-1 flex items-center justify-center gap-1 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase transition-all duration-200 disabled:opacity-30"
         style={{
-          color: "#38bdf8",
-          background: "rgba(56,189,248,0.12)",
-          border: "1px solid rgba(125,211,252,0.15)",
+          color: "#a8a8a0",
+          background: "#323230",
+          border: "1px dashed #46463f",
         }}
         data-testid={`${pfx}insert-mc`}
       >
@@ -866,9 +866,9 @@ export function InsertionRow({ onAddSong, onAddSpecial, onAddMC, onAddEncore, di
         disabled={disabled}
         className="flex-1 flex items-center justify-center gap-1 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase transition-all duration-200 disabled:opacity-30"
         style={{
-          color: "#22c55e",
-          background: "rgba(34,197,94,0.12)",
-          border: "1px solid rgba(74,222,128,0.15)",
+          color: "#a8a8a0",
+          background: "#323230",
+          border: "1px dashed #46463f",
         }}
         data-testid={`${pfx}insert-encore`}
       >

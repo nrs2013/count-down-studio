@@ -252,33 +252,24 @@ function InlineSongCard({
       onClick={handleCardClick}
       data-testid={`card-song-${song.id}`}
     >
-      {/* Active indicator line */}
+      {/* Active indicator line — flat muted purple */}
       {isCurrent && (
         <div
           className="absolute left-0 top-2 bottom-2 w-[3px] rounded-full"
-          style={isMC
-            ? { background: "linear-gradient(180deg, #7dd3fc, #38bdf8)", boxShadow: "0 0 8px rgba(56,189,248,0.4)" }
-            : isEvent
-            ? { background: "linear-gradient(180deg, #facc15, #eab308)", boxShadow: "0 0 8px rgba(250,204,21,0.4)" }
-            : { background: "linear-gradient(180deg, #c186c8, #c026d3)", boxShadow: "0 0 8px rgba(193,134,200,0.4)" }
-          }
+          style={{ background: "#c186c8" }}
         />
       )}
       {isSelected && !isCurrent && (
         <div
           className="absolute left-0 top-2 bottom-2 w-[3px] rounded-full"
-          style={isMC
-            ? { background: "linear-gradient(180deg, #7dd3fc, #0ea5e9)", boxShadow: "0 0 8px rgba(56,189,248,0.3)" }
-            : isEvent
-            ? { background: "linear-gradient(180deg, #facc15, #ca8a04)", boxShadow: "0 0 8px rgba(250,204,21,0.3)" }
-            : { background: "linear-gradient(180deg, #22d3ee, #06b6d4)", boxShadow: "0 0 8px rgba(34,211,238,0.3)" }
-          }
+          style={{ background: "#76766f" }}
         />
       )}
 
       <div className="flex items-center gap-1.5">
         <div
-          className="flex-shrink-0 cursor-grab active:cursor-grabbing text-white/20 hover:text-white/50 touch-none self-stretch flex items-center"
+          className="flex-shrink-0 cursor-grab active:cursor-grabbing touch-none self-stretch flex items-center"
+          style={{ color: "#46463f" }}
           onClick={(e) => e.stopPropagation()}
           {...attributes}
           {...listeners}
@@ -289,15 +280,15 @@ function InlineSongCard({
         <div className="flex-shrink-0 w-5 flex items-center justify-center">
           {isCurrent && countdownStatus === "running" ? (
             <span className="relative flex h-2.5 w-2.5">
-              <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${isMC ? "bg-sky-400" : isEvent ? "bg-yellow-400" : "bg-fuchsia-400"} opacity-75`} />
-              <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${isMC ? "bg-sky-500" : isEvent ? "bg-yellow-500" : "bg-fuchsia-500"}`} />
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ background: "#c186c8" }} />
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5" style={{ background: "#c186c8" }} />
             </span>
           ) : (
             <span
               className="text-[11px] font-medium"
               style={{
                 fontFamily: UI_FONT,
-                color: isMC ? "#38bdf8" : isEvent ? "#facc15" : isCurrent ? "#c186c8" : isSelected ? "#22d3ee" : "rgba(255,255,255,0.5)",
+                color: isCurrent ? "#c186c8" : "#76766f",
               }}
             >
               {isMC ? "MC" : isEvent ? "SP" : (songNumber ?? index + 1)}
@@ -311,7 +302,7 @@ function InlineSongCard({
           ) : (
             <>
               <div className="flex items-baseline gap-0 overflow-hidden">
-                <span className="text-fuchsia-400 text-[10px] mr-1 font-bold flex-shrink-0" style={{ textShadow: "0 0 8px rgba(193,134,200,0.3)" }}>NOW:</span>
+                <span className="text-[10px] mr-1 font-bold flex-shrink-0" style={{ color: "#c186c8" }}>NOW:</span>
                 {editingField === "title" ? (
                   <input
                     type="text"
@@ -338,7 +329,11 @@ function InlineSongCard({
                   />
                 ) : (
                   <span
-                    className={`text-sm font-semibold truncate text-left cursor-text rounded px-1 py-0.5 hover:bg-white/10 ${!song.title ? "text-white/30 italic" : isCurrent ? "text-white" : "text-white/80"}`}
+                    className="text-sm font-semibold truncate text-left cursor-text rounded px-1 py-0.5"
+                    style={{
+                      color: !song.title ? "#5a5a54" : isCurrent ? "#ece6d8" : "#a8a8a0",
+                      fontStyle: !song.title ? "italic" : "normal",
+                    }}
                     onMouseDown={(e) => startEditing("title", song.title, e)}
                     data-testid={`button-edit-title-${song.id}`}
                   >
@@ -348,7 +343,7 @@ function InlineSongCard({
               </div>
 
               <div className="flex items-baseline gap-0 overflow-hidden mt-1">
-                <span className="text-cyan-400 text-[10px] mr-1 font-bold flex-shrink-0" style={{ textShadow: "0 0 8px rgba(6,182,212,0.3)" }}>NEXT:</span>
+                <span className="text-[10px] mr-1 font-bold flex-shrink-0" style={{ color: "#76766f" }}>NEXT:</span>
                 {editingField === "nextTitle" ? (
                   <input
                     type="text"

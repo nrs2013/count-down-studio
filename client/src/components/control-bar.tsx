@@ -29,15 +29,14 @@ export function ControlBar({
         className="flex items-center gap-1 rounded-full px-2 py-1"
         style={{
           background: "#323230",
-          backdropFilter: "blur(12px)",
-          border: "1px solid #3d3d3a",
+          border: "1px solid #46463f",
         }}
       >
         {status === "running" && (
           <button
             onClick={onPause}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-full text-white/80 text-xs font-medium tracking-wider uppercase transition-colors duration-200"
-            style={{ background: "rgba(255,255,255,0.05)" }}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-medium tracking-wider uppercase transition-colors duration-200"
+            style={{ background: "#46463f", color: "#a8a8a0" }}
             data-testid="button-pause"
           >
             <Pause className="w-3.5 h-3.5" />
@@ -48,8 +47,8 @@ export function ControlBar({
         {status === "paused" && (
           <button
             onClick={onResume}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-full text-white/80 text-xs font-medium tracking-wider uppercase transition-colors duration-200"
-            style={{ background: "rgba(255,255,255,0.05)" }}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-medium tracking-wider uppercase transition-colors duration-200"
+            style={{ background: "#46463f", color: "#a8a8a0" }}
             data-testid="button-resume"
           >
             <Play className="w-3.5 h-3.5" />
@@ -60,7 +59,8 @@ export function ControlBar({
         {(status === "running" || status === "paused") && (
           <button
             onClick={onStop}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-full text-white/60 text-xs font-medium tracking-wider uppercase transition-colors duration-200"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-medium tracking-wider uppercase transition-colors duration-200"
+            style={{ color: "#76766f" }}
             data-testid="button-stop"
           >
             <Square className="w-3.5 h-3.5" />
@@ -71,8 +71,8 @@ export function ControlBar({
         {hasNextSong && (
           <button
             onClick={onNext}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-full text-white/80 text-xs font-medium tracking-wider uppercase transition-colors duration-200"
-            style={{ background: "rgba(255,255,255,0.05)" }}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-medium tracking-wider uppercase transition-colors duration-200"
+            style={{ background: "#46463f", color: "#a8a8a0" }}
             data-testid="button-next"
           >
             <SkipForward className="w-3.5 h-3.5" />
