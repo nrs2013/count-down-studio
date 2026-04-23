@@ -931,26 +931,43 @@ export function PerformanceEditor({
           }}
           data-testid="editor-control-bar"
         >
-          {/* Control pills — all flat PROMPTER-style: solid surface bg + warm border, no neon glow */}
-          {countdownStatus === "running" && (
-            <button onClick={onPause} className={ctrlBtnClass}
-              style={{ color: "#e8e8e2", background: "#1c1b19", border: "1px solid #2c2a27" }}
-              data-testid="editor-button-pause"
-            >
-              <Pause className="w-3.5 h-3.5" /> Pause
-            </button>
-          )}
-          {countdownStatus === "paused" && (
+          {/* Control pills — always visible. Greyed out when idle/finished. */}
+          {countdownStatus === "paused" ? (
             <button onClick={onResume} className={ctrlBtnClass}
               style={{ color: "#e8e8e2", background: "#1c1b19", border: "1px solid #2c2a27" }}
               data-testid="editor-button-resume"
             >
               <Play className="w-3.5 h-3.5" /> Resume
             </button>
+          ) : (
+            <button
+              onClick={onPause}
+              disabled={countdownStatus !== "running"}
+              className={ctrlBtnClass}
+              style={{
+                color: "#e8e8e2",
+                background: "#1c1b19",
+                border: "1px solid #2c2a27",
+                opacity: countdownStatus === "running" ? 1 : 0.4,
+                cursor: countdownStatus === "running" ? "pointer" : "not-allowed",
+              }}
+              data-testid="editor-button-pause"
+            >
+              <Pause className="w-3.5 h-3.5" /> Pause
+            </button>
           )}
-          {(countdownStatus === "running" || countdownStatus === "paused") && (
-            <button onClick={onStop} className={ctrlBtnClass}
-              style={{ color: "#a8a8a0", background: "#1c1b19", border: "1px solid #2c2a27" }}
+          {(
+            <button
+              onClick={onStop}
+              disabled={countdownStatus !== "running" && countdownStatus !== "paused"}
+              className={ctrlBtnClass}
+              style={{
+                color: "#a8a8a0",
+                background: "#1c1b19",
+                border: "1px solid #2c2a27",
+                opacity: (countdownStatus === "running" || countdownStatus === "paused") ? 1 : 0.4,
+                cursor: (countdownStatus === "running" || countdownStatus === "paused") ? "pointer" : "not-allowed",
+              }}
               data-testid="editor-button-stop"
             >
               <Square className="w-3.5 h-3.5" /> Stop
