@@ -96,7 +96,7 @@ export function MidiStatus({
 
       {open && (
         <div
-          className="absolute top-full left-0 mt-1 min-w-[280px] rounded-lg py-2 z-[100]"
+          className="absolute top-full left-0 mt-1 min-w-[280px] rounded-sm py-2 z-[100]"
           style={{
             background: "rgba(18,18,26,0.95)",
             border: "1px solid #2c2a27",

@@ -246,7 +246,7 @@ function InlineSongCard({
         background: cardBg,
         borderColor: cardBorderColor,
       }}
-      className={`${isMC ? "rounded px-2 py-0.5" : "rounded-lg px-2.5 py-2"} transition-all duration-200 border cursor-pointer relative ${
+      className={`${isMC ? "rounded px-2 py-0.5" : "rounded-sm px-2.5 py-2"} transition-all duration-200 border cursor-pointer relative ${
         isPast ? "opacity-40" : ""
       }`}
       onClick={handleCardClick}
@@ -306,7 +306,7 @@ function InlineSongCard({
                 {editingField === "title" ? (
                   <input
                     type="text"
-                    className="h-7 text-sm text-white px-2 flex-1 rounded-md focus:outline-none transition-all duration-200"
+                    className="h-7 text-sm text-white px-2 flex-1 rounded-sm focus:outline-none transition-all duration-200"
                     style={{
                       border: `1px solid ${ACCENT_COLORS.fuchsia}`,
                       background: INPUT_STYLES.background,
@@ -347,7 +347,7 @@ function InlineSongCard({
                 {editingField === "nextTitle" ? (
                   <input
                     type="text"
-                    className="h-7 text-sm text-white px-2 flex-1 rounded-md focus:outline-none transition-all duration-200"
+                    className="h-7 text-sm text-white px-2 flex-1 rounded-sm focus:outline-none transition-all duration-200"
                     style={{
                       border: `1px solid ${ACCENT_COLORS.cyan}`,
                       background: INPUT_STYLES.background,
@@ -415,7 +415,7 @@ function InlineSongCard({
                 />
                 <button
                   tabIndex={-1}
-                  className="shrink-0 flex flex-col items-center justify-center rounded-md transition-all duration-200 py-1 px-1"
+                  className="shrink-0 flex flex-col items-center justify-center rounded-sm transition-all duration-200 py-1 px-1"
                   style={{
                     fontFamily: "'JetBrains Mono', monospace",
                     lineHeight: 1,
@@ -864,7 +864,7 @@ export function SetlistPanel({
           style={{
             background: "rgba(6,182,212,0.15)",
             border: "3px dashed rgba(6,182,212,0.6)",
-            borderRadius: 8,
+            borderRadius: 2,
           }}
         >
           <Upload className="w-10 h-10 text-cyan-400 mb-3" />
@@ -920,7 +920,7 @@ export function SetlistPanel({
         <div className="flex items-center gap-2">
           <input
             type="text"
-            className="flex-1 min-w-0 h-9 text-sm rounded-lg text-white px-3 font-semibold placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-fuchsia-500/50 transition-all duration-200"
+            className="flex-1 min-w-0 h-9 text-sm rounded-sm text-white px-3 font-semibold placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-fuchsia-500/50 transition-all duration-200"
             style={{
               background: "#1c1b19",
               border: "1px solid #2c2a27",
@@ -941,7 +941,7 @@ export function SetlistPanel({
           <input
             type="text"
             inputMode="numeric"
-            className="h-9 text-sm rounded-lg text-white px-2 text-center font-semibold placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-green-500/40 transition-all duration-200"
+            className="h-9 text-sm rounded-sm text-white px-2 text-center font-semibold placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-green-500/40 transition-all duration-200"
             style={{ width: "72px", minWidth: "72px", background: "#1c1b19", border: "1px solid #2c2a27" }}
             value={rehearsalValue}
             onChange={(e) => { setRehearsalValue(imeRehearsalRef.current ? e.target.value : filterTimeInput(e.target.value)); }}
@@ -956,7 +956,7 @@ export function SetlistPanel({
           <input
             type="text"
             inputMode="numeric"
-            className="h-9 text-sm rounded-lg text-white px-2 text-center font-semibold placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-amber-500/40 transition-all duration-200"
+            className="h-9 text-sm rounded-sm text-white px-2 text-center font-semibold placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-amber-500/40 transition-all duration-200"
             style={{ width: "72px", minWidth: "72px", background: "#1c1b19", border: "1px solid #2c2a27" }}
             value={doorOpenValue}
             onChange={(e) => { setDoorOpenValue(imeDoorRef.current ? e.target.value : filterTimeInput(e.target.value)); }}
@@ -971,7 +971,7 @@ export function SetlistPanel({
           <input
             type="text"
             inputMode="numeric"
-            className="h-9 text-sm rounded-lg text-white px-2 text-center font-semibold placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-cyan-500/40 transition-all duration-200"
+            className="h-9 text-sm rounded-sm text-white px-2 text-center font-semibold placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-cyan-500/40 transition-all duration-200"
             style={{ width: "72px", minWidth: "72px", background: "#1c1b19", border: "1px solid #2c2a27" }}
             value={showTimeValue}
             onChange={(e) => { setShowTimeValue(imeShowRef.current ? e.target.value : filterTimeInput(e.target.value)); }}

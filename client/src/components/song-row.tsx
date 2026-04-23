@@ -348,7 +348,7 @@ export function SongRow({
               : isMC
               ? "1px solid rgba(106,150,184,0.7)"
               : "1px solid rgba(184,149,88,0.7)",
-            borderRadius: "5px",
+            borderRadius: "2px",
             padding: "3px 0",
             width: 30, minWidth: 30, maxWidth: 30,
             lineHeight: 1,
@@ -490,7 +490,7 @@ export function SongRow({
 
           <button
             tabIndex={-1}
-            className="shrink-0 flex flex-col items-center justify-center rounded-md transition-all duration-200"
+            className="shrink-0 flex flex-col items-center justify-center rounded-sm transition-all duration-200"
             style={{
               fontFamily: MONO_FONT,
               lineHeight: 1,
@@ -658,7 +658,7 @@ export function AddSongButton({ onClick, disabled = false, variant = "full", tes
     <button
       onClick={onClick}
       disabled={disabled}
-      className="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg font-semibold text-sm tracking-wider uppercase transition-all duration-300 disabled:opacity-40"
+      className="flex-1 flex items-center justify-center gap-2 py-3 rounded-sm font-semibold text-sm tracking-wider uppercase transition-all duration-300 disabled:opacity-40"
       style={{
         background: "transparent",
         border: "1px dashed #2c2a27",
@@ -705,7 +705,7 @@ export function AddMCButton({ onClick, disabled = false, variant = "full", testI
     <button
       onClick={onClick}
       disabled={disabled}
-      className="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg font-semibold text-sm tracking-wider uppercase transition-all duration-300 disabled:opacity-40"
+      className="flex-1 flex items-center justify-center gap-2 py-3 rounded-sm font-semibold text-sm tracking-wider uppercase transition-all duration-300 disabled:opacity-40"
       style={{
         background: "transparent",
         border: "1px dashed #2c2a27",
@@ -752,7 +752,7 @@ export function AddSpecialButton({ onClick, disabled = false, variant = "full", 
     <button
       onClick={onClick}
       disabled={disabled}
-      className="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg font-semibold text-sm tracking-wider uppercase transition-all duration-300 disabled:opacity-40"
+      className="flex-1 flex items-center justify-center gap-2 py-3 rounded-sm font-semibold text-sm tracking-wider uppercase transition-all duration-300 disabled:opacity-40"
       style={{
         background: "transparent",
         border: "1px dashed #2c2a27",
@@ -799,7 +799,7 @@ export function AddEncoreButton({ onClick, disabled = false, variant = "full", t
     <button
       onClick={onClick}
       disabled={disabled}
-      className="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg font-semibold text-sm tracking-wider uppercase transition-all duration-300 disabled:opacity-40"
+      className="flex-1 flex items-center justify-center gap-2 py-3 rounded-sm font-semibold text-sm tracking-wider uppercase transition-all duration-300 disabled:opacity-40"
       style={{
         background: "transparent",
         border: "1px dashed #2c2a27",

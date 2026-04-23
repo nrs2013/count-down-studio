@@ -1013,7 +1013,7 @@ export default function Manage() {
             style={{
               width: 30,
               height: 30,
-              borderRadius: 6,
+              borderRadius: 2,
               background: "#c186c8",                  // solid fuchsia (not gradient)
               display: "flex",
               alignItems: "center",
@@ -1042,7 +1042,7 @@ export default function Manage() {
           style={{
             background: "rgba(100,100,90,0.06)",
             border: "3px dashed #2c2a27",
-            borderRadius: "12px",
+            borderRadius: "3px",
           }}
         >
           <div
@@ -1073,7 +1073,7 @@ export default function Manage() {
               data-testid="input-import-file"
             />
             <button
-              className="flex items-center justify-center gap-1.5 rounded-md font-semibold uppercase transition-all duration-200"
+              className="flex items-center justify-center gap-1.5 rounded-sm font-semibold uppercase transition-all duration-200"
               style={{
                 fontFamily: HEADER_FONT,
                 fontSize: "15px",
@@ -1092,7 +1092,7 @@ export default function Manage() {
               Import
             </button>
             <button
-              className="flex items-center justify-center gap-1.5 rounded-md font-semibold uppercase transition-all duration-200 disabled:opacity-30"
+              className="flex items-center justify-center gap-1.5 rounded-sm font-semibold uppercase transition-all duration-200 disabled:opacity-30"
               style={{
                 fontFamily: HEADER_FONT,
                 fontSize: "15px",
@@ -1114,7 +1114,7 @@ export default function Manage() {
             {setlists.length > 0 && (
               <>
                 <button
-                  className="flex items-center justify-center gap-1.5 rounded-md font-semibold uppercase transition-all duration-200"
+                  className="flex items-center justify-center gap-1.5 rounded-sm font-semibold uppercase transition-all duration-200"
                   style={{
                     fontFamily: HEADER_FONT,
                     fontSize: "15px",
@@ -1133,7 +1133,7 @@ export default function Manage() {
                   New
                 </button>
                 <button
-                  className="flex items-center justify-center gap-1.5 rounded-md font-semibold uppercase transition-all duration-200"
+                  className="flex items-center justify-center gap-1.5 rounded-sm font-semibold uppercase transition-all duration-200"
                   style={{
                     fontFamily: HEADER_FONT,
                     fontSize: "15px",
@@ -1209,7 +1209,7 @@ export default function Manage() {
                 onCompositionStart={concertIME.onCompositionStart}
                 onCompositionEnd={concertIME.onCompositionEnd}
                 onKeyDown={(e) => { if (concertIME.isIME(e)) return; if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }}
-                className="flex-1 min-w-0 h-12 text-lg font-bold px-4 rounded-md text-white focus:outline-none transition-all duration-200 placeholder:text-white/20"
+                className="flex-1 min-w-0 h-12 text-lg font-bold px-4 rounded-sm text-white focus:outline-none transition-all duration-200 placeholder:text-white/20"
                 style={{
                   fontFamily: UI_FONT,
                   border: INPUT_STYLES.border,
@@ -1229,7 +1229,7 @@ export default function Manage() {
               />
               <input
                 type="text"
-                className="h-12 text-sm px-3 rounded-md text-white text-center focus:outline-none transition-all duration-200 placeholder:text-white/20"
+                className="h-12 text-sm px-3 rounded-sm text-white text-center focus:outline-none transition-all duration-200 placeholder:text-white/20"
                 style={{ fontFamily: UI_FONT, width: "90px", minWidth: "90px", border: INPUT_STYLES.border, background: INPUT_STYLES.background }}
                 value={rehearsalValue}
                 onChange={(e) => { setRehearsalValue(imeRehearsalRef.current ? e.target.value : filterTimeInput(e.target.value)); }}
@@ -1245,7 +1245,7 @@ export default function Manage() {
               />
               <input
                 type="text"
-                className="h-12 text-sm px-3 rounded-md text-white text-center focus:outline-none transition-all duration-200 placeholder:text-white/20"
+                className="h-12 text-sm px-3 rounded-sm text-white text-center focus:outline-none transition-all duration-200 placeholder:text-white/20"
                 style={{ fontFamily: UI_FONT, width: "90px", minWidth: "90px", border: INPUT_STYLES.border, background: INPUT_STYLES.background }}
                 value={doorOpenValue}
                 onChange={(e) => { setDoorOpenValue(imeDoorRef.current ? e.target.value : filterTimeInput(e.target.value)); }}
@@ -1261,7 +1261,7 @@ export default function Manage() {
               />
               <input
                 type="text"
-                className="h-12 text-sm px-3 rounded-md text-white text-center focus:outline-none transition-all duration-200 placeholder:text-white/20"
+                className="h-12 text-sm px-3 rounded-sm text-white text-center focus:outline-none transition-all duration-200 placeholder:text-white/20"
                 style={{ fontFamily: UI_FONT, width: "90px", minWidth: "90px", border: INPUT_STYLES.border, background: INPUT_STYLES.background }}
                 value={showTimeValue}
                 onChange={(e) => { setShowTimeValue(imeShowRef.current ? e.target.value : filterTimeInput(e.target.value)); }}

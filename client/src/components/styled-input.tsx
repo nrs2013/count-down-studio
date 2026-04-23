@@ -69,7 +69,7 @@ export function StyledInput({
         }
       })}
       placeholder={placeholder}
-      className={`bg-transparent text-white ${bold ? "text-base" : "text-sm"} ${mono ? "px-1.5" : "px-2"} py-1 h-[38px] rounded-md focus:outline-none transition-all duration-200 placeholder:text-white/15 ${className}`}
+      className={`bg-transparent text-white ${bold ? "text-base" : "text-sm"} ${mono ? "px-1.5" : "px-2"} py-1 h-[38px] rounded-sm focus:outline-none transition-all duration-200 placeholder:text-white/15 ${className}`}
       style={{
         fontFamily: mono ? MONO_FONT : UI_FONT,
         border: INPUT_STYLES.border,
@@ -160,7 +160,7 @@ export function TimeInput({
         }
       }}
       placeholder={placeholder}
-      className={`w-[60px] text-center text-base px-0.5 h-[38px] rounded-md focus:outline-none transition-all duration-200 placeholder:text-white/15 shrink-0 ${className}`}
+      className={`w-[60px] text-center text-base px-0.5 h-[38px] rounded-sm focus:outline-none transition-all duration-200 placeholder:text-white/15 shrink-0 ${className}`}
       style={{
         fontFamily: MONO_FONT,
         border: INPUT_STYLES.border,
@@ -218,7 +218,7 @@ export function StyledSelect({
         e.currentTarget.style.color = e.currentTarget.value ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.2)";
       }}
       tabIndex={-1}
-      className={`text-base py-1 h-[38px] rounded-md focus:outline-none transition-all duration-200 appearance-none cursor-pointer ${className}`}
+      className={`text-base py-1 h-[38px] rounded-sm focus:outline-none transition-all duration-200 appearance-none cursor-pointer ${className}`}
       style={{
         fontFamily: UI_FONT,
         background: INPUT_STYLES.background,

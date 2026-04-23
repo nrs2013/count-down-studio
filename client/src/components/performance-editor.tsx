@@ -50,7 +50,7 @@ function LiveMidiBigDisplay({ lastMessage }: { lastMessage: MidiMessage | null }
       style={{
         minHeight: 84,
         padding: "12px 16px",
-        borderRadius: 12,
+        borderRadius: 3,
         border: "1px solid #242320",
         background: "#201e1c",
       }}
@@ -662,7 +662,7 @@ export function PerformanceEditor({
             style={{
               width: 30,
               height: 30,
-              borderRadius: 6,
+              borderRadius: 2,
               background: "#c186c8",
               display: "flex",
               alignItems: "center",
@@ -743,7 +743,7 @@ export function PerformanceEditor({
             type="button"
             onClick={toggleEventInfo}
             disabled={!outputOpen}
-            className="h-9 w-9 shrink-0 rounded-lg flex items-center justify-center transition-colors duration-150"
+            className="h-9 w-9 shrink-0 rounded-sm flex items-center justify-center transition-colors duration-150"
             style={{
               background: showingEventInfo ? "#c186c8" : "#1c1b19",
               border: showingEventInfo ? "1px solid #c186c8" : "1px solid #2c2a27",
@@ -757,7 +757,7 @@ export function PerformanceEditor({
           </button>
           <input
             type="text"
-            className="flex-1 min-w-0 h-9 text-sm rounded-lg px-3 font-semibold placeholder:text-[#76766f] focus:outline-none focus:ring-1 focus:ring-fuchsia-500/50 transition-all duration-150"
+            className="flex-1 min-w-0 h-9 text-sm rounded-sm px-3 font-semibold placeholder:text-[#76766f] focus:outline-none focus:ring-1 focus:ring-fuchsia-500/50 transition-all duration-150"
             style={{ background: "#1c1b19", border: "1px solid #2c2a27", color: "#e8e8e2", fontFamily: UI_FONT }}
             value={setlistNameValue}
             onChange={(e) => { if (setlist) setSetlistNameValue(e.target.value); }}
@@ -772,7 +772,7 @@ export function PerformanceEditor({
           <input
             type="text"
             inputMode="numeric"
-            className="h-9 text-sm rounded-lg px-2 text-center font-semibold placeholder:text-[#76766f] focus:outline-none focus:ring-1 focus:ring-[#2c2a27] transition-all duration-150"
+            className="h-9 text-sm rounded-sm px-2 text-center font-semibold placeholder:text-[#76766f] focus:outline-none focus:ring-1 focus:ring-[#2c2a27] transition-all duration-150"
             style={{ width: "72px", minWidth: "72px", background: "#1c1b19", border: "1px solid #2c2a27", color: "#e8e8e2", fontFamily: MONO_FONT }}
             value={rehearsalValue}
             onChange={(e) => { setRehearsalValue(imeRehearsalRef.current ? e.target.value : filterTimeInput(e.target.value)); }}
@@ -787,7 +787,7 @@ export function PerformanceEditor({
           <input
             type="text"
             inputMode="numeric"
-            className="h-9 text-sm rounded-lg px-2 text-center font-semibold placeholder:text-[#76766f] focus:outline-none focus:ring-1 focus:ring-[#2c2a27] transition-all duration-150"
+            className="h-9 text-sm rounded-sm px-2 text-center font-semibold placeholder:text-[#76766f] focus:outline-none focus:ring-1 focus:ring-[#2c2a27] transition-all duration-150"
             style={{ width: "72px", minWidth: "72px", background: "#1c1b19", border: "1px solid #2c2a27", color: "#e8e8e2", fontFamily: MONO_FONT }}
             value={doorOpenValue}
             onChange={(e) => { setDoorOpenValue(imeDoorRef.current ? e.target.value : filterTimeInput(e.target.value)); }}
@@ -802,7 +802,7 @@ export function PerformanceEditor({
           <input
             type="text"
             inputMode="numeric"
-            className="h-9 text-sm rounded-lg px-2 text-center font-semibold placeholder:text-[#76766f] focus:outline-none focus:ring-1 focus:ring-[#2c2a27] transition-all duration-150"
+            className="h-9 text-sm rounded-sm px-2 text-center font-semibold placeholder:text-[#76766f] focus:outline-none focus:ring-1 focus:ring-[#2c2a27] transition-all duration-150"
             style={{ width: "72px", minWidth: "72px", background: "#1c1b19", border: "1px solid #2c2a27", color: "#e8e8e2", fontFamily: MONO_FONT }}
             value={showTimeValue}
             onChange={(e) => { setShowTimeValue(imeShowRef.current ? e.target.value : filterTimeInput(e.target.value)); }}
@@ -842,7 +842,7 @@ export function PerformanceEditor({
               width: "100%",
               maxHeight: "calc(100vh - 220px)",
               overflow: "hidden",
-              borderRadius: "6px",
+              borderRadius: "2px",
               boxShadow: "0 8px 32px rgba(0,0,0,0.6), 0 0 0 1px #2c2a27",
             }}
           >
