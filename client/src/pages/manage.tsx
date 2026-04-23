@@ -984,7 +984,7 @@ export default function Manage() {
 
   return (
     <div
-      className="h-full flex flex-col relative pt-[4.5rem]"
+      className="h-full flex flex-col relative pt-2"
       style={{
         fontFamily: UI_FONT,
         background: "#1a1918", // warm gray canvas; header strip (deep black) creates contrast
@@ -994,50 +994,6 @@ export default function Manage() {
       onDragLeave={handleFileDragLeave}
       data-testid="manage-page"
     >
-      {/* Full-width TOPBAR strip (PROMPTER-style): deep black strip with logo block + wordmark */}
-      <div
-        className="fixed top-0 left-0 right-0 z-40 flex items-center"
-        style={{
-          height: 56,
-          background: "#1a1918",                      // deeper than canvas for strong anchor
-          borderBottom: "1px solid #2c2a27",
-        }}
-      >
-        <button
-          className="flex items-center gap-3 pl-4 transition-opacity duration-150 hover:opacity-80"
-          style={{ background: "transparent", border: "none", cursor: "pointer" }}
-          onClick={() => navigate("/")}
-          title="ホーム"
-          data-testid="button-home"
-        >
-          {/* Solid fuchsia logo square (PROMPTER style) */}
-          <div
-            style={{
-              width: 30,
-              height: 30,
-              borderRadius: 2,
-              background: "#c186c8",                  // solid fuchsia (not gradient)
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-              boxShadow: "0 0 14px rgba(193,134,200,0.25)",
-            }}
-          >
-            <span style={{ fontSize: 14, fontFamily: "'Helvetica Neue','Inter',sans-serif", fontWeight: 900, color: "#0a0a08", lineHeight: 1, letterSpacing: "-0.03em" }}>CD</span>
-          </div>
-          {/* Wordmark: **COUNT DOWN** STUDIO */}
-          <div style={{ lineHeight: 1, textAlign: "left" }}>
-            <div style={{ fontSize: 14, fontFamily: "'Helvetica Neue','Inter',sans-serif", letterSpacing: "0.03em", color: "#e8e8e2" }}>
-              <b style={{ fontWeight: 800, color: "#c186c8" }}>COUNT DOWN</b>
-              <span style={{ fontWeight: 300, marginLeft: 6 }}>STUDIO</span>
-            </div>
-            <div style={{ fontSize: 9, color: "#76766f", letterSpacing: "0.22em", marginTop: 3, fontWeight: 700, textTransform: "uppercase" }}>
-              Concert Countdown Timer
-            </div>
-          </div>
-        </button>
-      </div>
       {isDragOver && (
         <div
           className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none"
@@ -1164,7 +1120,7 @@ export default function Manage() {
         {!loadingSetlists && setlists.length > 0 && (
           <div className="max-w-7xl mx-auto px-3 pt-4 pb-0">
             {/* Concert navigation */}
-            <div className="flex items-center gap-2 mb-3">
+            <div className="flex items-center gap-2 mb-1">
               <button
                 className="w-8 h-8 rounded-full flex items-center justify-center text-white/30 transition-all duration-200 disabled:opacity-20"
                 style={{ background: "#1a1918", border: "1px solid #201e1c" }}
@@ -1188,21 +1144,21 @@ export default function Manage() {
               </button>
             </div>
 
-            {/* Label row — theme purple for main label, clearer muted gray for secondary */}
-            <div className="flex items-baseline gap-3 mb-3">
+            {/* Inline labels above inputs — compact single-row layout */}
+            <div className="flex items-baseline gap-3 mb-1" style={{ paddingRight: 260 }}>
               <span
-                className="flex-1 min-w-0 text-[11px] uppercase leading-none font-bold"
-                style={{ fontFamily: UI_FONT, letterSpacing: "0.15em", color: "#c186c8" }}
+                className="flex-1 min-w-0 text-[10px] uppercase leading-none font-bold"
+                style={{ fontFamily: UI_FONT, letterSpacing: "0.12em", color: "#c186c8" }}
               >
                 Concert Title
               </span>
-              <span className="text-[11px] uppercase leading-none text-center whitespace-nowrap font-bold" style={{ fontFamily: UI_FONT, letterSpacing: "0.15em", color: "#a8a8a0", width: "90px", minWidth: "90px" }}>REHEARSAL</span>
-              <span className="text-[11px] uppercase leading-none text-center whitespace-nowrap font-bold" style={{ fontFamily: UI_FONT, letterSpacing: "0.15em", color: "#a8a8a0", width: "90px", minWidth: "90px" }}>DOOR OPEN</span>
-              <span className="text-[11px] uppercase leading-none text-center whitespace-nowrap font-bold" style={{ fontFamily: UI_FONT, letterSpacing: "0.15em", color: "#a8a8a0", width: "90px", minWidth: "90px" }}>SHOW TIME</span>
+              <span className="text-[10px] uppercase leading-none text-center whitespace-nowrap font-bold" style={{ fontFamily: UI_FONT, letterSpacing: "0.12em", color: "#a8a8a0", width: "90px", minWidth: "90px" }}>REHEARSAL</span>
+              <span className="text-[10px] uppercase leading-none text-center whitespace-nowrap font-bold" style={{ fontFamily: UI_FONT, letterSpacing: "0.12em", color: "#a8a8a0", width: "90px", minWidth: "90px" }}>DOOR OPEN</span>
+              <span className="text-[10px] uppercase leading-none text-center whitespace-nowrap font-bold" style={{ fontFamily: UI_FONT, letterSpacing: "0.12em", color: "#a8a8a0", width: "90px", minWidth: "90px" }}>SHOW START</span>
             </div>
 
             {/* Input row - all same height */}
-            <div className="flex items-center gap-3 mb-6">
+            <div className="flex items-center gap-3 mb-3" style={{ paddingRight: 260 }}>
               <input
                 type="text"
                 value={concertName}
