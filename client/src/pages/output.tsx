@@ -30,48 +30,59 @@ function ConcertSummaryDisplay({
   startTime: string;
   endTime: string;
 }) {
-  const MONO = "'JetBrains Mono', 'Roboto Mono', monospace";
-  const UI = "'Noto Sans JP', 'Inter', sans-serif";
+  // Cinematic-theater typography:
+  //   - Cormorant Garamond (italic thin) for the title — movie-credit / program-book elegance
+  //   - Archivo (ultra-thin, tabular) for big numbers — sleek, modern, not "programmer mono"
+  //   - Archivo (500 uppercase, wide-spaced) for labels
+  const SERIF = "'Cormorant Garamond', 'Playfair Display', Georgia, serif";
+  const DISPLAY = "'Archivo', 'Inter', system-ui, sans-serif";
 
-  const StatRow = ({
+  const StatColumn = ({
     label,
     value,
-    big,
+    size = "md",
     accent,
   }: {
     label: string;
     value: string;
-    big?: boolean;
+    size?: "xl" | "md" | "sm";
     accent?: boolean;
-  }) => (
-    <div className="flex flex-col items-center">
-      <div
-        style={{
-          fontFamily: UI,
-          letterSpacing: "0.28em",
-          fontSize: big ? 18 : 14,
-          fontWeight: 700,
-          color: accent ? "#e8b04a" : "#76766f",
-          marginBottom: big ? 14 : 8,
-        }}
-      >
-        {label}
+  }) => {
+    const valueSize = size === "xl" ? 180 : size === "md" ? 78 : 44;
+    const labelSize = size === "xl" ? 15 : size === "md" ? 12 : 11;
+    const valueWeight = size === "xl" ? 100 : 200;
+    return (
+      <div className="flex flex-col items-center">
+        <div
+          style={{
+            fontFamily: DISPLAY,
+            letterSpacing: "0.4em",
+            fontSize: labelSize,
+            fontWeight: 500,
+            color: accent ? "rgba(232,176,74,0.85)" : "rgba(168,168,160,0.6)",
+            marginBottom: size === "xl" ? 22 : 12,
+            textTransform: "uppercase",
+          }}
+        >
+          {label}
+        </div>
+        <div
+          style={{
+            fontFamily: DISPLAY,
+            fontSize: valueSize,
+            fontWeight: valueWeight,
+            lineHeight: 1,
+            color: accent ? "#f0c77a" : "#e8e8e2",
+            letterSpacing: size === "xl" ? "0.02em" : "0.04em",
+            fontVariantNumeric: "tabular-nums",
+            textShadow: accent ? "0 0 60px rgba(232,176,74,0.3)" : "none",
+          }}
+        >
+          {value}
+        </div>
       </div>
-      <div
-        style={{
-          fontFamily: MONO,
-          fontSize: big ? 120 : 52,
-          fontWeight: 300,
-          lineHeight: 1,
-          color: accent ? "#f0c77a" : "#e8e8e2",
-          letterSpacing: "0.04em",
-          textShadow: accent ? "0 0 40px rgba(232,176,74,0.25)" : "none",
-        }}
-      >
-        {value}
-      </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div
@@ -79,114 +90,72 @@ function ConcertSummaryDisplay({
       style={{
         background: "#0c0b0a",
         backgroundImage:
-          "radial-gradient(ellipse 60% 40% at 50% 30%, rgba(232,176,74,0.08), transparent 65%), radial-gradient(ellipse 80% 60% at 50% 100%, rgba(193,134,200,0.06), transparent 65%)",
-        animation: "summaryFadeIn 1.2s ease-out forwards",
+          "radial-gradient(ellipse 55% 40% at 50% 28%, rgba(232,176,74,0.1), transparent 65%), radial-gradient(ellipse 85% 60% at 50% 100%, rgba(193,134,200,0.06), transparent 65%)",
+        animation: "summaryFadeIn 1.4s ease-out forwards",
       }}
       data-testid="concert-summary"
     >
-      {/* Heading */}
+      {/* Elegant italic serif heading — like a program book closing page */}
       <div
         style={{
-          fontFamily: UI,
-          fontSize: 28,
-          letterSpacing: "0.5em",
-          color: "rgba(232,176,74,0.9)",
-          fontWeight: 700,
-          marginBottom: 12,
-          textTransform: "uppercase",
+          fontFamily: SERIF,
+          fontStyle: "italic",
+          fontSize: 92,
+          fontWeight: 300,
+          color: "rgba(232,176,74,0.95)",
+          marginBottom: 4,
+          letterSpacing: "0.01em",
+          lineHeight: 1,
         }}
       >
         End of Show
       </div>
       <div
         style={{
-          fontFamily: UI,
-          fontSize: 14,
-          letterSpacing: "0.3em",
-          color: "#5a5a54",
-          marginBottom: 64,
-          textTransform: "uppercase",
+          fontFamily: SERIF,
+          fontStyle: "italic",
+          fontSize: 22,
+          fontWeight: 300,
+          color: "rgba(168,168,160,0.55)",
+          marginBottom: 68,
+          letterSpacing: "0.15em",
         }}
       >
-        Thank you for tonight
+        ——  thank you for tonight  ——
       </div>
 
-      {/* Central TOTAL TIME */}
-      <div style={{ marginBottom: 72 }}>
-        <StatRow label="Total Time" value={formatHMS(totalMs)} big accent />
+      {/* Central TOTAL TIME — huge, thin display number, amber glow */}
+      <div style={{ marginBottom: 68 }}>
+        <StatColumn label="Total Time" value={formatHMS(totalMs)} size="xl" accent />
       </div>
 
-      {/* MC / ENCORE side by side */}
+      {/* MC / ENCORE side by side — mid size */}
+      <div className="flex items-start" style={{ gap: 140, marginBottom: 56 }}>
+        <StatColumn label="MC Time" value={formatHMS(mcMs)} size="md" />
+        <div style={{ width: 1, height: 100, background: "rgba(168,168,160,0.18)", marginTop: 28 }} />
+        <StatColumn label="Encore Time" value={formatHMS(encoreMs)} size="md" />
+      </div>
+
+      {/* Thin amber divider */}
       <div
-        className="flex items-start"
-        style={{ gap: 120, marginBottom: 64 }}
-      >
-        <StatRow label="MC Time" value={formatHMS(mcMs)} />
-        <div style={{ width: 1, height: 80, background: "rgba(168,168,160,0.2)" }} />
-        <StatRow label="Encore Time" value={formatHMS(encoreMs)} />
-      </div>
+        style={{
+          width: 220,
+          height: 1,
+          background: "linear-gradient(to right, transparent, rgba(232,176,74,0.35), transparent)",
+          marginBottom: 40,
+        }}
+      />
 
-      {/* Divider */}
-      <div style={{ width: 180, height: 1, background: "rgba(232,176,74,0.25)", marginBottom: 40 }} />
-
-      {/* START / END wall clocks */}
-      <div className="flex items-start" style={{ gap: 120 }}>
-        <div className="flex flex-col items-center">
-          <div
-            style={{
-              fontFamily: UI,
-              letterSpacing: "0.28em",
-              fontSize: 12,
-              fontWeight: 700,
-              color: "#76766f",
-              marginBottom: 6,
-            }}
-          >
-            Start Time
-          </div>
-          <div
-            style={{
-              fontFamily: MONO,
-              fontSize: 36,
-              fontWeight: 300,
-              color: "#a8a8a0",
-              letterSpacing: "0.05em",
-            }}
-          >
-            {startTime || "--:--:--"}
-          </div>
-        </div>
-        <div className="flex flex-col items-center">
-          <div
-            style={{
-              fontFamily: UI,
-              letterSpacing: "0.28em",
-              fontSize: 12,
-              fontWeight: 700,
-              color: "#76766f",
-              marginBottom: 6,
-            }}
-          >
-            End Time
-          </div>
-          <div
-            style={{
-              fontFamily: MONO,
-              fontSize: 36,
-              fontWeight: 300,
-              color: "#a8a8a0",
-              letterSpacing: "0.05em",
-            }}
-          >
-            {endTime || "--:--:--"}
-          </div>
-        </div>
+      {/* START / END wall clocks — small, sleek */}
+      <div className="flex items-start" style={{ gap: 140 }}>
+        <StatColumn label="Start Time" value={startTime || "--:--:--"} size="sm" />
+        <StatColumn label="End Time" value={endTime || "--:--:--"} size="sm" />
       </div>
 
       <style>{`
         @keyframes summaryFadeIn {
-          0% { opacity: 0; transform: scale(0.98); }
-          100% { opacity: 1; transform: scale(1); }
+          0% { opacity: 0; transform: translateY(8px) scale(0.99); }
+          100% { opacity: 1; transform: translateY(0) scale(1); }
         }
       `}</style>
     </div>
