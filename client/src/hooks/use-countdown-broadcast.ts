@@ -382,16 +382,21 @@ export function useCountdownBroadcaster() {
   }, [outputOpen, outputFullscreen]);
 
   const requestOutputFullscreen = useCallback(() => {
+    // Bring the sub window to the front first so the user can see / click it.
+    try { outputWindowRef.current?.focus(); } catch (_) {}
+    // Try direct (same-origin): requestFullscreen on the sub document. Chrome may still
+    // block if the sub document never had its own user activation.
     try {
       const w = outputWindowRef.current;
       if (w && !w.closed) {
         const doc = w.document;
         if (doc?.documentElement?.requestFullscreen) {
           doc.documentElement.requestFullscreen().catch(() => {});
-          return;
         }
       }
     } catch (_) {}
+    // Also send a message, so the sub window can try on its own side (useful if it has
+    // "window-management" permission granted).
     try {
       outputWindowRef.current?.postMessage({ type: "songcountdown-request-fullscreen" }, "*");
     } catch (_) {}
