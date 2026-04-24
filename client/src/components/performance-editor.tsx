@@ -150,50 +150,34 @@ function LiveMidiBigDisplay({
   lastMessage,
   enabled,
   onToggle,
-  onRequestFullscreen,
+  onPress,
   outputOpen,
   outputFullscreen,
 }: {
   lastMessage: MidiMessage | null;
   enabled: boolean;
   onToggle: () => void;
-  onRequestFullscreen?: () => void;
+  /** Pressing DISPLAY opens the sub-window if needed AND requests fullscreen. */
+  onPress?: () => void;
   outputOpen?: boolean;
   outputFullscreen?: boolean;
 }) {
-  // Three visual states:
-  //   disabled  — sub window not open
-  //   idle      — sub open but not yet fullscreen (neutral, "press me")
-  //   active    — actually in fullscreen (amber glow)
-  const fsState: "disabled" | "idle" | "active" = !outputOpen
-    ? "disabled"
-    : outputFullscreen
-    ? "active"
-    : "idle";
-  const fsStyle =
-    fsState === "active"
-      ? {
-          border: "1px solid rgba(232,176,74,0.6)",
-          background: "rgba(232,176,74,0.15)",
-          color: "#f0c77a",
-          opacity: 1,
-          cursor: "pointer" as const,
-        }
-      : fsState === "idle"
-      ? {
-          border: "1px solid #2c2a27",
-          background: "#1c1b19",
-          color: "#a8a8a0",
-          opacity: 1,
-          cursor: "pointer" as const,
-        }
-      : {
-          border: "1px solid #2c2a27",
-          background: "#1c1b19",
-          color: "#5a5a54",
-          opacity: 0.5,
-          cursor: "not-allowed" as const,
-        };
+  // Two visual states:
+  //   idle    — sub not open OR open-but-windowed (neutral, "press me to fullscreen")
+  //   active  — actually in fullscreen (amber glow, label flips to "ON")
+  // The button is always clickable — if the sub isn't open yet, pressing also opens it.
+  const fsActive = !!outputFullscreen;
+  const fsStyle = fsActive
+    ? {
+        border: "1px solid rgba(232,176,74,0.6)",
+        background: "rgba(232,176,74,0.15)",
+        color: "#f0c77a",
+      }
+    : {
+        border: "1px solid #2c2a27",
+        background: "#1c1b19",
+        color: "#a8a8a0",
+      };
   return (
     <div
       className="flex items-stretch w-full gap-2"
@@ -203,8 +187,7 @@ function LiveMidiBigDisplay({
       {/* LEFT-LEFT: DISPLAY fullscreen trigger. Button only glows amber when the
           sub-display is actually in fullscreen — not just when the window is open. */}
       <button
-        onClick={() => onRequestFullscreen?.()}
-        disabled={fsState === "disabled"}
+        onClick={() => onPress?.()}
         className="flex flex-col items-center justify-center transition-colors duration-150"
         style={{
           flex: "1 1 0",
@@ -212,20 +195,21 @@ function LiveMidiBigDisplay({
           borderRadius: 3,
           fontFamily: "'Bebas Neue', Impact, 'Arial Narrow', sans-serif",
           letterSpacing: "0.2em",
+          cursor: "pointer",
           ...fsStyle,
         }}
         data-testid="button-display-fullscreen"
         title={
-          fsState === "disabled"
-            ? "先にSHOW ONでサブウィンドウを開いてください"
-            : fsState === "active"
+          fsActive
             ? "サブディスプレイはフルスクリーン中 (もう一度押すと再要求)"
-            : "サブディスプレイをフルスクリーンにする"
+            : outputOpen
+            ? "サブディスプレイをフルスクリーンにする"
+            : "サブウィンドウを開いてフルスクリーンにする"
         }
       >
         <span style={{ fontSize: 13, fontWeight: 700, opacity: 0.7, marginBottom: 4 }}>DISPLAY</span>
         <span style={{ fontSize: 26, fontWeight: 900, lineHeight: 1 }}>
-          {fsState === "active" ? "ON" : "FULL"}
+          {fsActive ? "ON" : "FULL"}
         </span>
       </button>
 
@@ -377,7 +361,7 @@ export function PerformanceEditor({
   const updateSetlist = useUpdateSetlist();
   const updateSong = useUpdateSong();
   const { toast } = useToast();
-  const { broadcast, outputOpen, outputFullscreen, requestOutputFullscreen } = useAppMode();
+  const { broadcast, outputOpen, outputFullscreen, requestOutputFullscreen, openOutputWindow } = useAppMode();
   const [, navigate] = useLocation();
   const [showingEventInfo, setShowingEventInfo] = useState(false);
   const eventInfoIntervalRef = useRef<ReturnType<typeof setInterval>>();
@@ -1186,7 +1170,16 @@ export function PerformanceEditor({
             lastMessage={lastMidiMessage ?? null}
             enabled={midiEnabled}
             onToggle={() => onToggleMidi?.()}
-            onRequestFullscreen={() => requestOutputFullscreen()}
+            onPress={() => {
+              // One-click: open the sub-window if it isn't yet, then fullscreen.
+              if (!outputOpen) {
+                openOutputWindow();
+                // Small delay so the window has loaded before we request fullscreen.
+                setTimeout(() => requestOutputFullscreen(), 800);
+              } else {
+                requestOutputFullscreen();
+              }
+            }}
             outputOpen={outputOpen}
             outputFullscreen={outputFullscreen}
           />
