@@ -61,9 +61,15 @@ function ConcertSummaryDisplay({
     return () => ro.disconnect();
   }, [updateScale]);
 
-  // Auto-shrink concert title if it's very long, so it fits the hero band on one line.
+  // Auto-shrink concert title so it fits the hero band on one line.
   const titleLen = concertTitle?.length || 0;
-  const titleFontSize = titleLen > 28 ? 90 : titleLen > 20 ? 120 : titleLen > 14 ? 150 : 180;
+  const titleFontSize = titleLen > 30 ? 70 : titleLen > 22 ? 90 : titleLen > 14 ? 110 : 130;
+
+  // Auto-shrink per-row number in breakdowns if there are many (cap at 5 typical,
+  // handle up to 8 gracefully).
+  const maxRows = Math.max(mcSegments.length, encoreSegments.length, 1);
+  const rowValueSize = maxRows > 6 ? 30 : maxRows > 4 ? 38 : 46;
+  const rowGap = maxRows > 6 ? 4 : maxRows > 4 ? 6 : 8;
 
   // ---- Inner sub-components (coord system = 1920x1080 design px) ----
   const SegmentCard = ({
@@ -77,8 +83,8 @@ function ConcertSummaryDisplay({
   }) => (
     <div
       style={{
-        width: 640,
-        padding: "36px 48px",
+        width: 620,
+        padding: "28px 44px",
         background: "rgba(255,255,255,0.018)",
         border: "1px solid rgba(232,176,74,0.14)",
         borderRadius: 10,
@@ -88,10 +94,10 @@ function ConcertSummaryDisplay({
         style={{
           fontFamily: DISPLAY,
           letterSpacing: "0.5em",
-          fontSize: 26,
+          fontSize: 22,
           fontWeight: 500,
           color: "rgba(232,176,74,0.8)",
-          marginBottom: 26,
+          marginBottom: 18,
           textTransform: "uppercase",
           textAlign: "center",
         }}
@@ -103,17 +109,17 @@ function ConcertSummaryDisplay({
           style={{
             fontFamily: SERIF,
             fontStyle: "italic",
-            fontSize: 32,
+            fontSize: 26,
             fontWeight: 300,
             color: "rgba(168,168,160,0.35)",
             textAlign: "center",
-            padding: "20px 0",
+            padding: "14px 0",
           }}
         >
           — none —
         </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: rowGap }}>
           {segments.map((ms, i) => (
             <div
               key={i}
@@ -121,15 +127,15 @@ function ConcertSummaryDisplay({
                 display: "flex",
                 alignItems: "baseline",
                 justifyContent: "space-between",
-                gap: 24,
-                paddingBottom: 10,
+                gap: 20,
+                paddingBottom: 6,
                 borderBottom: i === segments.length - 1 ? "none" : "1px solid rgba(168,168,160,0.08)",
               }}
             >
               <div
                 style={{
                   fontFamily: DISPLAY,
-                  fontSize: 28,
+                  fontSize: 22,
                   fontWeight: 500,
                   letterSpacing: "0.3em",
                   color: "rgba(168,168,160,0.75)",
@@ -141,7 +147,7 @@ function ConcertSummaryDisplay({
               <div
                 style={{
                   fontFamily: DISPLAY,
-                  fontSize: 60,
+                  fontSize: rowValueSize,
                   fontWeight: 200,
                   lineHeight: 1,
                   color: "#e8e8e2",
@@ -159,12 +165,12 @@ function ConcertSummaryDisplay({
   );
 
   const ClockStat = ({ label, value }: { label: string; value: string }) => (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
       <div
         style={{
           fontFamily: DISPLAY,
           letterSpacing: "0.5em",
-          fontSize: 22,
+          fontSize: 18,
           fontWeight: 500,
           color: "rgba(168,168,160,0.7)",
           textTransform: "uppercase",
@@ -175,7 +181,7 @@ function ConcertSummaryDisplay({
       <div
         style={{
           fontFamily: DISPLAY,
-          fontSize: 88,
+          fontSize: 68,
           fontWeight: 200,
           lineHeight: 1,
           color: "#e8e8e2",
@@ -212,7 +218,9 @@ function ConcertSummaryDisplay({
         }}
       >
         {/* Inner layout — absolute values on a 1920x1080 design canvas.
-            Budget: 300 (hero title) / 360 (total time) / 260 (breakdowns) / 160 (footer) = 1080. */}
+            Vertical budget (after 40+40 padding = 80 used, 1000 available):
+              hero band ~230 / total time ~260 / breakdowns ~340 / footer ~120
+              + 3 gaps from space-between ≈ fits in 1000 */}
         <div
           style={{
             position: "absolute",
@@ -221,21 +229,21 @@ function ConcertSummaryDisplay({
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: "60px 80px",
+            padding: "40px 80px",
           }}
         >
-          {/* ====== HERO BAND: Concert Title (big italic serif) + End of Show / Date meta ====== */}
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+          {/* ====== HERO BAND: Concert Title + End of Show / Date meta ====== */}
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
             {/* Tiny top accent line */}
             <div
               style={{
-                width: 140,
+                width: 120,
                 height: 1,
                 background: "linear-gradient(to right, transparent, rgba(232,176,74,0.5), transparent)",
-                marginBottom: 14,
+                marginBottom: 10,
               }}
             />
-            {/* Concert Title — grand italic serif, white/amber glow */}
+            {/* Concert Title — grand italic serif */}
             <div
               style={{
                 fontFamily: SERIF,
@@ -254,19 +262,12 @@ function ConcertSummaryDisplay({
               {concertTitle || "Untitled Concert"}
             </div>
             {/* meta row: End of Show · Date */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 28,
-                marginTop: 22,
-              }}
-            >
+            <div style={{ display: "flex", alignItems: "center", gap: 24, marginTop: 14 }}>
               <div
                 style={{
                   fontFamily: DISPLAY,
                   letterSpacing: "0.55em",
-                  fontSize: 24,
+                  fontSize: 20,
                   fontWeight: 500,
                   color: "rgba(232,176,74,0.9)",
                   textTransform: "uppercase",
@@ -276,11 +277,11 @@ function ConcertSummaryDisplay({
               </div>
               {date ? (
                 <>
-                  <div style={{ width: 8, height: 8, background: "rgba(232,176,74,0.4)", borderRadius: "50%" }} />
+                  <div style={{ width: 6, height: 6, background: "rgba(232,176,74,0.4)", borderRadius: "50%" }} />
                   <div
                     style={{
                       fontFamily: DISPLAY,
-                      fontSize: 24,
+                      fontSize: 20,
                       fontWeight: 300,
                       color: "rgba(232,176,74,0.75)",
                       letterSpacing: "0.3em",
@@ -297,10 +298,10 @@ function ConcertSummaryDisplay({
               style={{
                 fontFamily: SERIF,
                 fontStyle: "italic",
-                fontSize: 28,
+                fontSize: 22,
                 fontWeight: 300,
                 color: "rgba(168,168,160,0.55)",
-                marginTop: 10,
+                marginTop: 6,
                 letterSpacing: "0.18em",
               }}
             >
@@ -315,10 +316,10 @@ function ConcertSummaryDisplay({
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              padding: "32px 120px 40px",
+              padding: "22px 100px 28px",
               background: "rgba(232,176,74,0.03)",
               border: "1px solid rgba(232,176,74,0.25)",
-              borderRadius: 14,
+              borderRadius: 12,
               boxShadow: "0 0 140px rgba(232,176,74,0.1) inset",
             }}
           >
@@ -326,10 +327,10 @@ function ConcertSummaryDisplay({
               style={{
                 fontFamily: DISPLAY,
                 letterSpacing: "0.55em",
-                fontSize: 26,
+                fontSize: 22,
                 fontWeight: 500,
                 color: "rgba(232,176,74,0.95)",
-                marginBottom: 18,
+                marginBottom: 12,
                 textTransform: "uppercase",
               }}
             >
@@ -338,7 +339,7 @@ function ConcertSummaryDisplay({
             <div
               style={{
                 fontFamily: DISPLAY,
-                fontSize: 240,
+                fontSize: 180,
                 fontWeight: 100,
                 lineHeight: 0.9,
                 color: "#f0c77a",
@@ -352,18 +353,18 @@ function ConcertSummaryDisplay({
           </div>
 
           {/* ====== MC / ENCORE breakdowns ====== */}
-          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "center", gap: 70 }}>
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "center", gap: 60 }}>
             <SegmentCard title="MC Times" label="MC" segments={mcSegments} />
             <SegmentCard title="Encore Times" label="EN" segments={encoreSegments} />
           </div>
 
           {/* ====== FOOTER: START / END wall clocks ====== */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 160 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 140 }}>
             <ClockStat label="Start" value={startTime} />
             <div
               style={{
                 width: 1,
-                height: 80,
+                height: 60,
                 background: "linear-gradient(to bottom, transparent, rgba(232,176,74,0.35), transparent)",
               }}
             />
