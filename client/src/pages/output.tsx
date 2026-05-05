@@ -150,7 +150,7 @@ function ConcertSummaryDisplay({
                   fontSize: rowValueSize,
                   fontWeight: 200,
                   lineHeight: 1,
-                  color: "#e8e8e2",
+                  color: "#d8d8d8",
                   letterSpacing: "0.04em",
                   fontVariantNumeric: "tabular-nums",
                 }}
@@ -184,7 +184,7 @@ function ConcertSummaryDisplay({
           fontSize: 68,
           fontWeight: 200,
           lineHeight: 1,
-          color: "#e8e8e2",
+          color: "#d8d8d8",
           letterSpacing: "0.05em",
           fontVariantNumeric: "tabular-nums",
         }}
@@ -202,7 +202,7 @@ function ConcertSummaryDisplay({
       style={{
         background: "#0c0b0a",
         backgroundImage:
-          "radial-gradient(ellipse 55% 40% at 50% 22%, rgba(232,176,74,0.12), transparent 65%), radial-gradient(ellipse 85% 60% at 50% 100%, rgba(193,134,200,0.07), transparent 65%)",
+          "radial-gradient(ellipse 55% 40% at 50% 22%, rgba(232,176,74,0.12), transparent 65%), radial-gradient(ellipse 85% 60% at 50% 100%, rgba(212,146,90,0.07), transparent 65%)",
         animation: "summaryFadeIn 1.6s ease-out forwards",
       }}
       data-testid="concert-summary"

@@ -152,8 +152,8 @@ function DuplicateWarning({ onTakeOver }: { onTakeOver: () => void }) {
       <div
         className="max-w-md mx-auto p-8 rounded-lg text-center"
         style={{
-          background: "rgba(193,134,200,0.05)",
-          border: "1px solid rgba(193,134,200,0.2)",
+          background: "rgba(212,146,90,0.05)",
+          border: "1px solid rgba(212,146,90,0.2)",
         }}
       >
         <div
@@ -181,9 +181,9 @@ function DuplicateWarning({ onTakeOver }: { onTakeOver: () => void }) {
           <button
             className="px-5 py-2 rounded-full text-xs font-bold tracking-wider uppercase transition-all"
             style={{
-              background: "rgba(193,134,200,0.8)",
+              background: "rgba(212,146,90,0.8)",
               color: "#fff",
-              border: "1px solid rgba(193,134,200,0.9)",
+              border: "1px solid rgba(212,146,90,0.9)",
               fontFamily: "'Noto Sans JP', 'Inter', sans-serif",
             }}
             onClick={onTakeOver}

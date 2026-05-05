@@ -310,9 +310,9 @@ export function SongRow({
         background: isCurrent ? "#2a1e28" : "#242320",
         borderRadius: "3px",
         marginBottom: "3px",
-        border: isCurrent ? "1px solid #c186c8" : "1px solid #2c2a27",
+        border: isCurrent ? "1px solid #d4925a" : "1px solid #353535",
         boxShadow: isCurrent
-          ? "0 0 0 1px rgba(193,134,200,0.25)"
+          ? "0 0 0 1px rgba(212,146,90,0.25)"
           : "none",
       }}
       data-testid={`${pid}-song-${song.id}`}
@@ -370,7 +370,7 @@ export function SongRow({
             fontFamily: MONO_FONT,
             fontSize: "12px",
             fontWeight: 700,
-            color: isCurrent ? "#c186c8" : "#76766f",
+            color: isCurrent ? "#d4925a" : "#6e6e6e",
             width: 30, minWidth: 30, maxWidth: 30,
             height: 22,
             lineHeight: 1,
@@ -385,8 +385,8 @@ export function SongRow({
         <button
           className="shrink-0 w-7 h-7 rounded-full flex items-center justify-center transition-colors duration-150"
           style={{
-            color: isCurrent ? "#0a0a08" : "#a8a8a0",
-            background: isCurrent ? "#c186c8" : "#2c2a27",
+            color: isCurrent ? "#0a0a08" : "#999999",
+            background: isCurrent ? "#d4925a" : "#353535",
             border: "none",
           }}
           onClick={() => onStartSong?.(index)}
@@ -530,7 +530,7 @@ export function SongRow({
                   }
                 : {
                     background: "#1d1b19",
-                    color: "#76766f",
+                    color: "#6e6e6e",
                     border: "1px solid #2f2c28",
                   }),
             }}
@@ -551,7 +551,7 @@ export function SongRow({
               onFocusField={() => { focusedFieldRef.current = "subStartTime"; }}
               placeholder="0:00"
               testId={`${pid}-input-substart-${song.id}`}
-              color={subStartTime ? "#a8a8a0" : undefined}
+              color={subStartTime ? "#999999" : undefined}
             />
           )}
           {!hideSubStartEnd && (
@@ -562,7 +562,7 @@ export function SongRow({
               onFocusField={() => { focusedFieldRef.current = "subEndTime"; }}
               placeholder="0:00"
               testId={`${pid}-input-subend-${song.id}`}
-              color={subEndTime ? "#a8a8a0" : undefined}
+              color={subEndTime ? "#999999" : undefined}
             />
           )}
           <TimeInput
@@ -585,11 +585,11 @@ export function SongRow({
           hasValue={song.midiNote !== null && song.midiNote !== undefined}
           testId={`${pid}-select-midi-${song.id}`}
         >
-          <option value="" style={{ background: "#1a1918", color: "rgba(255,255,255,0.5)" }}>No MIDI</option>
+          <option value="" style={{ background: "#1a1a1a", color: "rgba(255,255,255,0.5)" }}>No MIDI</option>
           {MIDI_NOTES_BY_NAME.map((group) => (
-            <optgroup key={group.noteName} label={`── ${group.noteName} ──`} style={{ background: "#1c1b19", color: "rgba(255,255,255,0.5)", fontWeight: 700 }}>
+            <optgroup key={group.noteName} label={`── ${group.noteName} ──`} style={{ background: "#232323", color: "rgba(255,255,255,0.5)", fontWeight: 700 }}>
               {group.notes.map((n) => (
-                <option key={n.value} value={String(n.value)} style={{ background: "#1a1918", color: "rgba(255,255,255,0.9)", fontWeight: 400 }}>
+                <option key={n.value} value={String(n.value)} style={{ background: "#1a1a1a", color: "rgba(255,255,255,0.9)", fontWeight: 400 }}>
                   {n.label}
                 </option>
               ))}
@@ -602,7 +602,7 @@ export function SongRow({
         tabIndex={-1}
         className="shrink-0 w-5 h-5 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110"
         style={{ color: "transparent", background: "transparent" }}
-        onMouseEnter={(e) => { e.currentTarget.style.color = "#a8a8a0"; e.currentTarget.style.background = "#1c1b19"; }}
+        onMouseEnter={(e) => { e.currentTarget.style.color = "#999999"; e.currentTarget.style.background = "#232323"; }}
         onMouseLeave={(e) => { e.currentTarget.style.color = "transparent"; e.currentTarget.style.background = "transparent"; }}
         onClick={() => {
           deleteSong.mutate({ id: song.id, setlistId }, {
@@ -632,16 +632,16 @@ export function SongTableHeader({ showPlayButton = false, showMidiColumn = false
     >
       {/* All column labels: unified muted warm gray (PROMPTER style) */}
       <span className="w-4" />
-      <span className="text-center" style={{ width: 22, minWidth: 22, maxWidth: 22, color: "#76766f" }}>#</span>
+      <span className="text-center" style={{ width: 22, minWidth: 22, maxWidth: 22, color: "#6e6e6e" }}>#</span>
       {showPlayButton && <span className="w-7" />}
-      <span className="flex-[0.8]" style={{ color: "#76766f" }}>NOW TITLE</span>
-      <span className="flex-[0.8]" style={{ color: "#76766f" }}>NEXT TITLE</span>
-      <span className="w-[60px] text-center" style={{ color: "#76766f" }}>START</span>
-      <span className="w-[60px] text-center" style={{ color: "#76766f" }}>END</span>
+      <span className="flex-[0.8]" style={{ color: "#6e6e6e" }}>NOW TITLE</span>
+      <span className="flex-[0.8]" style={{ color: "#6e6e6e" }}>NEXT TITLE</span>
+      <span className="w-[60px] text-center" style={{ color: "#6e6e6e" }}>START</span>
+      <span className="w-[60px] text-center" style={{ color: "#6e6e6e" }}>END</span>
       <span className="w-[60px] text-center" style={{ color: "#b89550", fontWeight: 700 }}>TIME</span>
       <span className="w-[42px] text-center" style={{ color: "#7aa878", fontSize: "13px", fontWeight: 700 }}>X TIME</span>
-      {!hideSubStartEnd && <span className="w-[60px] text-center" style={{ color: "#76766f", fontSize: "12px" }}>着替IN</span>}
-      {!hideSubStartEnd && <span className="w-[60px] text-center" style={{ color: "#76766f", fontSize: "12px" }}>着替OUT</span>}
+      {!hideSubStartEnd && <span className="w-[60px] text-center" style={{ color: "#6e6e6e", fontSize: "12px" }}>着替IN</span>}
+      {!hideSubStartEnd && <span className="w-[60px] text-center" style={{ color: "#6e6e6e", fontSize: "12px" }}>着替OUT</span>}
       <span className="w-[60px] text-center" style={{ color: "#b8855a", fontSize: "12px", letterSpacing: "-0.05em", fontWeight: 700 }}>着替時間</span>
       {showMidiColumn && <span className="w-[72px] text-center" style={{ color: "#a896c0", fontWeight: 700 }}>MIDI</span>}
       <span className="w-5" />
@@ -667,8 +667,8 @@ export function AddSongButton({ onClick, disabled = false, variant = "full", tes
         className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase transition-all duration-300 disabled:opacity-40"
         style={{
           background: "transparent",
-          border: "1px dashed #2c2a27",
-          color: "#a8a8a0",
+          border: "1px dashed #353535",
+          color: "#999999",
         }}
         data-testid={testId}
       >
@@ -685,8 +685,8 @@ export function AddSongButton({ onClick, disabled = false, variant = "full", tes
       className="flex-1 flex items-center justify-center gap-2 py-3 rounded-sm font-semibold text-sm tracking-wider uppercase transition-all duration-300 disabled:opacity-40"
       style={{
         background: "transparent",
-        border: "1px dashed #2c2a27",
-        color: "#a8a8a0",
+        border: "1px dashed #353535",
+        color: "#999999",
       }}
       data-testid={testId}
     >
@@ -714,8 +714,8 @@ export function AddMCButton({ onClick, disabled = false, variant = "full", testI
         className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase transition-all duration-300 disabled:opacity-40"
         style={{
           background: "transparent",
-          border: "1px dashed #2c2a27",
-          color: "#a8a8a0",
+          border: "1px dashed #353535",
+          color: "#999999",
         }}
         data-testid={testId}
       >
@@ -732,8 +732,8 @@ export function AddMCButton({ onClick, disabled = false, variant = "full", testI
       className="flex-1 flex items-center justify-center gap-2 py-3 rounded-sm font-semibold text-sm tracking-wider uppercase transition-all duration-300 disabled:opacity-40"
       style={{
         background: "transparent",
-        border: "1px dashed #2c2a27",
-        color: "#a8a8a0",
+        border: "1px dashed #353535",
+        color: "#999999",
       }}
       data-testid={testId}
     >
@@ -761,8 +761,8 @@ export function AddSpecialButton({ onClick, disabled = false, variant = "full", 
         className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase transition-all duration-300 disabled:opacity-40"
         style={{
           background: "transparent",
-          border: "1px dashed #2c2a27",
-          color: "#a8a8a0",
+          border: "1px dashed #353535",
+          color: "#999999",
         }}
         data-testid={testId}
       >
@@ -779,8 +779,8 @@ export function AddSpecialButton({ onClick, disabled = false, variant = "full", 
       className="flex-1 flex items-center justify-center gap-2 py-3 rounded-sm font-semibold text-sm tracking-wider uppercase transition-all duration-300 disabled:opacity-40"
       style={{
         background: "transparent",
-        border: "1px dashed #2c2a27",
-        color: "#a8a8a0",
+        border: "1px dashed #353535",
+        color: "#999999",
       }}
       data-testid={testId}
     >
@@ -808,8 +808,8 @@ export function AddEncoreButton({ onClick, disabled = false, variant = "full", t
         className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase transition-all duration-300 disabled:opacity-40"
         style={{
           background: "transparent",
-          border: "1px dashed #2c2a27",
-          color: "#a8a8a0",
+          border: "1px dashed #353535",
+          color: "#999999",
         }}
         data-testid={testId}
       >
@@ -826,8 +826,8 @@ export function AddEncoreButton({ onClick, disabled = false, variant = "full", t
       className="flex-1 flex items-center justify-center gap-2 py-3 rounded-sm font-semibold text-sm tracking-wider uppercase transition-all duration-300 disabled:opacity-40"
       style={{
         background: "transparent",
-        border: "1px dashed #2c2a27",
-        color: "#a8a8a0",
+        border: "1px dashed #353535",
+        color: "#999999",
       }}
       data-testid={testId}
     >
@@ -862,8 +862,8 @@ export function InsertionRow({ onAddSong, onAddSpecial, onAddMC, onAddEncore, on
         className="flex-1 flex items-center justify-center gap-1 py-1 rounded text-[10px] font-bold tracking-wider uppercase transition-all duration-200 disabled:opacity-30"
         style={{
           color: "#e8c8ee",
-          background: "linear-gradient(180deg, rgba(193,134,200,0.28) 0%, rgba(193,134,200,0.1) 100%), #2a2a28",
-          border: "1px solid rgba(193,134,200,0.55)",
+          background: "linear-gradient(180deg, rgba(212,146,90,0.28) 0%, rgba(212,146,90,0.1) 100%), #2a2a28",
+          border: "1px solid rgba(212,146,90,0.55)",
           boxShadow: "0 2px 6px rgba(0,0,0,0.3), 0 1px 0 rgba(255,255,255,0.05) inset",
         }}
         data-testid={`${pfx}insert-song`}

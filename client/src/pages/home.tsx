@@ -15,7 +15,7 @@ import { localDB } from "@/lib/local-db";
 // grid of muted setlist cards + a dashed "create new" card.
 const FONT = "'Helvetica Neue', 'Hiragino Sans', 'Yu Gothic', 'Noto Sans JP', sans-serif";
 const MONO = "'SF Mono', 'Menlo', monospace";
-const ACCENT = "#c186c8";           // muted purple (PROMPTER-style)
+const ACCENT = "#d4925a";           // muted purple (PROMPTER-style)
 const ACCENT_2 = "#d8a7df";         // lighter muted purple (hover / gradient)
 
 function useSongCounts(setlistIds: number[]) {
@@ -108,9 +108,9 @@ export default function Home() {
         fontFamily: FONT,
         padding: "56px 48px 100px",
         background: `
-          radial-gradient(circle at 20% 0%, rgba(193,134,200,0.08) 0%, transparent 40%),
-          radial-gradient(circle at 80% 100%, rgba(193,134,200,0.05) 0%, transparent 40%),
-          linear-gradient(180deg, #161614 0%, #1c1b19 50%, #121211 100%)
+          radial-gradient(circle at 20% 0%, rgba(212,146,90,0.08) 0%, transparent 40%),
+          radial-gradient(circle at 80% 100%, rgba(212,146,90,0.05) 0%, transparent 40%),
+          linear-gradient(180deg, #161614 0%, #232323 50%, #121211 100%)
         `,
       }}
       data-testid="home-page"
@@ -139,11 +139,11 @@ export default function Home() {
             </span>
           </div>
           <div style={{ lineHeight: 1 }}>
-            <div style={{ fontSize: 18, fontFamily: FONT, letterSpacing: "0.03em", color: "#e8e8e2" }}>
+            <div style={{ fontSize: 18, fontFamily: FONT, letterSpacing: "0.03em", color: "#d8d8d8" }}>
               <b style={{ fontWeight: 800, color: ACCENT }}>COUNT DOWN</b>
               <span style={{ fontWeight: 300, marginLeft: 6 }}>STUDIO</span>
             </div>
-            <div style={{ fontSize: 9, color: "#76766f", letterSpacing: "0.22em", marginTop: 4, fontWeight: 700, textTransform: "uppercase" }}>
+            <div style={{ fontSize: 9, color: "#6e6e6e", letterSpacing: "0.22em", marginTop: 4, fontWeight: 700, textTransform: "uppercase" }}>
               Concert Countdown Timer
             </div>
           </div>
@@ -168,7 +168,7 @@ export default function Home() {
             style={{
               fontSize: 56,
               fontWeight: 200,
-              color: "#e8e8e2",
+              color: "#d8d8d8",
               letterSpacing: "-0.02em",
               lineHeight: 1,
               fontFamily: FONT,
@@ -181,7 +181,7 @@ export default function Home() {
           className="flex items-center"
           style={{
             gap: 14,
-            color: "#76766f",
+            color: "#6e6e6e",
             fontSize: 12,
             letterSpacing: "0.18em",
             textTransform: "uppercase",
@@ -205,7 +205,7 @@ export default function Home() {
         }}
       >
         {isLoading ? (
-          <div style={{ color: "#76766f", textAlign: "center", padding: "32px", fontSize: 13, gridColumn: "1 / -1" }}>
+          <div style={{ color: "#6e6e6e", textAlign: "center", padding: "32px", fontSize: 13, gridColumn: "1 / -1" }}>
             Loading...
           </div>
         ) : (
@@ -234,7 +234,7 @@ export default function Home() {
                     overflow: "hidden",
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = "rgba(193,134,200,0.4)";
+                    e.currentTarget.style.borderColor = "rgba(212,146,90,0.4)";
                     e.currentTarget.style.transform = "translateY(-3px)";
                     e.currentTarget.style.background = "linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.015) 100%)";
                   }}
@@ -252,7 +252,7 @@ export default function Home() {
                       right: 22,
                       fontFamily: MONO,
                       fontSize: 10,
-                      color: "#76766f",
+                      color: "#6e6e6e",
                       letterSpacing: "0.1em",
                       fontWeight: 700,
                     }}
@@ -265,7 +265,7 @@ export default function Home() {
                     style={{
                       fontSize: 19,
                       fontWeight: 700,
-                      color: "#e8e8e2",
+                      color: "#d8d8d8",
                       marginBottom: 12,
                       lineHeight: 1.25,
                       wordBreak: "break-word",
@@ -282,19 +282,19 @@ export default function Home() {
                     style={{
                       gap: 10,
                       fontSize: 10,
-                      color: "#76766f",
+                      color: "#6e6e6e",
                       letterSpacing: "0.18em",
                       fontWeight: 700,
                       textTransform: "uppercase",
                       marginBottom: "auto",
                     }}
                   >
-                    <span style={{ color: "#e8e8e2", fontSize: 13, letterSpacing: 0 }} data-testid={`text-song-count-${setlist.id}`}>
+                    <span style={{ color: "#d8d8d8", fontSize: 13, letterSpacing: 0 }} data-testid={`text-song-count-${setlist.id}`}>
                       {count}
                     </span>
                     <span>songs</span>
-                    <span style={{ width: 3, height: 3, background: "#76766f", borderRadius: "50%", opacity: 0.5 }} />
-                    <span style={{ color: "#e8e8e2", fontSize: 13, letterSpacing: 0 }}>
+                    <span style={{ width: 3, height: 3, background: "#6e6e6e", borderRadius: "50%", opacity: 0.5 }} />
+                    <span style={{ color: "#d8d8d8", fontSize: 13, letterSpacing: 0 }}>
                       {formatTotal(totalSec)}
                     </span>
                     <span>total</span>
@@ -308,7 +308,7 @@ export default function Home() {
                       paddingTop: 14,
                       borderTop: "1px solid rgba(255,255,255,0.05)",
                       fontSize: 10,
-                      color: "#76766f",
+                      color: "#6e6e6e",
                       letterSpacing: "0.12em",
                       textTransform: "uppercase",
                       fontWeight: 600,
@@ -328,7 +328,7 @@ export default function Home() {
                         style={{
                           background: "transparent",
                           border: "1px solid rgba(255,255,255,0.08)",
-                          color: "#76766f",
+                          color: "#6e6e6e",
                           cursor: "pointer",
                           width: 26,
                           height: 26,
@@ -341,10 +341,10 @@ export default function Home() {
                         onMouseEnter={(e) => {
                           e.currentTarget.style.color = ACCENT;
                           e.currentTarget.style.borderColor = ACCENT;
-                          e.currentTarget.style.background = "rgba(193,134,200,0.08)";
+                          e.currentTarget.style.background = "rgba(212,146,90,0.08)";
                         }}
                         onMouseLeave={(e) => {
-                          e.currentTarget.style.color = "#76766f";
+                          e.currentTarget.style.color = "#6e6e6e";
                           e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
                           e.currentTarget.style.background = "transparent";
                         }}
@@ -358,7 +358,7 @@ export default function Home() {
                         style={{
                           background: isDeleting ? "rgba(239,83,80,0.08)" : "transparent",
                           border: isDeleting ? "1px solid #ef5350" : "1px solid rgba(255,255,255,0.08)",
-                          color: isDeleting ? "#ef5350" : "#76766f",
+                          color: isDeleting ? "#ef5350" : "#6e6e6e",
                           cursor: "pointer",
                           width: 26,
                           height: 26,
@@ -389,21 +389,21 @@ export default function Home() {
                 alignItems: "center",
                 justifyContent: "center",
                 flexDirection: "column",
-                color: "#76766f",
+                color: "#6e6e6e",
                 minHeight: 200,
                 gap: 8,
                 cursor: "pointer",
                 transition: "border-color 0.18s, color 0.18s, background 0.18s, transform 0.18s",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = "rgba(193,134,200,0.5)";
+                e.currentTarget.style.borderColor = "rgba(212,146,90,0.5)";
                 e.currentTarget.style.color = ACCENT;
-                e.currentTarget.style.background = "rgba(193,134,200,0.03)";
+                e.currentTarget.style.background = "rgba(212,146,90,0.03)";
                 e.currentTarget.style.transform = "translateY(-3px)";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
-                e.currentTarget.style.color = "#76766f";
+                e.currentTarget.style.color = "#6e6e6e";
                 e.currentTarget.style.background = "transparent";
                 e.currentTarget.style.transform = "translateY(0)";
               }}
@@ -420,7 +420,7 @@ export default function Home() {
       <p
         className="text-center"
         style={{
-          color: "#76766f",
+          color: "#6e6e6e",
           fontSize: 11,
           fontFamily: FONT,
           letterSpacing: "0.1em",

@@ -89,19 +89,21 @@ export const INPUT_STYLES = {
   borderBlur: "#242320",
 } as const;
 
+// Note: 'fuchsia' は旧アクセント名。Mail Check 統一で実値は amber #d4925a に変更。
+// キー名は呼び出し元への影響を避けるため温存。
 export const ACCENT_COLORS = {
-  fuchsia: "rgba(193,134,200,0.35)",
+  fuchsia: "rgba(212,146,90,0.35)",
   cyan: "rgba(6,182,212,0.35)",
   amber: "rgba(250,204,21,0.5)",
-  default: "rgba(193,134,200,0.35)",
+  default: "rgba(212,146,90,0.35)",
 } as const;
 
 export const HEADER_FONT = "'Bebas Neue', Impact, 'Arial Narrow', sans-serif";
 export const TABLE_HEADER_STYLE = {
-  color: "#a8a8a0",                  // --cds-text-2
-  borderBottom: "1px solid rgba(193,134,200,0.25)", // subtle purple-tinted divider only
+  color: "#999999",                  // --cds-text-2
+  borderBottom: "1px solid rgba(212,146,90,0.25)", // subtle purple-tinted divider only
   fontFamily: HEADER_FONT,
-  background: "#1a1918",             // match canvas — no band effect
+  background: "#1a1a1a",             // match canvas — no band effect
   letterSpacing: "0.12em",
   borderLeft: "3px solid transparent",
 };

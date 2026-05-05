@@ -225,7 +225,7 @@ function MobileSongCard({
         </div>
         <span
           className="w-6 text-center text-xs font-bold shrink-0"
-          style={{ fontFamily: MONO_FONT, color: isEvent ? "rgba(250,204,21,0.7)" : "rgba(193,134,200,0.5)" }}
+          style={{ fontFamily: MONO_FONT, color: isEvent ? "rgba(250,204,21,0.7)" : "rgba(212,146,90,0.5)" }}
         >
           {isEvent ? "S" : (songNumber ?? index + 1)}
         </span>
@@ -1101,7 +1101,7 @@ export default function Manage() {
 
   if (outputOpen) {
     return (
-      <div className="flex flex-col h-full w-full bg-[#1a1918] overflow-hidden" data-testid="show-page">
+      <div className="flex flex-col h-full w-full bg-[#1a1a1a] overflow-hidden" data-testid="show-page">
         <div className="flex-1 min-h-0 overflow-hidden w-full">
           <PerformanceEditor
             songs={sortedSongs}
@@ -1158,7 +1158,7 @@ export default function Manage() {
       className="h-full flex flex-col relative pt-8"
       style={{
         fontFamily: UI_FONT,
-        background: "#1a1918", // warm gray canvas; header strip (deep black) creates contrast
+        background: "#1a1a1a", // warm gray canvas; header strip (deep black) creates contrast
       }}
       onDrop={handleFileDrop}
       onDragOver={handleFileDragOver}
@@ -1170,13 +1170,13 @@ export default function Manage() {
           className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none"
           style={{
             background: "rgba(100,100,90,0.06)",
-            border: "3px dashed #2c2a27",
+            border: "3px dashed #353535",
             borderRadius: "3px",
           }}
         >
           <div
             className="text-lg font-bold tracking-wider uppercase"
-            style={{ color: "#a8a8a0" }}
+            style={{ color: "#999999" }}
           >
             Drop to Import
           </div>
@@ -1188,8 +1188,8 @@ export default function Manage() {
         <header
           className="px-3 py-2"
           style={{
-            borderBottom: "1px solid #2c2a27",
-            background: "#1a1918",
+            borderBottom: "1px solid #353535",
+            background: "#1a1a1a",
           }}
         >
           <div className="flex items-center gap-1.5 flex-wrap max-w-7xl mx-auto">
@@ -1248,8 +1248,8 @@ export default function Manage() {
                     fontFamily: HEADER_FONT,
                     fontSize: "15px",
                     letterSpacing: "0.12em",
-                    background: "linear-gradient(180deg, rgba(193,134,200,0.38) 0%, rgba(193,134,200,0.15) 100%), #2a2028",
-                    border: "1px solid rgba(193,134,200,0.6)",
+                    background: "linear-gradient(180deg, rgba(212,146,90,0.38) 0%, rgba(212,146,90,0.15) 100%), #2a2028",
+                    border: "1px solid rgba(212,146,90,0.6)",
                     color: "#f0d4f2",
                     width: "96px",
                     height: "32px",
@@ -1294,7 +1294,7 @@ export default function Manage() {
             <div className="flex items-center gap-2 mb-1">
               <button
                 className="w-8 h-8 rounded-full flex items-center justify-center text-white/30 transition-all duration-200 disabled:opacity-20"
-                style={{ background: "#1a1918", border: "1px solid #201e1c" }}
+                style={{ background: "#1a1a1a", border: "1px solid #2c2c2c" }}
                 disabled={currentSetlistIndex <= 0}
                 onClick={goToPrevSetlist}
                 data-testid="button-prev-setlist"
@@ -1306,7 +1306,7 @@ export default function Manage() {
               </span>
               <button
                 className="w-8 h-8 rounded-full flex items-center justify-center text-white/30 transition-all duration-200 disabled:opacity-20"
-                style={{ background: "#1a1918", border: "1px solid #201e1c" }}
+                style={{ background: "#1a1a1a", border: "1px solid #2c2c2c" }}
                 disabled={currentSetlistIndex >= setlists.length - 1}
                 onClick={goToNextSetlist}
                 data-testid="button-next-setlist"
@@ -1319,13 +1319,13 @@ export default function Manage() {
             <div className="flex items-baseline gap-3 mb-1" style={{ paddingRight: 260 }}>
               <span
                 className="flex-1 min-w-0 text-[10px] uppercase leading-none font-bold"
-                style={{ fontFamily: UI_FONT, letterSpacing: "0.12em", color: "#c186c8" }}
+                style={{ fontFamily: UI_FONT, letterSpacing: "0.12em", color: "#d4925a" }}
               >
                 Concert Title
               </span>
-              <span className="text-[10px] uppercase leading-none text-center whitespace-nowrap font-bold" style={{ fontFamily: UI_FONT, letterSpacing: "0.12em", color: "#a8a8a0", width: "90px", minWidth: "90px" }}>REHEARSAL</span>
-              <span className="text-[10px] uppercase leading-none text-center whitespace-nowrap font-bold" style={{ fontFamily: UI_FONT, letterSpacing: "0.12em", color: "#a8a8a0", width: "90px", minWidth: "90px" }}>DOOR OPEN</span>
-              <span className="text-[10px] uppercase leading-none text-center whitespace-nowrap font-bold" style={{ fontFamily: UI_FONT, letterSpacing: "0.12em", color: "#a8a8a0", width: "90px", minWidth: "90px" }}>SHOW START</span>
+              <span className="text-[10px] uppercase leading-none text-center whitespace-nowrap font-bold" style={{ fontFamily: UI_FONT, letterSpacing: "0.12em", color: "#999999", width: "90px", minWidth: "90px" }}>REHEARSAL</span>
+              <span className="text-[10px] uppercase leading-none text-center whitespace-nowrap font-bold" style={{ fontFamily: UI_FONT, letterSpacing: "0.12em", color: "#999999", width: "90px", minWidth: "90px" }}>DOOR OPEN</span>
+              <span className="text-[10px] uppercase leading-none text-center whitespace-nowrap font-bold" style={{ fontFamily: UI_FONT, letterSpacing: "0.12em", color: "#999999", width: "90px", minWidth: "90px" }}>SHOW START</span>
             </div>
 
             {/* Input row - all same height */}
@@ -1422,20 +1422,20 @@ export default function Manage() {
             <div
               className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
               style={{
-                background: "rgba(193,134,200,0.08)",
-                border: "1px solid rgba(193,134,200,0.2)",
+                background: "rgba(212,146,90,0.08)",
+                border: "1px solid rgba(212,146,90,0.2)",
               }}
             >
-              <Music className="w-7 h-7 text-fuchsia-400/50" />
+              <Music className="w-7 h-7 text-amber-400/50" />
             </div>
             <p className="text-white/30 mb-4" style={{ fontFamily: UI_FONT }}>No concerts yet</p>
             <button
               onClick={handleNewConcert}
-              className="flex items-center gap-1.5 mx-auto px-4 py-2 rounded-full text-fuchsia-300 text-sm font-medium tracking-wider uppercase transition-all duration-300"
+              className="flex items-center gap-1.5 mx-auto px-4 py-2 rounded-full text-amber-300 text-sm font-medium tracking-wider uppercase transition-all duration-300"
               style={{
-                background: "rgba(193,134,200,0.12)",
-                border: "1px solid rgba(193,134,200,0.3)",
-                boxShadow: "0 0 15px rgba(193,134,200,0.1)",
+                background: "rgba(212,146,90,0.12)",
+                border: "1px solid rgba(212,146,90,0.3)",
+                boxShadow: "0 0 15px rgba(212,146,90,0.1)",
               }}
               data-testid="button-new-concert-empty"
             >

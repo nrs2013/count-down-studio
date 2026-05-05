@@ -63,7 +63,7 @@ export function EventInfoDisplay({ concertTitle, doorOpen, showTime, rehearsal, 
   const scheduleItemCount = [hasDoor, hasShow, hasRehearsal].filter(Boolean).length;
 
   const LINE_COLOR = "rgba(255,255,255,0.12)";
-  const LINE_ACCENT = "rgba(193,134,200,0.7)";
+  const LINE_ACCENT = "rgba(212,146,90,0.7)";
 
   return (
     <div

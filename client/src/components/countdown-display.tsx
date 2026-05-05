@@ -54,15 +54,15 @@ function getTimerColor(status: CountdownStatus | "preview", remainingSeconds: nu
 
 function getLineGlow(status: CountdownStatus | "preview", remainingSeconds: number) {
   if (status === "finished") return {
-    fuchsia: "0 0 12px rgba(193,134,200,0.6), 0 0 30px rgba(193,134,200,0.3)",
+    fuchsia: "0 0 12px rgba(212,146,90,0.6), 0 0 30px rgba(212,146,90,0.3)",
     cyan: "0 0 12px rgba(6,182,212,0.6), 0 0 30px rgba(6,182,212,0.3)",
   };
   if (status === "running" && remainingSeconds <= 10) return {
-    fuchsia: "0 0 8px rgba(193,134,200,0.5), 0 0 20px rgba(193,134,200,0.2)",
+    fuchsia: "0 0 8px rgba(212,146,90,0.5), 0 0 20px rgba(212,146,90,0.2)",
     cyan: "0 0 8px rgba(248,113,113,0.5), 0 0 20px rgba(248,113,113,0.2)",
   };
   return {
-    fuchsia: "0 0 8px rgba(193,134,200,0.4), 0 0 20px rgba(193,134,200,0.15)",
+    fuchsia: "0 0 8px rgba(212,146,90,0.4), 0 0 20px rgba(212,146,90,0.15)",
     cyan: "0 0 8px rgba(6,182,212,0.4), 0 0 20px rgba(6,182,212,0.15)",
   };
 }
@@ -250,15 +250,15 @@ export function CountdownDisplay({
                 fontFamily: TIMER_FONT,
                 fontSize: "0.75em",
                 letterSpacing: "0.1em",
-                color: "#c186c8",
-                background: "rgba(193,134,200,0.15)",
+                color: "#d4925a",
+                background: "rgba(212,146,90,0.15)",
                 borderRadius: 2,
                 padding: "0.12em 0.2em 0.08em 0.25em",
                 lineHeight: 1,
                 display: "inline-flex",
                 alignItems: "center",
                 justifyContent: "center",
-                textShadow: "0 0 12px rgba(193,134,200,0.4)",
+                textShadow: "0 0 12px rgba(212,146,90,0.4)",
                 flexShrink: 0,
                 position: "relative",
                 top: 8,
@@ -273,7 +273,7 @@ export function CountdownDisplay({
         {/* Fuchsia line with glow */}
         <div
           className="absolute w-full"
-          style={{ top: LINE_TOP, left: 0, right: 0, height: 2, backgroundColor: isEncore ? "#22c55e" : isMC ? "#38bdf8" : "#c186c8", boxShadow: lineGlow.fuchsia }}
+          style={{ top: LINE_TOP, left: 0, right: 0, height: 2, backgroundColor: isEncore ? "#22c55e" : isMC ? "#38bdf8" : "#d4925a", boxShadow: lineGlow.fuchsia }}
         />
 
         {/* Timer - centered between lines */}

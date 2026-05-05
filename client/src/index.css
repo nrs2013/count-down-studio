@@ -89,23 +89,23 @@
 
 .dark {
   /* ==========================================================
-     Claude-style WARM GRAY theme + Count Down Studio FUCHSIA accent
+     Mail Check unified theme: dark BG + amber accent (#d4925a)
      ========================================================== */
-  /* Warm gray palette (hex reference):
-     #1a1918 bg  / #1a1918 bg-2 / #383835 bg-3
-     #1c1b19 surface / #201e1c surface-hi
-     #2c2a27 border / #5a5a53 border-hi
-     #e8e8e2 text / #a8a8a0 text-2 / #76766f text-3 */
-  --cds-bg:         40 3% 15%;   /* #1a1918 */
-  --cds-bg-2:       40 3% 18%;   /* #1a1918 */
-  --cds-bg-3:       45 3% 22%;   /* #383835 */
-  --cds-surface:    40 3% 19%;   /* #1c1b19 */
-  --cds-surface-hi: 42 3% 23%;   /* #201e1c */
-  --cds-border:     45 5% 26%;   /* #2c2a27 */
-  --cds-border-hi:  42 5% 34%;   /* #5a5a53 */
-  --cds-text:       60 13% 90%;  /* #e8e8e2 */
-  --cds-text-2:     54 5% 64%;   /* #a8a8a0 */
-  --cds-text-3:     50 4% 45%;   /* #76766f */
+  /* Mail Check unified palette (hex reference):
+     #1a1a1a bg  / #1a1a1a bg-2 / #2c2c2c bg-3
+     #232323 surface / #2c2c2c surface-hi
+     #353535 border / #4a4a4a border-hi
+     #d8d8d8 text / #999999 text-2 / #6e6e6e text-3 */
+  --cds-bg:         0 0% 10%;   /* #1a1a1a */
+  --cds-bg-2:       0 0% 14%;   /* #1a1a1a */
+  --cds-bg-3:       0 0% 17%;   /* #2c2c2c */
+  --cds-surface:    0 0% 14%;   /* #232323 */
+  --cds-surface-hi: 0 0% 17%;   /* #2c2c2c */
+  --cds-border:     0 0% 21%;   /* #353535 */
+  --cds-border-hi:  0 0% 29%;   /* #4a4a4a */
+  --cds-text:       0 0% 85%;  /* #d8d8d8 */
+  --cds-text-2:     0 0% 60%;   /* #999999 */
+  --cds-text-3:     0 0% 43%;   /* #6e6e6e */
 
   --button-outline: rgba(255,255,255, .10);
   --badge-outline: rgba(255,255,255, .05);
@@ -121,15 +121,15 @@
   --sidebar: var(--cds-bg-2);
   --sidebar-foreground: var(--cds-text);
   --sidebar-border: var(--cds-border);
-  --sidebar-primary: 293 38% 66%;      /* fuchsia accent (Count Down brand) */
+  --sidebar-primary: 28 56% 59%;      /* amber accent (Mail Check unified) */
   --sidebar-primary-foreground: 0 0% 98%;
   --sidebar-accent: var(--cds-surface);
   --sidebar-accent-foreground: var(--cds-text);
-  --sidebar-ring: 293 38% 66%;
+  --sidebar-ring: 28 56% 59%;
   --popover: var(--cds-bg-2);
   --popover-foreground: var(--cds-text);
   --popover-border: var(--cds-border);
-  --primary: 293 38% 66%;              /* fuchsia accent (kept) */
+  --primary: 28 56% 59%;              /* amber accent (Mail Check unified) */
   --primary-foreground: 0 0% 98%;
   --secondary: var(--cds-surface);
   --secondary-foreground: var(--cds-text);
@@ -140,7 +140,7 @@
   --destructive: 0 84% 42%;
   --destructive-foreground: 0 0% 98%;
   --input: var(--cds-border-hi);
-  --ring: 293 38% 66%;
+  --ring: 28 56% 59%;
   --chart-1: 292 84% 65%;
   --chart-2: 187 85% 55%;
   --chart-3: 340 80% 70%;
@@ -211,10 +211,10 @@
 
   body {
     @apply font-sans antialiased text-foreground;
-    /* Warm gray canvas — consistent with row gaps. Cards sit slightly lighter above. */
-    background-color: #1a1918;
+    /* Mail Check unified canvas — consistent with row gaps. Cards sit slightly lighter above. */
+    background-color: #1a1a1a;
     background-image:
-      radial-gradient(ellipse 70% 50% at 50% 0%, rgba(193,134,200,0.07), transparent 60%),
+      radial-gradient(ellipse 70% 50% at 50% 0%, rgba(212,146,90,0.07), transparent 60%),
       radial-gradient(ellipse 80% 60% at 50% 100%, rgba(60,40,70,0.09), transparent 60%);
     background-attachment: fixed;
     min-height: 100vh;
@@ -222,14 +222,14 @@
 
   /* Utility: Claude-style surface with subtle vertical gradient (feels alive, not flat) */
   .cds-surface-grad {
-    background: linear-gradient(180deg, #242320 0%, #1c1b19 100%);
+    background: linear-gradient(180deg, #242320 0%, #232323 100%);
   }
   .cds-surface-grad-hi {
     background: linear-gradient(180deg, #3a3a37 0%, #353532 100%);
   }
   /* Subtle purple-tinted divider line (for section boundaries) */
   .cds-divider-accent {
-    background: linear-gradient(90deg, transparent 0%, rgba(193,134,200,0.25) 30%, rgba(193,134,200,0.25) 70%, transparent 100%);
+    background: linear-gradient(90deg, transparent 0%, rgba(212,146,90,0.25) 30%, rgba(212,146,90,0.25) 70%, transparent 100%);
   }
 }
 

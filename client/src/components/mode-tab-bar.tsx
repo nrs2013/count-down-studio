@@ -22,14 +22,14 @@ export function ModeTabBar({ activeMode, outputOpen, outputFullscreen, onOutputO
       style={{ background: "transparent" }}
       data-testid="mode-tab-bar"
     >
-      {/* SET LIST pill — surface layer (#1c1b19) so it pops against #1a1918 panel strip */}
+      {/* SET LIST pill — surface layer (#232323) so it pops against #1a1a1a panel strip */}
       <button
         className="flex items-center gap-2 px-4 py-2 rounded-full text-[11px] font-bold tracking-[0.12em] uppercase transition-colors duration-150"
         style={{
           fontFamily: UI_FONT,
-          background: !outputOpen ? "#c186c8" : "#1c1b19",
-          color:      !outputOpen ? "#0a0a08" : "#a8a8a0",
-          border:     !outputOpen ? "1px solid #c186c8" : "1px solid #2c2a27",
+          background: !outputOpen ? "#d4925a" : "#232323",
+          color:      !outputOpen ? "#0a0a08" : "#999999",
+          border:     !outputOpen ? "1px solid #d4925a" : "1px solid #353535",
         }}
         onClick={onOutputOff}
         data-testid="tab-setlist"
@@ -41,13 +41,13 @@ export function ModeTabBar({ activeMode, outputOpen, outputFullscreen, onOutputO
       <div
         className="flex items-center rounded-full"
         style={{
-          background: "#1c1b19",
-          border: "1px solid #2c2a27",
+          background: "#232323",
+          border: "1px solid #353535",
         }}
       >
         <div
           className="flex items-center gap-1.5 pl-3 pr-2"
-          style={{ color: outputOpen ? "#e8e8e2" : "#76766f" }}
+          style={{ color: outputOpen ? "#d8d8d8" : "#6e6e6e" }}
         >
           <Zap className="w-3.5 h-3.5" />
           <span
@@ -67,8 +67,8 @@ export function ModeTabBar({ activeMode, outputOpen, outputFullscreen, onOutputO
             className="px-3 py-1.5 rounded-full text-[10px] font-bold tracking-[0.14em] uppercase transition-colors duration-150"
             style={{
               fontFamily: MONO_FONT,
-              background: outputOpen ? "#c186c8" : "transparent",
-              color:      outputOpen ? "#0a0a08" : "#76766f",
+              background: outputOpen ? "#d4925a" : "transparent",
+              color:      outputOpen ? "#0a0a08" : "#6e6e6e",
             }}
             onClick={onOutputOn}
             data-testid="button-show-on"
@@ -80,8 +80,8 @@ export function ModeTabBar({ activeMode, outputOpen, outputFullscreen, onOutputO
             className="px-3 py-1.5 rounded-full text-[10px] font-bold tracking-[0.14em] uppercase transition-colors duration-150"
             style={{
               fontFamily: MONO_FONT,
-              background: !outputOpen ? "#2c2a27" : "transparent",
-              color:      !outputOpen ? "#e8e8e2" : "#76766f",
+              background: !outputOpen ? "#353535" : "transparent",
+              color:      !outputOpen ? "#d8d8d8" : "#6e6e6e",
             }}
             onClick={onOutputOff}
             data-testid="button-show-off"
