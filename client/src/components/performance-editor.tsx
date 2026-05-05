@@ -447,11 +447,22 @@ export function PerformanceEditor({
       screensaverActiveRef.current = false;
       return;
     }
+    // mousemove fires constantly while director is editing; throttle activity
+    // detection to once per second so we're not spamming clearTimeout/setTimeout.
+    let lastActivity = 0;
+    const ACTIVITY_THROTTLE_MS = 1000;
     const handler = () => {
+      const now = Date.now();
+      // Always wake from screensaver immediately; throttle only the timer reset.
       if (screensaverActiveRef.current) {
         screensaverActiveRef.current = false;
         stopEventInfoBroadcastRef.current();
+        lastActivity = now;
+        resetScreensaverTimer();
+        return;
       }
+      if (now - lastActivity < ACTIVITY_THROTTLE_MS) return;
+      lastActivity = now;
       resetScreensaverTimer();
     };
     window.addEventListener("mousemove", handler);
@@ -518,6 +529,7 @@ export function PerformanceEditor({
         isMC: s.isMC ?? false,
         xTime: s.xTime ?? false,
         isEncore: s.isEncore ?? false,
+        isEnd: s.isEnd ?? false,
         subTimerSeconds: s.subTimerSeconds ?? 0,
         subTimerTimeRange: s.subTimerTimeRange ?? null,
       })),
@@ -582,6 +594,7 @@ export function PerformanceEditor({
         isMC: s.isMC === true,
         xTime: s.xTime === true,
         isEncore: s.isEncore === true,
+        isEnd: s.isEnd === true,
         subTimerSeconds: typeof s.subTimerSeconds === "number" ? s.subTimerSeconds : 0,
         subTimerTimeRange: s.subTimerTimeRange ?? null,
       }));

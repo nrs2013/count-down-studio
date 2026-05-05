@@ -385,9 +385,16 @@ export default function Manage() {
   const { data: setlists = [], isLoading: loadingSetlists } = useSetlists();
   const [selectedSetlistId, setSelectedSetlistId] = useState<number | null>(null);
 
+  // Initial setlist resolution priority:
+  //   1. user-selected (selectedSetlistId)
+  //   2. the one Director marked active (isActive)
+  //   3. fall back to the first one
+  // Never trust setlists[0] silently — if Director activated a different
+  // setlist on the home page and then opens /manage directly (PWA / bookmark),
+  // we MUST still show that one or the wrong show plays on stage.
   const activeSetlist = selectedSetlistId
     ? setlists.find((s) => s.id === selectedSetlistId)
-    : setlists[0];
+    : setlists.find((s) => s.isActive) ?? setlists[0];
 
   const { data: songs = [] } = useSongs(activeSetlist?.id);
   const sortedSongs = [...songs].sort((a, b) => a.orderIndex - b.orderIndex);
@@ -753,6 +760,9 @@ export default function Manage() {
         isMC: s.isMC === true,
         xTime: s.xTime === true,
         isEncore: s.isEncore === true,
+        // END row marker — must round-trip or Director's exported .scd
+        // re-imported on the show machine loses the show-end summary trigger.
+        isEnd: s.isEnd === true,
         subTimerSeconds: typeof s.subTimerSeconds === "number" ? s.subTimerSeconds : 0,
         subTimerTimeRange: s.subTimerTimeRange ?? null,
       }));
@@ -1032,6 +1042,9 @@ export default function Manage() {
         isMC: s.isMC ?? false,
         xTime: s.xTime ?? false,
         isEncore: s.isEncore ?? false,
+        isEnd: s.isEnd ?? false,
+        subTimerSeconds: s.subTimerSeconds ?? 0,
+        subTimerTimeRange: s.subTimerTimeRange ?? null,
       })),
     };
     const safeName = activeSetlist.name.replace(/[^a-zA-Z0-9\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF _-]/g, "") || "setlist";

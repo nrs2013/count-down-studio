@@ -500,16 +500,23 @@ export default function Output() {
     return () => window.removeEventListener("keydown", handler);
   }, [toggleFullscreen]);
 
+  // Click handling on /output:
+  //   - Single click is a NO-OP. Any stray click on the output window during
+  //     a show MUST NOT change fullscreen state — that would visibly interrupt
+  //     the LED feed.
+  //   - Double click (within 400ms) toggles fullscreen, intentional gesture.
+  //   - ESC / F key exit fullscreen via the keyboard handler above (and ESC
+  //     also exits via the browser's built-in fullscreen behavior).
   useEffect(() => {
     let lastClick = 0;
     const handler = () => {
       const now = Date.now();
       if (now - lastClick < 400) {
         toggleFullscreen();
-      } else if (!isFullscreen) {
-        goFullscreenOnSecondary();
+        lastClick = 0; // consume the double-click so the next click is fresh
+      } else {
+        lastClick = now;
       }
-      lastClick = now;
     };
     window.addEventListener("click", handler);
     window.addEventListener("touchend", handler);
@@ -517,7 +524,7 @@ export default function Output() {
       window.removeEventListener("click", handler);
       window.removeEventListener("touchend", handler);
     };
-  }, [toggleFullscreen, isFullscreen, goFullscreenOnSecondary]);
+  }, [toggleFullscreen]);
 
   useEffect(() => {
     if (showHint) {
@@ -528,7 +535,7 @@ export default function Output() {
 
   return (
     <div
-      className="w-screen h-screen bg-black overflow-hidden cursor-none relative"
+      className={`w-screen h-screen bg-black overflow-hidden relative ${isFullscreen ? "cursor-none" : ""}`}
       data-testid="output-page"
     >
       {state.showConcertSummary ? (

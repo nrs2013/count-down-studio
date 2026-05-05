@@ -3,6 +3,8 @@
 MIDI連動コンサート用カウントダウンタイマー（PWA対応）。
 TELOP STUDIOの姉妹アプリ。
 
+本番URL: **https://nrs2013.github.io/count-down-studio/**
+
 ## 技術スタック
 
 - React + Vite + TypeScript
@@ -28,59 +30,24 @@ npm run build
 
 `dist/` に静的ファイルが生成される。
 
----
-
-## 🚀 Vercelへのデプロイ手順（初めての方向け）
-
-### ステップ1: GitHubにリポジトリを作る
-
-1. [github.com](https://github.com) にログイン
-2. 右上の「+」→「New repository」
-3. リポジトリ名を入力（例：`count-down-studio`）
-4. **「Private」**（非公開）を選ぶ（推奨）
-5. 「Create repository」をクリック
-
-### ステップ2: このフォルダをGitHubにpushする
-
-ターミナル（Macの「ターミナル.app」）を開いて、このプロジェクトフォルダに移動：
+## 型チェック
 
 ```bash
-cd ~/Downloads/count-down-studio    # ← 実際の場所に合わせて
+npm run check
 ```
-
-以下のコマンドを順番に実行（`YOUR_USERNAME`と`REPO_NAME`は自分のものに置き換え）：
-
-```bash
-git init
-git add .
-git commit -m "Initial commit"
-git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/REPO_NAME.git
-git push -u origin main
-```
-
-もし認証を求められたら、GitHubのユーザー名とPersonal Access Token（パスワードではない）を入力。
-
-### ステップ3: Vercelでデプロイ
-
-1. [vercel.com](https://vercel.com) にアクセス
-2. 「Sign Up」→ 「Continue with GitHub」でGitHub連携
-3. 「Add New...」→「Project」
-4. 作ったリポジトリを選んで「Import」
-5. 設定はそのまま（Vercelが自動でViteを検出してくれる）
-6. 「Deploy」をクリック
-
-数十秒待つと、`https://your-app.vercel.app` のようなURLでアプリが公開される🎉
-
-### ステップ4: 独自ドメインを設定（任意）
-
-Vercelのプロジェクト画面 →「Settings」→「Domains」で好きなドメインを追加できる。
 
 ---
 
-## 📝 アプリを更新する方法
+## 🚀 デプロイ運用（GitHub Pages）
 
-コードを修正した後：
+このリポジトリは **GitHub Pages** で運用されている。
+`main` ブランチに push すると、`.github/workflows/deploy.yml` が自動で走り、
+数分後に本番 URL（https://nrs2013.github.io/count-down-studio/）に反映される。
+
+### コード変更のフロー
+
+1. ローカルでコードを修正
+2. ターミナルで以下を実行：
 
 ```bash
 git add .
@@ -88,7 +55,14 @@ git commit -m "変更内容の説明"
 git push
 ```
 
-これで**Vercelが自動で再デプロイ**してくれる。
+3. GitHub Actions が自動でビルド＆デプロイ（進捗は GitHub の Actions タブで確認可能）
+4. 数分後、本番 URL がアップデートされる
+
+### PWA を更新したらキャッシュ更新
+
+PWA 化されているので、本番反映後に古いバージョンがキャッシュに残ることがある。
+Service Worker のバージョン番号（`client/public/sw.js` の `CACHE_NAME` と `client/src/main.tsx` の `SW_CACHE_NAME`）を上げると、
+ユーザー側で自動的に新しいキャッシュに切り替わる。
 
 ---
 
@@ -100,9 +74,9 @@ git push
   - `src/hooks/` — Reactフック（MIDI、カウントダウン、アンドゥなど）
   - `src/lib/` — ユーティリティ、IndexedDB操作
   - `public/` — 静的アセット（アイコン、Service Worker、manifest）
-- `dist/` — ビルド出力（自動生成）
-- `vite.config.ts` — Viteの設定
-- `vercel.json` — Vercelのデプロイ設定
+- `dist/` — ビルド出力（自動生成、`.gitignore`）
+- `vite.config.ts` — Viteの設定（base: `/count-down-studio/`）
+- `.github/workflows/deploy.yml` — GitHub Pages 自動デプロイ
 
 ## ブラウザ要件
 
