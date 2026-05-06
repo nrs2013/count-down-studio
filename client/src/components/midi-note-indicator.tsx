@@ -64,7 +64,7 @@ export function MidiNoteIndicator({ lastMessage }: MidiNoteIndicatorProps) {
             style={{
               fontSize: 28,
               lineHeight: 1,
-              color: flash ? "#d4925a" : "#6e6e6e",
+              color: flash ? "#c186c8" : "#76766f",
               transition: "color 0.15s ease",
               letterSpacing: "0.02em",
             }}
@@ -77,7 +77,7 @@ export function MidiNoteIndicator({ lastMessage }: MidiNoteIndicatorProps) {
             style={{
               fontSize: 11,
               lineHeight: 1,
-              color: flash ? "#999999" : "#6e6e6e",
+              color: flash ? "#a8a8a0" : "#76766f",
               transition: "color 0.15s ease",
               letterSpacing: "0.05em",
             }}
@@ -98,7 +98,7 @@ export function MidiNoteIndicator({ lastMessage }: MidiNoteIndicatorProps) {
             style={{
               fontSize: 8,
               lineHeight: 1.2,
-              color: "#6e6e6e",
+              color: "#76766f",
               fontFamily: MONO_FONT,
               letterSpacing: "0.1em",
             }}
@@ -110,14 +110,14 @@ export function MidiNoteIndicator({ lastMessage }: MidiNoteIndicatorProps) {
             style={{
               width: 28,
               height: 3,
-              background: "#353535",
+              background: "#2c2a27",
             }}
           >
             <div
               className="h-full rounded-full"
               style={{
                 width: `${intensity * 100}%`,
-                background: flash ? "#d4925a" : "#6e6e6e",
+                background: flash ? "#c186c8" : "#76766f",
                 transition: "background 0.15s ease",
               }}
             />
