@@ -456,7 +456,7 @@ export function SongRow({
             onFocusField={() => { focusedFieldRef.current = "duration"; }}
             placeholder="0:00"
             testId={`${pid}-input-${isEncore ? "encore" : "mc"}-target-${song.id}`}
-            color={"#e8b04a"}
+            color={"#a8a8a0"}
           />
           <span className="shrink-0" style={{ width: "42px" }} />
           {!hideSubStartEnd && <span className="w-[60px] shrink-0" />}
@@ -508,7 +508,7 @@ export function SongRow({
             onFocusField={() => { if (!song.xTime) focusedFieldRef.current = "duration"; }}
             placeholder="0:00"
             testId={`${pid}-input-duration-${song.id}`}
-            color={song.xTime ? "#7ed472" : "#e8b04a"}
+            color={song.xTime ? "#a8a8a0" : "#c186c8"}
             disabled={song.xTime}
           />
 
@@ -523,10 +523,9 @@ export function SongRow({
               height: "38px",
               ...(song.xTime
                 ? {
-                    background: "#5a8056",
-                    color: "#0a0a08",
-                    border: "1px solid #7aa876",
-                    boxShadow: "0 0 0 1px rgba(106,138,102,0.3)",
+                    background: "#323230",
+                    color: "#c186c8",
+                    border: "1px solid #46463f",
                   }
                 : {
                     background: "#1d1b19",
@@ -572,7 +571,7 @@ export function SongRow({
             onFocusField={() => { focusedFieldRef.current = "subTimer"; }}
             placeholder="着替"
             testId={`${pid}-input-subtimer-${song.id}`}
-            color={subTimer ? "#e0a070" : undefined}
+            color={subTimer ? "#a8a8a0" : undefined}
           />
         </>
       )}
