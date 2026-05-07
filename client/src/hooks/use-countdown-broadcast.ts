@@ -112,8 +112,20 @@ export function useCountdownBroadcaster() {
             setOutputFullscreen(!!msg.fullscreen);
           }
           if (msg.type === "request-state") {
-            if (lastStateRef.current.songTitle || lastStateRef.current.status !== "idle") {
-              localStorage.setItem(LS_KEY, JSON.stringify({ ...lastStateRef.current, _ts: Date.now() }));
+            // Replay the most recent meaningful state. The condition has to cover:
+            //   - an active countdown (songTitle / non-idle status)
+            //   - the End-of-Show summary overlay (showConcertSummary)
+            //   - the screensaver event-info overlay (showEventInfo)
+            // Without these last two, /output reloading mid-show would lose the
+            // summary or info screen and revert to a blank countdown view.
+            const last = lastStateRef.current;
+            if (
+              last.songTitle ||
+              last.status !== "idle" ||
+              last.showConcertSummary ||
+              last.showEventInfo
+            ) {
+              localStorage.setItem(LS_KEY, JSON.stringify({ ...last, _ts: Date.now() }));
             }
           }
         } catch (_) {}

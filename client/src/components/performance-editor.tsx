@@ -366,6 +366,15 @@ export function PerformanceEditor({
     setShowingEventInfo(false);
     onShowEventInfoChange?.(false);
     clearInterval(eventInfoIntervalRef.current);
+    // CRITICAL: if the End-of-Show summary is on screen, do NOT broadcast a
+    // fresh state from here. The receiver replaces state wholesale on each
+    // broadcast, and a state without `showConcertSummary` would wipe the
+    // summary overlay off the sub-display in the middle of the show.
+    // (Repro: director leaves the app idle long enough for the screensaver
+    // event-info overlay to kick in, then hits END SHOW. setSummaryActive(true)
+    // triggers a useEffect that calls this function to clear the screensaver,
+    // and without this guard the summary disappears 1 frame later.)
+    if (summaryActiveRef.current) return;
     broadcast({
       formattedTime: "--:--",
       status: "idle",
@@ -561,7 +570,10 @@ export function PerformanceEditor({
     a.href = url;
     a.download = `${safeName}.scd`;
     a.click();
-    URL.revokeObjectURL(url);
+    // Defer revocation until after the browser has actually started the download.
+    // Revoking immediately after click() can race the download in some browsers
+    // (notably older Safari) and produce a 0-byte file.
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
     toast({ title: "Saved" });
   }, [setlist, songs, toast]);
 
@@ -790,6 +802,7 @@ export function PerformanceEditor({
       xTime: false,
       isMC: false,
       isEncore: false,
+      isEnd: false,
       subTimerSeconds: 0,
       subTimerTimeRange: null,
     });
@@ -813,6 +826,7 @@ export function PerformanceEditor({
       xTime: false,
       isMC: false,
       isEncore: false,
+      isEnd: false,
       subTimerSeconds: 0,
       subTimerTimeRange: null,
     });
@@ -836,6 +850,7 @@ export function PerformanceEditor({
       xTime: false,
       isMC: true,
       isEncore: false,
+      isEnd: false,
       subTimerSeconds: 0,
       subTimerTimeRange: null,
     });
@@ -859,6 +874,7 @@ export function PerformanceEditor({
       xTime: false,
       isMC: false,
       isEncore: true,
+      isEnd: false,
       subTimerSeconds: 0,
       subTimerTimeRange: null,
     });

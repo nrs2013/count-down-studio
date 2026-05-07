@@ -910,6 +910,7 @@ export default function Manage() {
       xTime: false,
       isMC: false,
       isEncore: false,
+      isEnd: false,
       subTimerSeconds: 0,
       subTimerTimeRange: null,
     });
@@ -932,6 +933,7 @@ export default function Manage() {
       xTime: false,
       isMC: false,
       isEncore: false,
+      isEnd: false,
       subTimerSeconds: 0,
       subTimerTimeRange: null,
     });
@@ -954,6 +956,7 @@ export default function Manage() {
       xTime: false,
       isMC: true,
       isEncore: false,
+      isEnd: false,
       subTimerSeconds: 0,
       subTimerTimeRange: null,
     });
@@ -976,6 +979,7 @@ export default function Manage() {
       xTime: false,
       isMC: false,
       isEncore: true,
+      isEnd: false,
       subTimerSeconds: 0,
       subTimerTimeRange: null,
     });
@@ -1074,7 +1078,10 @@ export default function Manage() {
     a.href = url;
     a.download = `${safeName}.scd`;
     a.click();
-    URL.revokeObjectURL(url);
+    // Defer revocation until after the browser has actually started the download.
+    // Revoking immediately after click() can race the download in some browsers
+    // (notably older Safari) and produce a 0-byte file.
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
     toast({ title: "Saved", description: `${safeName}.scd` });
   }, [activeSetlist, sortedSongs, toast]);
 
