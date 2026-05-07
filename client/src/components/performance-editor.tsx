@@ -750,20 +750,15 @@ export function PerformanceEditor({
     const newIndex = songs.findIndex((s) => s.id === over.id);
     if (oldIndex === -1 || newIndex === -1) return;
     const newOrder = arrayMove(songs, oldIndex, newIndex);
+    // Just reorder. We used to also auto-overwrite each song's `title` with the
+    // previous song's `nextTitle` on success here, but that destroyed real song
+    // titles every time the director rearranged the show. Removed per Director
+    // request — drag-and-drop now affects only the order, never the titles.
     reorderSongs.mutate({
       setlistId: setlist.id,
       songIds: newOrder.map((s) => s.id),
-    }, {
-      onSuccess: () => {
-        for (let i = 1; i < newOrder.length; i++) {
-          const prev = newOrder[i - 1];
-          if (prev.nextTitle) {
-            updateSong.mutate({ id: newOrder[i].id, data: { title: prev.nextTitle }, setlistId: setlist.id });
-          }
-        }
-      },
     });
-  }, [setlist, songs, reorderSongs, updateSong]);
+  }, [setlist, songs, reorderSongs]);
 
   const editorScrollRef = useRef<HTMLDivElement>(null);
   const pendingScrollIndexRef = useRef<number | null>(null);
