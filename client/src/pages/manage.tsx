@@ -448,6 +448,37 @@ export default function Manage() {
   sortedSongsRef.current = sortedSongs;
   useEffect(() => {
     const now = Date.now();
+
+    // === AUTO-RESET: playing the topmost song in the setlist starts a fresh concert ===
+    // Per Director request (2026-05-06): rehearsing song 1 many times before the
+    // real show used to inflate the END SHOW summary's total time, because
+    // concertStartAtRef was fixed at the very first play and never updated.
+    // Treat "playing the song at orderIndex 0" as the implicit Reset trigger:
+    // drop any in-flight segment, clear MC/ENCORE history, dismiss the previous
+    // summary, and stamp `now` as the new concert start. The manual Reset button
+    // still works for cases where Director wants to clear without starting a song.
+    const isFirstSongTrigger =
+      currentSongId !== null &&
+      sortedSongsRef.current[0]?.id === currentSongId;
+
+    if (isFirstSongTrigger) {
+      const song = sortedSongsRef.current.find((s) => s.id === currentSongId);
+      concertStartAtRef.current = now;
+      setMcSegments([]);
+      setEncoreSegments([]);
+      setSummaryActive(false);
+      if (song) {
+        segmentStartAtRef.current = now;
+        segmentTypeRef.current = song.isMC ? "mc" : song.isEncore ? "encore" : "song";
+      } else {
+        segmentStartAtRef.current = null;
+        segmentTypeRef.current = null;
+      }
+      prevTrackedSongIdRef.current = currentSongId;
+      return;
+    }
+
+    // === NORMAL PATH (unchanged) ===
     if (segmentStartAtRef.current !== null && segmentTypeRef.current !== null) {
       const duration = now - segmentStartAtRef.current;
       if (segmentTypeRef.current === "mc") setMcSegments((arr) => [...arr, duration]);
