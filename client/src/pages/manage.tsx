@@ -589,6 +589,28 @@ export default function Manage() {
         endConcert();
         return;
       }
+
+      // === AUTO-RESET on top-of-setlist song (re-click safe) ===
+      // The tracking useEffect only fires when `currentSongId` actually changes,
+      // so re-clicking the SAME first song (e.g. rehearsing song 1 over and over)
+      // would skip the reset and leave concertStartAtRef stuck at the very first
+      // play. Detect that case here and do the reset inline before
+      // setCurrentSongId becomes a no-op.
+      const isFirstSong = sortedSongs[0]?.id === song.id;
+      const isReClickOfFirstSong = isFirstSong && currentSongId === song.id;
+      if (isReClickOfFirstSong) {
+        const now = Date.now();
+        concertStartAtRef.current = now;
+        segmentStartAtRef.current = now;
+        segmentTypeRef.current = song.isMC ? "mc" : song.isEncore ? "encore" : "song";
+        setMcSegments([]);
+        setEncoreSegments([]);
+        setSummaryActive(false);
+      }
+      // For first-click of first song coming from a different song, the
+      // useEffect at the top of this file (keyed on currentSongId) will fire and
+      // run its own isFirstSongTrigger branch — no extra work needed here.
+
       // If the director starts a song after an End-of-Show summary, clear it so the
       // countdown display takes over again.
       if (summaryActive) setSummaryActive(false);
@@ -604,7 +626,7 @@ export default function Manage() {
         countdown.start(dur);
       }
     },
-    [sortedSongs, countdown, liveDurationOverride, summaryActive, endConcert],
+    [sortedSongs, countdown, liveDurationOverride, summaryActive, endConcert, currentSongId],
   );
 
   const nextSong = useCallback(() => {
