@@ -55,19 +55,20 @@ function StandbyOverlay() {
         style={{
           fontFamily: "'Bebas Neue', Impact, 'Arial Narrow', sans-serif",
           fontWeight: 400,
-          // 50cqh is the safe ceiling for "STAND BY!" inside a 16:9 canvas.
-          // At 70cqh the 9-char string overflows horizontally — confirmed in
-          // production screenshot 2026-05-15. GO! (3 chars) can still go big
-          // at 95cqh because it never threatens the container width.
-          fontSize: "50cqh",
-          lineHeight: 1,
+          // Two-line layout: "STAND" on top, "BY!" on bottom. Each line is
+          // short enough to grow to 55cqh without overflowing the 16:9 canvas
+          // horizontally. line-height 0.85 keeps the two lines tight so the
+          // glyphs visually fill the panel like a real stage cue.
+          fontSize: "55cqh",
+          lineHeight: 0.85,
           letterSpacing: "-0.02em",
           textAlign: "center",
           whiteSpace: "nowrap",
-          transform: "translateY(8%)",
         } as any}
       >
-        STAND BY!
+        STAND
+        <br />
+        BY!
       </div>
       <style>{`
         @keyframes cdsStandbyBlink {
