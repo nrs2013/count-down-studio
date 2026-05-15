@@ -55,20 +55,19 @@ function StandbyOverlay() {
         style={{
           fontFamily: "'Bebas Neue', Impact, 'Arial Narrow', sans-serif",
           fontWeight: 400,
-          // Two-line layout: "STAND" on top, "BY!" on bottom. Each line is
-          // short enough to grow to 55cqh without overflowing the 16:9 canvas
-          // horizontally. line-height 0.85 keeps the two lines tight so the
-          // glyphs visually fill the panel like a real stage cue.
-          fontSize: "55cqh",
-          lineHeight: 0.85,
+          // Bound by BOTH height and width so the text never overflows in
+          // fullscreen mode where the canvas can be very tall (1080+ px).
+          // Bebas Neue 'STAND BY!' (9 chars including space) at width-relative
+          // 11cqw fits horizontally on a 1920-wide screen.
+          fontSize: "min(50cqh, 11cqw)",
+          lineHeight: 1,
           letterSpacing: "-0.02em",
           textAlign: "center",
           whiteSpace: "nowrap",
+          transform: "translateY(8%)",
         } as any}
       >
-        STAND
-        <br />
-        BY!
+        STAND BY!
       </div>
       <style>{`
         @keyframes cdsStandbyBlink {
@@ -109,9 +108,9 @@ function GoOverlay() {
         style={{
           fontFamily: "'Bebas Neue', Impact, 'Arial Narrow', sans-serif",
           fontWeight: 400,
-          // Bumped up to fill more of the panel — 'GO!' is only 3 chars so
-          // it can go big without overflowing.
-          fontSize: "95cqh",
+          // 'GO!' is only 3 chars, so it can be much taller before the width
+          // becomes the binding dimension. ~32cqw fills nicely on 1920 wide.
+          fontSize: "min(78cqh, 32cqw)",
           lineHeight: 1,
           letterSpacing: "-0.02em",
           textAlign: "center",
