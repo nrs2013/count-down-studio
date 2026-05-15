@@ -482,9 +482,54 @@ export default function Output() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showHint, setShowHint] = useState(true);
   const secondaryRef = useRef<any>(null);
+  // Press-and-hold key cue overlays — same UX as on /manage but driven from
+  // /output's own keyboard handler. The director may have focus on either
+  // window; both should respond. /output keeps a separate local state so it
+  // doesn't need to broadcast back to /manage just for visual feedback.
+  const [localOverlay, setLocalOverlay] = useState<"standby" | "go" | null>(null);
 
   useEffect(() => {
     document.title = "Output - COUNT DOWN STUDIO";
+  }, []);
+
+  // Local press-and-hold key cue handler (mirrors /manage). Hold ',' for
+  // STAND BY!, hold '.' for GO!, release to clear. Skipped while focus is in
+  // an input / textarea / contenteditable so typing into a field never fires
+  // the overlay. Handles its own state — does not broadcast back to /manage.
+  useEffect(() => {
+    const isInputFocused = () => {
+      const el = document.activeElement as HTMLElement | null;
+      if (!el) return false;
+      const tag = el.tagName.toLowerCase();
+      return tag === "input" || tag === "textarea" || el.isContentEditable;
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (isInputFocused()) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.key === ",") {
+        e.preventDefault();
+        setLocalOverlay("standby");
+      } else if (e.key === ".") {
+        e.preventDefault();
+        setLocalOverlay("go");
+      }
+    };
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.key === ",") {
+        setLocalOverlay((cur) => (cur === "standby" ? null : cur));
+      } else if (e.key === ".") {
+        setLocalOverlay((cur) => (cur === "go" ? null : cur));
+      }
+    };
+    const clearOnBlur = () => setLocalOverlay(null);
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    window.addEventListener("blur", clearOnBlur);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+      window.removeEventListener("blur", clearOnBlur);
+    };
   }, []);
 
   useEffect(() => {
@@ -674,8 +719,10 @@ export default function Output() {
       )}
 
       {/* Press-and-hold key cue overlays — z-index above all other content. */}
-      {state.showStandby && <StandbyOverlay />}
-      {state.showGo && !state.showStandby && <GoOverlay />}
+      {/* Driven by EITHER the broadcast (key pressed on /manage) OR the local */}
+      {/* keyboard handler above (key pressed on /output). Same UX from both. */}
+      {(state.showStandby || localOverlay === "standby") && <StandbyOverlay />}
+      {(state.showGo || localOverlay === "go") && !(state.showStandby || localOverlay === "standby") && <GoOverlay />}
 
       {!isFullscreen && showHint && (
         <div
