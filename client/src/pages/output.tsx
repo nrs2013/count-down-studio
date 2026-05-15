@@ -55,7 +55,11 @@ function StandbyOverlay() {
         style={{
           fontFamily: "'Bebas Neue', Impact, 'Arial Narrow', sans-serif",
           fontWeight: 400,
-          fontSize: "50cqh",
+          // Bound by BOTH height and width so the text never overflows in
+          // fullscreen mode where the canvas can be very tall (1080+ px).
+          // Bebas Neue 'STAND BY!' (9 chars including space) at width-relative
+          // 11cqw fits horizontally on a 1920-wide screen.
+          fontSize: "min(50cqh, 11cqw)",
           lineHeight: 1,
           letterSpacing: "-0.02em",
           textAlign: "center",
@@ -104,7 +108,9 @@ function GoOverlay() {
         style={{
           fontFamily: "'Bebas Neue', Impact, 'Arial Narrow', sans-serif",
           fontWeight: 400,
-          fontSize: "78cqh",
+          // 'GO!' is only 3 chars, so it can be much taller before the width
+          // becomes the binding dimension. ~32cqw fills nicely on 1920 wide.
+          fontSize: "min(78cqh, 32cqw)",
           lineHeight: 1,
           letterSpacing: "-0.02em",
           textAlign: "center",
