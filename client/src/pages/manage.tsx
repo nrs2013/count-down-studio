@@ -1215,7 +1215,7 @@ export default function Manage() {
 
   if (outputOpen) {
     return (
-      <div className="flex flex-col h-full w-full bg-[#1a1918] overflow-hidden" data-testid="show-page">
+      <div className="relative flex flex-col h-full w-full bg-[#1a1918] overflow-hidden" data-testid="show-page">
         <div className="flex-1 min-h-0 overflow-hidden w-full">
           <PerformanceEditor
             songs={sortedSongs}
@@ -1263,6 +1263,12 @@ export default function Manage() {
             summaryActive={summaryActive}
           />
         </div>
+        {/* Stage cue overlays inside the performance view too — the
+            outputOpen branch renders its own JSX tree so we have to
+            mount the overlay here as well, otherwise the cue only
+            fires on the edit screen. */}
+        {keyOverlay === "standby" && <StandbyOverlay />}
+        {keyOverlay === "go" && <GoOverlay />}
       </div>
     );
   }
