@@ -62,7 +62,7 @@ function moveToMainScreen() {
 
 moveToMainScreen();
 
-const SW_CACHE_NAME = "songcountdown-v28";
+const SW_CACHE_NAME = "songcountdown-v29";
 
 async function clearOldCaches() {
   try {
@@ -75,6 +75,27 @@ async function clearOldCaches() {
 }
 
 if ("serviceWorker" in navigator) {
+  // Auto-reload when a brand-new Service Worker takes over the page.
+  // Background: the SW uses skipWaiting + clients.claim, so a new build
+  // becomes the controller as soon as it activates — but the page itself
+  // is still showing whatever the OLD bundle rendered. Without this
+  // listener the director would have to manually Cmd+Shift+R after every
+  // deploy. With it, the page silently reloads itself the moment a new
+  // worker takes over, so deploys become invisible to the user.
+  //
+  // We track whether a controller existed at page load to suppress the
+  // very first controllerchange (which fires when the SW is registered
+  // for the first time on a fresh visit — there is no previous bundle to
+  // replace, so no reload is needed).
+  let reloadingForNewSW = false;
+  const hadControllerAtLoad = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (reloadingForNewSW) return;
+    if (!hadControllerAtLoad) return; // first-ever registration on this device
+    reloadingForNewSW = true;
+    window.location.reload();
+  });
+
   window.addEventListener("load", async () => {
     await clearOldCaches();
 
