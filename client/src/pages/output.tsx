@@ -55,11 +55,14 @@ export function StandbyOverlay() {
         style={{
           fontFamily: "'Bebas Neue', Impact, 'Arial Narrow', sans-serif",
           fontWeight: 400,
-          // Pure 50cqh so the text actually fills the 16:9 canvas the way
-          // the director expects. The earlier min(50cqh, 11cqw) recipe was
-          // width-bound on 16:9, which crushed the visible glyph to ~19% of
-          // the canvas height — far too small to read from the seats.
-          fontSize: "50cqh",
+          // Bound by BOTH height and width so the glyph never overflows the
+          // border on tall or non-16:9 fullscreen targets (e.g. MacBook
+          // internal displays at 16:10). On a 16:9 canvas the two values
+          // are virtually identical — min(50cqh, 28cqw) at 1920x1080 picks
+          // ~537 px, indistinguishable from the pure 50cqh = 540 px result
+          // that the director already approved. Width-bound only kicks in
+          // when the container is taller than 16:9.
+          fontSize: "min(50cqh, 28cqw)",
           lineHeight: 1,
           letterSpacing: "-0.02em",
           textAlign: "center",
@@ -108,10 +111,11 @@ export function GoOverlay() {
         style={{
           fontFamily: "'Bebas Neue', Impact, 'Arial Narrow', sans-serif",
           fontWeight: 400,
-          // 'GO!' is only 3 chars — pure 95cqh fills the canvas without
-          // any overflow risk because the text never threatens the
-          // container width on 16:9.
-          fontSize: "95cqh",
+          // 'GO!' is only 3 chars but at 95cqh it can still threaten the
+          // border on very narrow (taller-than-square) viewports. Cap with
+          // 80cqw — on a 16:9 canvas 95cqh wins, on something closer to
+          // square the width keeps it inside the frame.
+          fontSize: "min(95cqh, 80cqw)",
           lineHeight: 1,
           letterSpacing: "-0.02em",
           textAlign: "center",
