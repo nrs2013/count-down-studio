@@ -590,15 +590,19 @@ export default function Manage() {
         return;
       }
 
-      // === AUTO-RESET on top-of-setlist song (re-click safe) ===
-      // The tracking useEffect only fires when `currentSongId` actually changes,
-      // so re-clicking the SAME first song (e.g. rehearsing song 1 over and over)
-      // would skip the reset and leave concertStartAtRef stuck at the very first
-      // play. Detect that case here and do the reset inline before
-      // setCurrentSongId becomes a no-op.
+      // === AUTO-RESET on top-of-setlist song (unconditional) ===
+      // Per Director request: ANY play of the topmost row in the setlist is the
+      // start of a fresh concert — whether triggered by a click, a MIDI note-on,
+      // first-time-from-null, transition-from-another-song, or re-click of the
+      // same song already current. Drop everything and stamp now as the new
+      // start time. The previous version only fired in the 'same song re-click'
+      // branch and relied on the segment-tracking useEffect to handle the
+      // transition case, which left a window for the reset to be skipped if
+      // the useEffect didn't fire as expected (e.g. PWA running stale code).
+      // This unconditional path is the simplest possible rule: 'first song
+      // played → reset, full stop'.
       const isFirstSong = sortedSongs[0]?.id === song.id;
-      const isReClickOfFirstSong = isFirstSong && currentSongId === song.id;
-      if (isReClickOfFirstSong) {
+      if (isFirstSong) {
         const now = Date.now();
         concertStartAtRef.current = now;
         segmentStartAtRef.current = now;
@@ -607,9 +611,6 @@ export default function Manage() {
         setEncoreSegments([]);
         setSummaryActive(false);
       }
-      // For first-click of first song coming from a different song, the
-      // useEffect at the top of this file (keyed on currentSongId) will fire and
-      // run its own isFirstSongTrigger branch — no extra work needed here.
 
       // If the director starts a song after an End-of-Show summary, clear it so the
       // countdown display takes over again.
