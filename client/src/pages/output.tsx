@@ -55,7 +55,11 @@ function StandbyOverlay() {
         style={{
           fontFamily: "'Bebas Neue', Impact, 'Arial Narrow', sans-serif",
           fontWeight: 400,
-          fontSize: "50cqh",
+          // Bumped up so the visible cap-height feels more like a real
+          // 'fills the screen' cue instead of a small label. Bebas Neue's
+          // cap-height is only ~74% of em, so we need a generous em-size
+          // for the glyphs to look big.
+          fontSize: "70cqh",
           lineHeight: 1,
           letterSpacing: "-0.02em",
           textAlign: "center",
@@ -104,7 +108,9 @@ function GoOverlay() {
         style={{
           fontFamily: "'Bebas Neue', Impact, 'Arial Narrow', sans-serif",
           fontWeight: 400,
-          fontSize: "78cqh",
+          // Bumped up to fill more of the panel — 'GO!' is only 3 chars so
+          // it can go big without overflowing.
+          fontSize: "95cqh",
           lineHeight: 1,
           letterSpacing: "-0.02em",
           textAlign: "center",
