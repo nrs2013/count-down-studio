@@ -26,7 +26,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CountdownDisplay } from "./countdown-display";
 import { EventInfoDisplay } from "./event-info-display";
-import { StandbyOverlay, GoOverlay } from "@/pages/output";
+import { StandbyOverlay, GoOverlay, HoldOverlay } from "@/pages/output";
 import { type CountdownStatus } from "@/hooks/use-countdown";
 import {
   UI_FONT,
@@ -304,8 +304,9 @@ interface PerformanceEditorProps {
   // suppress the screensaver (event-info overlay) so it doesn't overwrite the summary.
   summaryActive?: boolean;
   // Press-and-hold cue overlay state from the director's keyboard. Drives the
-  // STAND BY! / GO! cards that appear inside the sub-display preview rectangle.
-  keyOverlay?: "standby" | "go" | null;
+  // STAND BY! / GO! / HOLD! cards that appear inside the sub-display preview
+  // rectangle.
+  keyOverlay?: "standby" | "go" | "hold" | null;
 }
 
 export function PerformanceEditor({
@@ -1083,10 +1084,12 @@ export function PerformanceEditor({
               />
             )}
             {/* Stage cue overlays — scoped to the 16:9 sub-display preview ONLY.
-                Director wanted the STAND BY! / GO! cue to appear inside this
-                preview rectangle, the same way it appears on the real sub-display,
-                without covering the rest of the /manage editor UI. */}
+                Director wanted the STAND BY! / HOLD! / GO! cues to appear inside
+                this preview rectangle, the same way they appear on the real
+                sub-display, without covering the rest of the /manage editor UI.
+                Priority: STAND BY > HOLD > GO if multiple keys are pressed. */}
             {keyOverlay === "standby" && <StandbyOverlay />}
+            {keyOverlay === "hold" && <HoldOverlay />}
             {keyOverlay === "go" && <GoOverlay />}
           </div>
         </div>

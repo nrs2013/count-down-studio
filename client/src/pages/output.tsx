@@ -129,6 +129,64 @@ export function GoOverlay() {
   );
 }
 
+export function HoldOverlay() {
+  return (
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        background: "#f5c518",
+        color: "#1a1410",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 100,
+        animation: "cdsStandbyBlink 0.7s steps(2, jump-none) infinite",
+        containerType: "size",
+      } as any}
+      data-testid="overlay-hold"
+    >
+      <div
+        style={{
+          position: "absolute",
+          inset: "1.5cqh",
+          border: "0.5cqh solid currentColor",
+          borderRadius: "0.5cqh",
+          pointerEvents: "none",
+        } as any}
+      />
+      <div
+        style={{
+          fontFamily: "'Bebas Neue', Impact, 'Arial Narrow', sans-serif",
+          fontWeight: 400,
+          // 'HOLD!' is 5 chars — sits between STAND BY! (9) and GO! (3) for
+          // sizing. min(70cqh, 45cqw) lets the glyph fill more of the panel
+          // than STAND BY! (since it has fewer characters) while still
+          // staying inside the border on any aspect ratio.
+          fontSize: "min(70cqh, 45cqw)",
+          lineHeight: 1,
+          letterSpacing: "-0.02em",
+          textAlign: "center",
+          whiteSpace: "nowrap",
+          transform: "translateY(8%)",
+        } as any}
+      >
+        HOLD!
+      </div>
+      {/* Inline keyframes so the overlay still blinks even when
+          StandbyOverlay isn't mounted (otherwise the @keyframes
+          definition would not be in the document). Duplicating the
+          rule is fine; the CSS engine dedupes identical keyframes. */}
+      <style>{`
+        @keyframes cdsStandbyBlink {
+          0%, 49% { background: #f5c518; color: #1a1410; }
+          50%, 100% { background: #1a1410; color: #f5c518; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
 function ConcertSummaryDisplay({
   totalMs,
   mcSegments,
@@ -497,7 +555,7 @@ export default function Output() {
   // /output's own keyboard handler. The director may have focus on either
   // window; both should respond. /output keeps a separate local state so it
   // doesn't need to broadcast back to /manage just for visual feedback.
-  const [localOverlay, setLocalOverlay] = useState<"standby" | "go" | null>(null);
+  const [localOverlay, setLocalOverlay] = useState<"standby" | "go" | "hold" | null>(null);
 
   useEffect(() => {
     document.title = "Output - COUNT DOWN STUDIO";
@@ -523,6 +581,9 @@ export default function Output() {
       } else if (e.key === ".") {
         e.preventDefault();
         setLocalOverlay("go");
+      } else if (e.key === "m" || e.key === "M") {
+        e.preventDefault();
+        setLocalOverlay("hold");
       }
     };
     const handleKeyUp = (e: KeyboardEvent) => {
@@ -530,6 +591,8 @@ export default function Output() {
         setLocalOverlay((cur) => (cur === "standby" ? null : cur));
       } else if (e.key === ".") {
         setLocalOverlay((cur) => (cur === "go" ? null : cur));
+      } else if (e.key === "m" || e.key === "M") {
+        setLocalOverlay((cur) => (cur === "hold" ? null : cur));
       }
     };
     const clearOnBlur = () => setLocalOverlay(null);
@@ -733,7 +796,8 @@ export default function Output() {
       {/* Driven by EITHER the broadcast (key pressed on /manage) OR the local */}
       {/* keyboard handler above (key pressed on /output). Same UX from both. */}
       {(state.showStandby || localOverlay === "standby") && <StandbyOverlay />}
-      {(state.showGo || localOverlay === "go") && !(state.showStandby || localOverlay === "standby") && <GoOverlay />}
+      {(state.showHold || localOverlay === "hold") && !(state.showStandby || localOverlay === "standby") && <HoldOverlay />}
+      {(state.showGo || localOverlay === "go") && !(state.showStandby || localOverlay === "standby") && !(state.showHold || localOverlay === "hold") && <GoOverlay />}
 
       {!isFullscreen && showHint && (
         <div

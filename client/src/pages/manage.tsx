@@ -359,7 +359,7 @@ export default function Manage() {
   // Director presses & holds the key while the cue should show, releases to clear.
   // Ignored while focus is in an input/textarea/contenteditable so that typing
   // a comma or period into a song title doesn't fire the overlay.
-  const [keyOverlay, setKeyOverlay] = useState<"standby" | "go" | null>(null);
+  const [keyOverlay, setKeyOverlay] = useState<"standby" | "go" | "hold" | null>(null);
   const [liveTitleOverrides, setLiveTitleOverrides] = useState<{ songId: number; title: string; nextTitle: string } | null>(null);
   const [liveDurationOverride, setLiveDurationOverride] = useState<{ songId: number; durationSeconds: number } | null>(null);
   const [showEventInfoOnPrimary, setShowEventInfoOnPrimary] = useState(false);
@@ -408,6 +408,9 @@ export default function Manage() {
       } else if (e.key === ".") {
         e.preventDefault();
         setKeyOverlay("go");
+      } else if (e.key === "m" || e.key === "M") {
+        e.preventDefault();
+        setKeyOverlay("hold");
       }
     };
     const handleKeyUp = (e: KeyboardEvent) => {
@@ -415,6 +418,8 @@ export default function Manage() {
         setKeyOverlay((cur) => (cur === "standby" ? null : cur));
       } else if (e.key === ".") {
         setKeyOverlay((cur) => (cur === "go" ? null : cur));
+      } else if (e.key === "m" || e.key === "M") {
+        setKeyOverlay((cur) => (cur === "hold" ? null : cur));
       }
     };
     // Releasing focus / switching apps mid-press should clear the overlay too,
@@ -806,6 +811,7 @@ export default function Manage() {
       // immediately reflects the latest hold state (true while held, false on release).
       showStandby: keyOverlay === "standby",
       showGo: keyOverlay === "go",
+      showHold: keyOverlay === "hold",
     });
   }, [broadcast, outputOpen, showEventInfoOnPrimary, summaryActive, displayTime, displayStatus, countdown.progress, countdown.remainingSeconds, displaySongTitle, displayArtist, displayNextTitle, displayIsEvent, displayXTime, displayIsMC, displayIsEncore, countdown.isCountUp, countdown.elapsedSeconds, displayMcTarget, subTimerTotal, subTimerRemaining, subTimerFormatted, subTimerActive, keyOverlay]);
 
