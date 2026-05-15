@@ -26,6 +26,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CountdownDisplay } from "./countdown-display";
 import { EventInfoDisplay } from "./event-info-display";
+import { StandbyOverlay, GoOverlay } from "@/pages/output";
 import { type CountdownStatus } from "@/hooks/use-countdown";
 import {
   UI_FONT,
@@ -302,6 +303,9 @@ interface PerformanceEditorProps {
   // When true, the concert-end summary is showing on the sub-display. We use this to
   // suppress the screensaver (event-info overlay) so it doesn't overwrite the summary.
   summaryActive?: boolean;
+  // Press-and-hold cue overlay state from the director's keyboard. Drives the
+  // STAND BY! / GO! cards that appear inside the sub-display preview rectangle.
+  keyOverlay?: "standby" | "go" | null;
 }
 
 export function PerformanceEditor({
@@ -343,6 +347,7 @@ export function PerformanceEditor({
   onEndConcert,
   onResetConcertTracking,
   summaryActive,
+  keyOverlay,
 }: PerformanceEditorProps) {
   const addSong = useCreateSong();
   const reorderSongs = useReorderSongs();
@@ -1077,6 +1082,12 @@ export function PerformanceEditor({
                 subTimerActive={subTimerActive}
               />
             )}
+            {/* Stage cue overlays — scoped to the 16:9 sub-display preview ONLY.
+                Director wanted the STAND BY! / GO! cue to appear inside this
+                preview rectangle, the same way it appears on the real sub-display,
+                without covering the rest of the /manage editor UI. */}
+            {keyOverlay === "standby" && <StandbyOverlay />}
+            {keyOverlay === "go" && <GoOverlay />}
           </div>
         </div>
 
