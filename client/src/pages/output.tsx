@@ -55,11 +55,11 @@ function StandbyOverlay() {
         style={{
           fontFamily: "'Bebas Neue', Impact, 'Arial Narrow', sans-serif",
           fontWeight: 400,
-          // Bound by BOTH height and width so the text never overflows in
-          // fullscreen mode where the canvas can be very tall (1080+ px).
-          // Bebas Neue 'STAND BY!' (9 chars including space) at width-relative
-          // 11cqw fits horizontally on a 1920-wide screen.
-          fontSize: "min(50cqh, 11cqw)",
+          // Pure 50cqh so the text actually fills the 16:9 canvas the way
+          // the director expects. The earlier min(50cqh, 11cqw) recipe was
+          // width-bound on 16:9, which crushed the visible glyph to ~19% of
+          // the canvas height — far too small to read from the seats.
+          fontSize: "50cqh",
           lineHeight: 1,
           letterSpacing: "-0.02em",
           textAlign: "center",
@@ -108,9 +108,10 @@ function GoOverlay() {
         style={{
           fontFamily: "'Bebas Neue', Impact, 'Arial Narrow', sans-serif",
           fontWeight: 400,
-          // 'GO!' is only 3 chars, so it can be much taller before the width
-          // becomes the binding dimension. ~32cqw fills nicely on 1920 wide.
-          fontSize: "min(78cqh, 32cqw)",
+          // 'GO!' is only 3 chars — pure 95cqh fills the canvas without
+          // any overflow risk because the text never threatens the
+          // container width on 16:9.
+          fontSize: "95cqh",
           lineHeight: 1,
           letterSpacing: "-0.02em",
           textAlign: "center",
