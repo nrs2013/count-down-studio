@@ -34,6 +34,11 @@ export interface CountdownState {
   summaryEndTime?: string;
   summaryDate?: string; // e.g. "2026.04.24 (Thu)" — the show's date, printed on the closing card
   summaryConcertTitle?: string; // the setlist's name, e.g. "Starlight Tour 2026 Final"
+  // Press-and-hold key cue overlays (yellow STAND BY! / green GO!) drawn on
+  // top of whatever is currently on the sub-display. Director presses ',' or
+  // '.' on the keyboard, holds while the overlay should show, releases to clear.
+  showStandby?: boolean;
+  showGo?: boolean;
 }
 
 const LS_KEY = "countdown-state";

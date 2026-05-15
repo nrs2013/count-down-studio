@@ -22,6 +22,102 @@ function formatHMS(ms: number): string {
 const SUMMARY_DESIGN_W = 1920;
 const SUMMARY_DESIGN_H = 1080;
 
+// Press-and-hold key cue overlays (yellow STAND BY! / green GO!) drawn on top
+// of whatever the sub-display is currently showing. Director presses & holds
+// ',' or '.' on the PC keyboard to flash these — released = cleared.
+function StandbyOverlay() {
+  return (
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        background: "#f5c518",
+        color: "#1a1410",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 100,
+        animation: "cdsStandbyBlink 0.7s steps(2, jump-none) infinite",
+        containerType: "size",
+      } as any}
+      data-testid="overlay-standby"
+    >
+      <div
+        style={{
+          position: "absolute",
+          inset: "1.5cqh",
+          border: "0.5cqh solid currentColor",
+          borderRadius: "0.5cqh",
+          pointerEvents: "none",
+        } as any}
+      />
+      <div
+        style={{
+          fontFamily: "'Bebas Neue', Impact, 'Arial Narrow', sans-serif",
+          fontWeight: 400,
+          fontSize: "50cqh",
+          lineHeight: 1,
+          letterSpacing: "-0.02em",
+          textAlign: "center",
+          whiteSpace: "nowrap",
+          transform: "translateY(8%)",
+        } as any}
+      >
+        STAND BY!
+      </div>
+      <style>{`
+        @keyframes cdsStandbyBlink {
+          0%, 49% { background: #f5c518; color: #1a1410; }
+          50%, 100% { background: #1a1410; color: #f5c518; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+function GoOverlay() {
+  return (
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        background: "#2dba4e",
+        color: "#0d2818",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 100,
+        containerType: "size",
+      } as any}
+      data-testid="overlay-go"
+    >
+      <div
+        style={{
+          position: "absolute",
+          inset: "1.5cqh",
+          border: "0.5cqh solid #0d2818",
+          borderRadius: "0.5cqh",
+          pointerEvents: "none",
+        } as any}
+      />
+      <div
+        style={{
+          fontFamily: "'Bebas Neue', Impact, 'Arial Narrow', sans-serif",
+          fontWeight: 400,
+          fontSize: "78cqh",
+          lineHeight: 1,
+          letterSpacing: "-0.02em",
+          textAlign: "center",
+          whiteSpace: "nowrap",
+          transform: "translateY(8%)",
+        } as any}
+      >
+        GO!
+      </div>
+    </div>
+  );
+}
+
 function ConcertSummaryDisplay({
   totalMs,
   mcSegments,
@@ -576,6 +672,10 @@ export default function Output() {
           subTimerActive={state.subTimerActive}
         />
       )}
+
+      {/* Press-and-hold key cue overlays — z-index above all other content. */}
+      {state.showStandby && <StandbyOverlay />}
+      {state.showGo && !state.showStandby && <GoOverlay />}
 
       {!isFullscreen && showHint && (
         <div

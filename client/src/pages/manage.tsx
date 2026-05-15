@@ -353,6 +353,13 @@ export default function Manage() {
   const midi = useMidi({ onNoteOn: (note, vel, ch) => midiNoteOnRef.current?.(note, vel, ch) });
 
   const [currentSongId, setCurrentSongId] = useState<number | null>(null);
+  // Press-and-hold key cue overlays drawn on the sub-display:
+  //   ',' (comma) → STAND BY! (yellow blinking)
+  //   '.' (period) → GO! (green)
+  // Director presses & holds the key while the cue should show, releases to clear.
+  // Ignored while focus is in an input/textarea/contenteditable so that typing
+  // a comma or period into a song title doesn't fire the overlay.
+  const [keyOverlay, setKeyOverlay] = useState<"standby" | "go" | null>(null);
   const [liveTitleOverrides, setLiveTitleOverrides] = useState<{ songId: number; title: string; nextTitle: string } | null>(null);
   const [liveDurationOverride, setLiveDurationOverride] = useState<{ songId: number; durationSeconds: number } | null>(null);
   const [showEventInfoOnPrimary, setShowEventInfoOnPrimary] = useState(false);
@@ -381,6 +388,47 @@ export default function Manage() {
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [outputOpen, requestOutputFullscreen]);
+
+  // Keyboard cue overlays: press-and-hold ',' or '.' to flash STAND BY! / GO!
+  // on the sub-display. Skips if the user is typing in any input/textarea so
+  // editing song titles doesn't trip it.
+  useEffect(() => {
+    const isInputFocused = () => {
+      const el = document.activeElement as HTMLElement | null;
+      if (!el) return false;
+      const tag = el.tagName.toLowerCase();
+      return tag === "input" || tag === "textarea" || el.isContentEditable;
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (isInputFocused()) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.key === ",") {
+        e.preventDefault();
+        setKeyOverlay("standby");
+      } else if (e.key === ".") {
+        e.preventDefault();
+        setKeyOverlay("go");
+      }
+    };
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.key === ",") {
+        setKeyOverlay((cur) => (cur === "standby" ? null : cur));
+      } else if (e.key === ".") {
+        setKeyOverlay((cur) => (cur === "go" ? null : cur));
+      }
+    };
+    // Releasing focus / switching apps mid-press should clear the overlay too,
+    // otherwise the keyup never fires and STAND BY! gets stuck on the screen.
+    const clearOnBlur = () => setKeyOverlay(null);
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    window.addEventListener("blur", clearOnBlur);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+      window.removeEventListener("blur", clearOnBlur);
+    };
+  }, []);
 
   const { data: setlists = [], isLoading: loadingSetlists } = useSetlists();
   const [selectedSetlistId, setSelectedSetlistId] = useState<number | null>(null);
@@ -754,8 +802,12 @@ export default function Manage() {
       subTimerRemaining,
       subTimerFormatted,
       subTimerActive,
+      // Press-and-hold key cues — included in every broadcast so the receiver
+      // immediately reflects the latest hold state (true while held, false on release).
+      showStandby: keyOverlay === "standby",
+      showGo: keyOverlay === "go",
     });
-  }, [broadcast, outputOpen, showEventInfoOnPrimary, summaryActive, displayTime, displayStatus, countdown.progress, countdown.remainingSeconds, displaySongTitle, displayArtist, displayNextTitle, displayIsEvent, displayXTime, displayIsMC, displayIsEncore, countdown.isCountUp, countdown.elapsedSeconds, displayMcTarget, subTimerTotal, subTimerRemaining, subTimerFormatted, subTimerActive]);
+  }, [broadcast, outputOpen, showEventInfoOnPrimary, summaryActive, displayTime, displayStatus, countdown.progress, countdown.remainingSeconds, displaySongTitle, displayArtist, displayNextTitle, displayIsEvent, displayXTime, displayIsMC, displayIsEncore, countdown.isCountUp, countdown.elapsedSeconds, displayMcTarget, subTimerTotal, subTimerRemaining, subTimerFormatted, subTimerActive, keyOverlay]);
 
   const createSetlist = useCreateSetlist();
   const deleteSetlist = useDeleteSetlist();
