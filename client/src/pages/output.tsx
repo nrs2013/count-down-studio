@@ -55,11 +55,11 @@ function StandbyOverlay() {
         style={{
           fontFamily: "'Bebas Neue', Impact, 'Arial Narrow', sans-serif",
           fontWeight: 400,
-          // Bumped up so the visible cap-height feels more like a real
-          // 'fills the screen' cue instead of a small label. Bebas Neue's
-          // cap-height is only ~74% of em, so we need a generous em-size
-          // for the glyphs to look big.
-          fontSize: "70cqh",
+          // 50cqh is the safe ceiling for "STAND BY!" inside a 16:9 canvas.
+          // At 70cqh the 9-char string overflows horizontally — confirmed in
+          // production screenshot 2026-05-15. GO! (3 chars) can still go big
+          // at 95cqh because it never threatens the container width.
+          fontSize: "50cqh",
           lineHeight: 1,
           letterSpacing: "-0.02em",
           textAlign: "center",
