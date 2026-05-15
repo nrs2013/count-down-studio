@@ -60,6 +60,7 @@ import { StyledInput, TimeInput, StyledSelect, useIMEGuard } from "@/components/
 import { MidiNoteIndicator } from "@/components/midi-note-indicator";
 import { PerformanceEditor } from "@/components/performance-editor";
 import { SongRow, SongTableHeader, AddSongButton, AddSpecialButton, AddMCButton, AddEncoreButton, InsertionRow } from "@/components/song-row";
+import { StandbyOverlay, GoOverlay } from "@/pages/output";
 
 function MobileSongCard({
   song,
@@ -1623,6 +1624,11 @@ export default function Manage() {
         )}
       </div>
       </div>
+      {/* Stage cue overlays on the main /manage view — mirrors the same
+          STAND BY! / GO! cards that fire on /output, so the director can
+          see the cue even when looking only at the control screen. */}
+      {keyOverlay === "standby" && <StandbyOverlay />}
+      {keyOverlay === "go" && <GoOverlay />}
     </div>
   );
 }

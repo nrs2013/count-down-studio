@@ -25,7 +25,7 @@ const SUMMARY_DESIGN_H = 1080;
 // Press-and-hold key cue overlays (yellow STAND BY! / green GO!) drawn on top
 // of whatever the sub-display is currently showing. Director presses & holds
 // ',' or '.' on the PC keyboard to flash these — released = cleared.
-function StandbyOverlay() {
+export function StandbyOverlay() {
   return (
     <div
       style={{
@@ -79,7 +79,7 @@ function StandbyOverlay() {
   );
 }
 
-function GoOverlay() {
+export function GoOverlay() {
   return (
     <div
       style={{
