@@ -923,14 +923,22 @@ export default function Manage() {
   // ExcelImportModal so the director can pick sheet / column mappings.
   // Auto-detection lives inside the modal; this function only parses.
   const processDroppedExcel = useCallback(async (file: File) => {
+    // eslint-disable-next-line no-console
+    console.log("[CDS xlsx] processDroppedExcel start, activeSetlist:", activeSetlist?.id ?? "(none)");
     if (!activeSetlist) {
       toast({ title: "セットリストがありません", description: "先にセットリストを作成してください", variant: "destructive" });
       return;
     }
     try {
+      // eslint-disable-next-line no-console
+      console.log("[CDS xlsx] loading SheetJS from CDN...");
       const XLSX = await loadXLSX();
+      // eslint-disable-next-line no-console
+      console.log("[CDS xlsx] SheetJS loaded, parsing buffer...");
       const buf = await file.arrayBuffer();
       const wb = XLSX.read(new Uint8Array(buf), { type: "array" });
+      // eslint-disable-next-line no-console
+      console.log("[CDS xlsx] workbook sheets:", wb.SheetNames);
       const parsed = wb.SheetNames.map((name: string) => {
         const sheet = wb.Sheets[name];
         // raw: false makes SheetJS hand back formatted strings instead of
@@ -941,15 +949,19 @@ export default function Manage() {
         const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, blankrows: false, defval: null, raw: false }) as any[][];
         return { name, rows };
       }).filter((s: { name: string; rows: any[][] }) => s.rows.length > 0);
+      // eslint-disable-next-line no-console
+      console.log("[CDS xlsx] parsed sheets:", parsed.map((s: { name: string; rows: any[][] }) => `${s.name}(${s.rows.length})`));
       if (parsed.length === 0) {
         toast({ title: "Empty file", description: "データが入っているシートが見つかりません", variant: "destructive" });
         return;
       }
+      // eslint-disable-next-line no-console
+      console.log("[CDS xlsx] opening modal");
       setExcelImportSheets(parsed);
     } catch (err) {
       // eslint-disable-next-line no-console
-      console.error("Excel parse failed:", err);
-      toast({ title: "Excel ファイルを読めませんでした", description: "ネット接続 or ファイル形式を確認してください", variant: "destructive" });
+      console.error("[CDS xlsx] Excel parse failed:", err);
+      toast({ title: "Excel ファイルを読めませんでした", description: String((err as any)?.message || err), variant: "destructive" });
     }
   }, [toast, activeSetlist, loadXLSX]);
 
@@ -987,15 +999,33 @@ export default function Manage() {
     e.preventDefault();
     e.stopPropagation();
     setIsDragOver(false);
+    // Diagnostic logging — keep until the import flow is confirmed reliable
+    // across the director's various 進行表 layouts. Strips out once we've
+    // verified live drops actually reach this handler.
+    // eslint-disable-next-line no-console
+    console.log("[CDS drop] event fired, files:", e.dataTransfer?.files?.length ?? 0);
     const file = e.dataTransfer.files[0];
-    if (!file) return;
+    if (!file) {
+      // eslint-disable-next-line no-console
+      console.warn("[CDS drop] no file in dataTransfer");
+      toast({ title: "ファイルが認識できません", description: "もう一度ドロップしてみてください", variant: "destructive" });
+      return;
+    }
     const name = file.name.toLowerCase();
+    // eslint-disable-next-line no-console
+    console.log("[CDS drop] file:", file.name, "size:", file.size, "type:", file.type);
     if (name.endsWith(".json") || name.endsWith(".scd")) {
+      // eslint-disable-next-line no-console
+      console.log("[CDS drop] routing to processDroppedFile (JSON/SCD)");
       processDroppedFile(file);
     } else if (name.endsWith(".xlsx") || name.endsWith(".xls") || name.endsWith(".csv")) {
+      // eslint-disable-next-line no-console
+      console.log("[CDS drop] routing to processDroppedExcel");
       processDroppedExcel(file);
     } else {
-      toast({ title: "Invalid file", description: ".json / .scd / .xlsx / .csv が対応", variant: "destructive" });
+      // eslint-disable-next-line no-console
+      console.warn("[CDS drop] unsupported extension:", name);
+      toast({ title: "Invalid file", description: ".json / .scd / .xlsx / .csv が対応 (received: " + name + ")", variant: "destructive" });
     }
   }, [processDroppedFile, processDroppedExcel, toast]);
 
