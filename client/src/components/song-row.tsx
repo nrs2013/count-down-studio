@@ -611,9 +611,9 @@ export function SongRow({
               height: "38px",
               ...(song.xTime
                 ? {
-                    background: "#323230",
-                    color: "#c186c8",
-                    border: "1px solid #46463f",
+                    background: "rgba(126,216,72,0.16)",
+                    color: "#a8e878",
+                    border: "1px solid #7ed848",
                   }
                 : {
                     background: "#0a0a0a",
