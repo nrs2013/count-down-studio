@@ -933,7 +933,12 @@ export default function Manage() {
       const wb = XLSX.read(new Uint8Array(buf), { type: "array" });
       const parsed = wb.SheetNames.map((name: string) => {
         const sheet = wb.Sheets[name];
-        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, blankrows: false, defval: null }) as any[][];
+        // raw: false makes SheetJS hand back formatted strings instead of
+        // raw values, so an Excel time cell like 0:04:12 arrives as the
+        // string "0:04:12" instead of the underlying float 0.00292...
+        // The import-modal's time-detection then works on real-world
+        // progress-sheet exports without extra casting.
+        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, blankrows: false, defval: null, raw: false }) as any[][];
         return { name, rows };
       }).filter((s: { name: string; rows: any[][] }) => s.rows.length > 0);
       if (parsed.length === 0) {
