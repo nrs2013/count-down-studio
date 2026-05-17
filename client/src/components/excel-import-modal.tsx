@@ -271,7 +271,11 @@ export function ExcelImportModal({ open, sheets, defaultSheet, onCancel, onConfi
   };
 
   const colLabel = (idx: number): string => idx < COL_LETTERS.length ? COL_LETTERS[idx] : `Col ${idx + 1}`;
-  const previewRows = importRows.slice(0, 8);
+  // Show ALL detected rows so the director can scroll through the whole setlist
+  // and verify the full mapping at a glance. The preview pane itself is bounded
+  // by max-height + overflow-y, so the modal stays readable for a 100-song deck
+  // and a 5-song deck alike.
+  const previewRows = importRows;
   const totalRows = currentSheet ? currentSheet.rows.length : 0;
 
   return (
@@ -343,11 +347,11 @@ export function ExcelImportModal({ open, sheets, defaultSheet, onCancel, onConfi
         </div>
 
         <div style={{ borderTop: "0.5px solid #2c2a27", paddingTop: 14, marginBottom: 14 }}>
-          <div style={{ fontSize: 11, color: "#888780", letterSpacing: "0.08em", marginBottom: 8, fontWeight: 500 }}>PREVIEW — {importRows.length} 曲（最初の {previewRows.length} 件）</div>
+          <div style={{ fontSize: 11, color: "#888780", letterSpacing: "0.08em", marginBottom: 8, fontWeight: 500 }}>PREVIEW — {importRows.length} 曲（スクロールで全件確認）</div>
           {previewRows.length === 0 ? (
             <div style={{ padding: 16, color: "#5a5a55", fontSize: 12, textAlign: "center", background: "#0d0c0b", borderRadius: 4 }}>該当する曲がありません — 列の選択 / スキップ行数を確認してください</div>
           ) : (
-            <div style={{ background: "#0d0c0b", borderRadius: 4, padding: 4 }}>
+            <div style={{ background: "#0d0c0b", borderRadius: 4, padding: 4, maxHeight: "44vh", overflowY: "auto", overscrollBehavior: "contain" }}>
               {previewRows.map((r, i) => {
                 const cat = r.isEnd ? "END" : r.isEncore ? "ENCORE" : r.isMC ? "MC" : r.isEvent ? "SPECIAL" : "SONG";
                 const cfg: Record<string, { color: string; bg: string }> = {
@@ -366,9 +370,6 @@ export function ExcelImportModal({ open, sheets, defaultSheet, onCancel, onConfi
                   </div>
                 );
               })}
-              {importRows.length > previewRows.length && (
-                <div style={{ padding: "6px 8px", color: "#5a5a55", fontSize: 11, textAlign: "center" }}>… 残り {importRows.length - previewRows.length} 曲</div>
-              )}
             </div>
           )}
         </div>
