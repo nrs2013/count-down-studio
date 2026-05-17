@@ -62,6 +62,7 @@ import { MidiNoteIndicator } from "@/components/midi-note-indicator";
 import { PerformanceEditor } from "@/components/performance-editor";
 import { SongRow, SongTableHeader, AddSongButton, AddSpecialButton, AddMCButton, AddEncoreButton, InsertionRow } from "@/components/song-row";
 import { CueManagerModal } from "@/components/cue-manager-modal";
+import { ExcelImportModal, type ImportRow } from "@/components/excel-import-modal";
 
 function MobileSongCard({
   song,
@@ -365,6 +366,7 @@ export default function Manage() {
   // fires a cue.
   const [activeCueId, setActiveCueId] = useState<number | null>(null);
   const [cueManagerOpen, setCueManagerOpen] = useState(false);
+  const [excelImportSheets, setExcelImportSheets] = useState<{ name: string; rows: any[][] }[] | null>(null);
   const [liveTitleOverrides, setLiveTitleOverrides] = useState<{ songId: number; title: string; nextTitle: string } | null>(null);
   const [liveDurationOverride, setLiveDurationOverride] = useState<{ songId: number; durationSeconds: number } | null>(null);
   const [showEventInfoOnPrimary, setShowEventInfoOnPrimary] = useState(false);
@@ -917,11 +919,9 @@ export default function Manage() {
     return (window as any).XLSX;
   }, []);
 
-  // Bulk-add songs from an Excel/CSV file. Column A is treated as the song
-  // title; every row becomes a plain SONG (director said SP/MC/EN/END are
-  // rare, so we'd rather drop them all in as songs and let the user click
-  // the # cell to retype one as MC/SP/EN/END). Skips a header row if the
-  // first cell looks like a label.
+  // Read every sheet of the dropped Excel/CSV and hand them to the
+  // ExcelImportModal so the director can pick sheet / column mappings.
+  // Auto-detection lives inside the modal; this function only parses.
   const processDroppedExcel = useCallback(async (file: File) => {
     if (!activeSetlist) {
       toast({ title: "セットリストがありません", description: "先にセットリストを作成してください", variant: "destructive" });
@@ -931,64 +931,52 @@ export default function Manage() {
       const XLSX = await loadXLSX();
       const buf = await file.arrayBuffer();
       const wb = XLSX.read(new Uint8Array(buf), { type: "array" });
-      const sheet = wb.Sheets[wb.SheetNames[0]];
-      if (!sheet) {
-        toast({ title: "Empty file", description: "シートが見つかりません", variant: "destructive" });
+      const parsed = wb.SheetNames.map((name: string) => {
+        const sheet = wb.Sheets[name];
+        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, blankrows: false, defval: null }) as any[][];
+        return { name, rows };
+      }).filter((s: { name: string; rows: any[][] }) => s.rows.length > 0);
+      if (parsed.length === 0) {
+        toast({ title: "Empty file", description: "データが入っているシートが見つかりません", variant: "destructive" });
         return;
       }
-      const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, blankrows: false }) as any[][];
-      const titles: string[] = [];
-      for (const row of rows) {
-        if (!row || row.length === 0) continue;
-        const cell = row[0];
-        if (cell === null || cell === undefined) continue;
-        const s = String(cell).trim();
-        if (!s) continue;
-        titles.push(s);
-      }
-      // Auto-skip a header row if the first non-empty cell reads like a column label.
-      const firstLower = (titles[0] || "").toLowerCase();
-      const headerWords = ["title", "曲名", "name", "song", "セットリスト", "setlist", "タイトル"];
-      if (titles.length > 0 && headerWords.some((w) => firstLower.includes(w.toLowerCase()))) {
-        titles.shift();
-      }
-      if (titles.length === 0) {
-        toast({ title: "曲名が見つかりません", description: "A列に曲名を入れてください", variant: "destructive" });
-        return;
-      }
-      const confirmed = window.confirm(
-        `${titles.length} 曲を「${activeSetlist.name}」に追加します。\nすべて SONG として投入されます（あとで # セルをクリックして MC / SPECIAL / ENCORE / END に変更可能）。`
-      );
-      if (!confirmed) return;
-      const baseOrder = sortedSongs.length;
-      for (let i = 0; i < titles.length; i++) {
-        await addSong.mutateAsync({
-          setlistId: activeSetlist.id,
-          title: titles[i],
-          nextTitle: null,
-          artist: null,
-          durationSeconds: 0,
-          orderIndex: baseOrder + i,
-          midiNote: null,
-          midiChannel: null,
-          timeRange: null,
-          isEvent: false,
-          isMC: false,
-          xTime: false,
-          isEncore: false,
-          isEnd: false,
-          subTimerSeconds: 0,
-          subTimerTimeRange: null,
-        });
-      }
-      queryClient.invalidateQueries({ queryKey: ["songs", activeSetlist.id] });
-      toast({ title: "Imported", description: `${titles.length} 曲を追加しました` });
+      setExcelImportSheets(parsed);
     } catch (err) {
       // eslint-disable-next-line no-console
-      console.error("Excel import failed:", err);
+      console.error("Excel parse failed:", err);
       toast({ title: "Excel ファイルを読めませんでした", description: "ネット接続 or ファイル形式を確認してください", variant: "destructive" });
     }
-  }, [toast, activeSetlist, addSong, sortedSongs.length, loadXLSX]);
+  }, [toast, activeSetlist, loadXLSX]);
+
+  // Bulk-add the rows the director confirmed in the import modal.
+  const handleExcelImportConfirm = useCallback(async (importRows: ImportRow[]) => {
+    if (!activeSetlist) return;
+    const baseOrder = sortedSongs.length;
+    for (let i = 0; i < importRows.length; i++) {
+      const r = importRows[i];
+      await addSong.mutateAsync({
+        setlistId: activeSetlist.id,
+        title: r.title,
+        nextTitle: null,
+        artist: null,
+        durationSeconds: r.durationSeconds || 0,
+        orderIndex: baseOrder + i,
+        midiNote: null,
+        midiChannel: null,
+        timeRange: null,
+        isEvent: r.isEvent,
+        isMC: r.isMC,
+        xTime: false,
+        isEncore: r.isEncore,
+        isEnd: r.isEnd,
+        subTimerSeconds: 0,
+        subTimerTimeRange: null,
+      });
+    }
+    queryClient.invalidateQueries({ queryKey: ["songs", activeSetlist.id] });
+    toast({ title: "Imported", description: `${importRows.length} 曲を追加しました` });
+    setExcelImportSheets(null);
+  }, [activeSetlist, sortedSongs.length, addSong, toast]);
 
   const handleFileDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -1383,6 +1371,12 @@ export default function Manage() {
           />
         </div>
         <CueManagerModal open={cueManagerOpen} onClose={() => setCueManagerOpen(false)} />
+        <ExcelImportModal
+          open={excelImportSheets !== null}
+          sheets={excelImportSheets || []}
+          onCancel={() => setExcelImportSheets(null)}
+          onConfirm={handleExcelImportConfirm}
+        />
       </div>
     );
   }
