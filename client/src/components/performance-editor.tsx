@@ -234,7 +234,7 @@ function LiveMidiBigDisplay({
           flex: "1 1 0",
           minWidth: 0,
           borderRadius: 3,
-          border: "1px solid #242320",
+          border: "1px solid #1f1d1b",
           background: "#201e1c",
           padding: "12px 16px",
           opacity: enabled ? 1 : 0.4,

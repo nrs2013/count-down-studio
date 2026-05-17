@@ -307,7 +307,7 @@ export function SongRow({
       style={{
         ...sortableStyle,
         // Flat Claude-style: solid surface, lifted above warm gray canvas.
-        background: isCurrent ? "#2a1e28" : "#242320",
+        background: isCurrent ? "#2a1e28" : "#1f1d1b",
         borderRadius: "3px",
         marginBottom: "3px",
         border: isCurrent ? "1px solid #c186c8" : "1px solid #2c2a27",
@@ -530,7 +530,7 @@ export function SongRow({
                 : {
                     background: "#1d1b19",
                     color: "#76766f",
-                    border: "1px solid #2f2c28",
+                    border: "1px solid #2c2a27",
                   }),
             }}
             onClick={() => {

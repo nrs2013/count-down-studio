@@ -195,7 +195,7 @@ export function CueManagerModal({ open, onClose }: { open: boolean; onClose: () 
                 key={cue.id}
                 onClick={() => setSelectedId(cue.id)}
                 style={{
-                  background: editing ? "#2a2622" : "#242320",
+                  background: editing ? "#2a2622" : "#1f1d1b",
                   border: editing ? "0.5px solid #c186c8" : "0.5px solid #2c2a27",
                   borderRadius: 6,
                   padding: 10,
