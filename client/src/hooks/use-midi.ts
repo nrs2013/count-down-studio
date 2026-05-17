@@ -120,6 +120,10 @@ export function useMidi(options: UseMidiOptions = {}) {
         midiAccessRef.current.inputs.forEach((input) => {
           input.onmidimessage = null;
         });
+        // Detach the device-change handler too — without this, re-running
+        // initialize() (e.g. on options change) leaves the old listener
+        // attached and connectDevices() fires twice on every plug event.
+        midiAccessRef.current.onstatechange = null;
       }
     };
   }, [initialize]);
