@@ -692,6 +692,9 @@ export function SongRow({
         onMouseEnter={(e) => { e.currentTarget.style.color = "#a8a8a0"; e.currentTarget.style.background = "#141312"; }}
         onMouseLeave={(e) => { e.currentTarget.style.color = "transparent"; e.currentTarget.style.background = "transparent"; }}
         onClick={() => {
+          const titleLabel = song.title || "(無題)";
+          const confirmed = window.confirm(`「${titleLabel}」を削除しますか？`);
+          if (!confirmed) return;
           deleteSong.mutate({ id: song.id, setlistId }, {
             onSuccess: () => toast({ title: "Deleted" }),
           });

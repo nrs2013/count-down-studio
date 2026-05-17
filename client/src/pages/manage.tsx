@@ -247,6 +247,9 @@ function MobileSongCard({
           tabIndex={-1}
           className="shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-white/30 active:text-red-400 transition-all duration-200"
           onClick={() => {
+            const titleLabel = song.title || "(無題)";
+            const confirmed = window.confirm(`「${titleLabel}」を削除しますか？`);
+            if (!confirmed) return;
             deleteSong.mutate({ id: song.id, setlistId }, {
               onSuccess: () => toast({ title: "Deleted" }),
             });
@@ -1230,6 +1233,12 @@ export default function Manage() {
 
   const handleDeleteConcert = () => {
     if (!activeSetlist) return;
+    const songCount = sortedSongs.length;
+    const name = activeSetlist.name || "(無題)";
+    const confirmed = window.confirm(
+      `「${name}」を本当に削除しますか？\n\n含まれる ${songCount} 曲もまとめて消えます。この操作は元に戻せません。`
+    );
+    if (!confirmed) return;
     deleteSetlist.mutate(activeSetlist.id, {
       onSuccess: () => {
         setSelectedSetlistId(null);

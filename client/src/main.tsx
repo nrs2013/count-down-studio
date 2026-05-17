@@ -62,7 +62,7 @@ function moveToMainScreen() {
 
 moveToMainScreen();
 
-const SW_CACHE_NAME = "songcountdown-v47";
+const SW_CACHE_NAME = "songcountdown-v48";
 
 async function clearOldCaches() {
   try {
