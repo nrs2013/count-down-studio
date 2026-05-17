@@ -47,7 +47,7 @@ push / デプロイ系の作業で発動。
 
 - ✅ **`request_cowork_directory`**：CDS / schedule-studio / その他のフォルダ mount は **即実行**（確認スキップ）
 - ✅ **Chrome MCP のブラウザ選択**：複数 Chrome が接続されてる場合、**「チェック用」を優先**（無ければ最新接続の Browser）
-- ✅ **コード修正・commit・push（PAT 経由）** は確認不要
+- ✅ **コード修正・commit・push（SSH 鍵経由、`git push origin main` で直接）** は確認不要
 - ✅ **SW_CACHE_NAME 更新**、`@font-face` 追加、`package.json` 編集なども確認不要
 - ✅ **本番反映確認** は SW 自動更新に任せる（のむさんに Cmd+Shift+R 依頼は最小化）
 
@@ -55,15 +55,17 @@ push / デプロイ系の作業で発動。
 
 ---
 
-## 「どんどん進める」フロー（2026-05-17 以降）
+## 「どんどん進める」フロー（2026-05-18 以降・Claude Code 流）
 
 1. **このファイル + 最新引き継ぎ書を Read**
 2. **`git pull --rebase origin main`**
 3. **修正 → Edit ツール**
 4. **`git add` + `git commit`**
-5. **PAT 経由で push**（のむさんが PAT を発行してくれる前提）
+5. **`git push origin main`**（SSH 鍵経由・Claude Code は Mac ローカルなので PAT 不要）
 6. **GitHub Actions 完了を待つ（30秒〜2分）**
 7. **本番反映は SW 自動更新で自動 reload される**（Cmd+Shift+R 不要）
+
+※ Cowork 時代は PAT をチャットに貼る運用だったが、Claude Code 移行後は **SSH 鍵で直 push**。リポの remote が HTTPS のままなら `git remote set-url origin git@github.com:nrs2013/<repo>.git` で切り替える。
 
 ---
 
@@ -75,7 +77,7 @@ push / デプロイ系の作業で発動。
 - ❌ IME 3 層ガードを壊す
 - ❌ `SW_CACHE_NAME` を sw.js と main.tsx のどちらか一方だけ上げる（両方揃える）
 - ❌ DB_VERSION を上げる時に migration を忘れる
-- ❌ SCHEDULE STUDIO のルール（PAT 禁止）を CDS に持ち込む（CDS は PAT OK）
+- ❌ SCHEDULE STUDIO の認証ルールを取り違える（両方とも SSH 鍵運用、PAT 不要）
 - ❌ 怒りサイン後に作業継続
 - ❌ **`<ExcelImportModal>` を `manage.tsx` の片方の return ブロックだけに書く**（両方の return 末尾に必ず置く。`PATTERN-進行表ドロップ取り込み.md` §3-1）
 - ❌ **`/output` や preview rectangle 内部の見た目を触る**（のむさん厳命）
