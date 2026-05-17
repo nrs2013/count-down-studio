@@ -70,23 +70,24 @@ export const MIDI_NOTES_BY_NAME: { noteName: string; notes: { value: number; lab
     return { noteName, notes };
   }).filter((g) => g.notes.length > 0);
 
-// Claude-style: inputs are "pressed into" the card surface (darker than card).
-// Gives clear visual hierarchy: card raised, input sunken.
+// Brutalist Vivid: pure-black canvas + vivid accents. Inputs sit on a
+// near-black surface with a thin border; focus rings use the vivid
+// accent colour passed in.
 export const INPUT_STYLES = {
-  border: "1px solid #2c2a27",
-  background: "#14130f",                // warm dark gray — clearly sunken below #1c1b19 card but not black
+  border: "1px solid #1f1f1f",
+  background: "#141312",                // surface tone — sits on the #0a0a0a canvas
   glowFocused: (accent: string) => {
     const match = accent.match(/rgba\(([^)]+)\)/);
     if (match) {
       const parts = match[1].split(",");
       if (parts.length === 4) {
-        const opacity = Math.min(parseFloat(parts[3]) * 0.8, 0.5);
-        return `0 0 0 2px rgba(${parts[0].trim()},${parts[1].trim()},${parts[2].trim()},${opacity.toFixed(2)}), inset 0 1px 2px rgba(0,0,0,0.4)`;
+        const opacity = Math.min(parseFloat(parts[3]) * 0.9, 0.6);
+        return `0 0 0 2px rgba(${parts[0].trim()},${parts[1].trim()},${parts[2].trim()},${opacity.toFixed(2)})`;
       }
     }
     return `0 0 0 2px ${accent}`;
   },
-  borderBlur: "#1c1b19",
+  borderBlur: "#1f1f1f",
 } as const;
 
 export const ACCENT_COLORS = {
@@ -98,10 +99,12 @@ export const ACCENT_COLORS = {
 
 export const HEADER_FONT = "'Bebas Neue', Impact, 'Arial Narrow', sans-serif";
 export const TABLE_HEADER_STYLE = {
-  color: "#a8a8a0",                  // --cds-text-2
-  borderBottom: "none",              // no hairline — the darker header band itself separates header from rows
-  fontFamily: HEADER_FONT,
-  background: "#0d0c0b",             // schedule-studio's dark table-header band
-  letterSpacing: "0.12em",
+  color: "#5a5a55",                  // tertiary on canvas — column labels are reference, not foreground
+  borderBottom: "none",
+  fontFamily: "'JetBrains Mono', monospace",  // mono column labels read as machine output, not casual prose
+  background: "transparent",         // header sits directly on canvas — band-on-band shading retired
+  letterSpacing: "0.15em",
   borderLeft: "3px solid transparent",
+  fontSize: "10px",
+  textTransform: "uppercase" as const,
 };

@@ -168,7 +168,7 @@ export function CueManagerModal({ open, onClose }: { open: boolean; onClose: () 
           width: "min(720px, 92vw)",
           maxHeight: "90vh",
           overflow: "auto",
-          background: "#0a0a0a",
+          background: "#1a1918",
           border: "0.5px solid #2c2a27",
           borderRadius: 8,
           padding: 20,
@@ -195,7 +195,7 @@ export function CueManagerModal({ open, onClose }: { open: boolean; onClose: () 
                 key={cue.id}
                 onClick={() => setSelectedId(cue.id)}
                 style={{
-                  background: editing ? "#2a2622" : "#141312",
+                  background: editing ? "#2a2622" : "#1c1b19",
                   border: editing ? "0.5px solid #c186c8" : "0.5px solid #2c2a27",
                   borderRadius: 6,
                   padding: 10,
@@ -208,7 +208,7 @@ export function CueManagerModal({ open, onClose }: { open: boolean; onClose: () 
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6, fontSize: 10 }}>
                   <span style={{ color: "#888780" }}>key</span>
-                  <span style={{ background: "#0a0a0a", border: "0.5px solid #2c2a27", padding: "1px 6px", borderRadius: 3, fontFamily: "JetBrains Mono, monospace", color: "#e8e5dc" }}>{displayKey(cue.shortcutKey)}</span>
+                  <span style={{ background: "#14130f", border: "0.5px solid #2c2a27", padding: "1px 6px", borderRadius: 3, fontFamily: "JetBrains Mono, monospace", color: "#e8e5dc" }}>{displayKey(cue.shortcutKey)}</span>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4, fontSize: 10 }}>
                   <span style={{ color: "#888780" }}>blink</span>
@@ -242,7 +242,7 @@ export function CueManagerModal({ open, onClose }: { open: boolean; onClose: () 
                   value={draft.label}
                   maxLength={20}
                   onChange={(e) => setDraft({ ...draft, label: e.target.value })}
-                  style={{ width: "100%", background: "#0a0a0a", border: "0.5px solid #2c2a27", color: "#e8e5dc", padding: "7px 10px", borderRadius: 4, fontSize: 14, fontFamily: "'Bebas Neue', 'Noto Sans JP', Impact, sans-serif", letterSpacing: "0.02em", boxSizing: "border-box" }}
+                  style={{ width: "100%", background: "#14130f", border: "0.5px solid #2c2a27", color: "#e8e5dc", padding: "7px 10px", borderRadius: 4, fontSize: 14, fontFamily: "'Bebas Neue', 'Noto Sans JP', Impact, sans-serif", letterSpacing: "0.02em", boxSizing: "border-box" }}
                 />
                 <div style={{ fontSize: 10, color: "#5f5e5a", marginTop: 4 }}>max 20 chars · Bebas Neue auto-applied</div>
               </div>
@@ -250,7 +250,7 @@ export function CueManagerModal({ open, onClose }: { open: boolean; onClose: () 
               <div>
                 <label style={{ display: "block", fontSize: 11, color: "#888780", marginBottom: 6, letterSpacing: "0.04em" }}>SHORTCUT KEY</label>
                 <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-                  <div style={{ flex: 1, background: "#0a0a0a", border: "0.5px solid #2c2a27", color: "#e8e5dc", padding: "7px 10px", borderRadius: 4, fontSize: 13 }}>
+                  <div style={{ flex: 1, background: "#14130f", border: "0.5px solid #2c2a27", color: "#e8e5dc", padding: "7px 10px", borderRadius: 4, fontSize: 13 }}>
                     <span style={{ color: "#888780" }}>currently: </span>
                     <span style={{ background: "#2a2622", padding: "1px 7px", borderRadius: 3, fontFamily: "JetBrains Mono, monospace", fontWeight: 500, color: "#c186c8" }}>{displayKey(draft.shortcutKey)}</span>
                   </div>
@@ -286,7 +286,7 @@ export function CueManagerModal({ open, onClose }: { open: boolean; onClose: () 
                       setHexInput(v);
                       if (v.length === 6) setDraft({ ...draft, color: `#${v}` });
                     }}
-                    style={{ width: 80, background: "#0a0a0a", border: "0.5px solid #2c2a27", color: "#e8e5dc", padding: "4px 8px", borderRadius: 4, fontSize: 11, fontFamily: "JetBrains Mono, monospace" }}
+                    style={{ width: 80, background: "#14130f", border: "0.5px solid #2c2a27", color: "#e8e5dc", padding: "4px 8px", borderRadius: 4, fontSize: 11, fontFamily: "JetBrains Mono, monospace" }}
                   />
                 </div>
               </div>
@@ -301,7 +301,7 @@ export function CueManagerModal({ open, onClose }: { open: boolean; onClose: () 
                   onClick={() => { setDraft({ ...draft, textColor: undefined }); setTextHexInput(""); }}
                   style={{
                     height: 28, padding: "0 10px", borderRadius: 4,
-                    background: !draft.textColor ? "#c186c8" : "#0a0a0a",
+                    background: !draft.textColor ? "#c186c8" : "#14130f",
                     color: !draft.textColor ? "#2a1530" : "#a8a8a0",
                     border: !draft.textColor ? "none" : "0.5px solid #2c2a27",
                     cursor: "pointer", fontSize: 11, fontWeight: !draft.textColor ? 500 : 400,
@@ -331,7 +331,7 @@ export function CueManagerModal({ open, onClose }: { open: boolean; onClose: () 
                       if (v.length === 6) setDraft({ ...draft, textColor: `#${v}` });
                       else if (v.length === 0) setDraft({ ...draft, textColor: undefined });
                     }}
-                    style={{ width: 80, background: "#0a0a0a", border: "0.5px solid #2c2a27", color: "#e8e5dc", padding: "4px 8px", borderRadius: 4, fontSize: 11, fontFamily: "JetBrains Mono, monospace" }}
+                    style={{ width: 80, background: "#14130f", border: "0.5px solid #2c2a27", color: "#e8e5dc", padding: "4px 8px", borderRadius: 4, fontSize: 11, fontFamily: "JetBrains Mono, monospace" }}
                   />
                 </div>
               </div>
@@ -361,9 +361,9 @@ export function CueManagerModal({ open, onClose }: { open: boolean; onClose: () 
                 <button
                   onClick={() => setDraft({ ...draft, fontSizeAdjust: Math.max(-8, (draft.fontSizeAdjust ?? 0) - 1) })}
                   title="Smaller"
-                  style={{ width: 38, height: 32, background: "#0a0a0a", border: "0.5px solid #2c2a27", color: "#e8e5dc", borderRadius: 4, fontSize: 16, cursor: "pointer", fontFamily: "JetBrains Mono, monospace" }}
+                  style={{ width: 38, height: 32, background: "#14130f", border: "0.5px solid #2c2a27", color: "#e8e5dc", borderRadius: 4, fontSize: 16, cursor: "pointer", fontFamily: "JetBrains Mono, monospace" }}
                 >−</button>
-                <div style={{ flex: 1, background: "#0a0a0a", border: "0.5px solid #2c2a27", borderRadius: 4, padding: "7px 12px", fontSize: 12, color: "#e8e5dc", textAlign: "center", fontFamily: "JetBrains Mono, monospace" }}>
+                <div style={{ flex: 1, background: "#14130f", border: "0.5px solid #2c2a27", borderRadius: 4, padding: "7px 12px", fontSize: 12, color: "#e8e5dc", textAlign: "center", fontFamily: "JetBrains Mono, monospace" }}>
                   {(() => {
                     const a = draft.fontSizeAdjust ?? 0;
                     if (a === 0) return "Auto";
@@ -373,7 +373,7 @@ export function CueManagerModal({ open, onClose }: { open: boolean; onClose: () 
                 <button
                   onClick={() => setDraft({ ...draft, fontSizeAdjust: Math.min(8, (draft.fontSizeAdjust ?? 0) + 1) })}
                   title="Larger"
-                  style={{ width: 38, height: 32, background: "#0a0a0a", border: "0.5px solid #2c2a27", color: "#e8e5dc", borderRadius: 4, fontSize: 16, cursor: "pointer", fontFamily: "JetBrains Mono, monospace" }}
+                  style={{ width: 38, height: 32, background: "#14130f", border: "0.5px solid #2c2a27", color: "#e8e5dc", borderRadius: 4, fontSize: 16, cursor: "pointer", fontFamily: "JetBrains Mono, monospace" }}
                 >+</button>
                 <button
                   onClick={() => setDraft({ ...draft, fontSizeAdjust: 0 })}
@@ -422,7 +422,7 @@ export function CueManagerModal({ open, onClose }: { open: boolean; onClose: () 
 function blinkBtnStyle(active: boolean): React.CSSProperties {
   return {
     flex: 1,
-    background: active ? "#c186c8" : "#0a0a0a",
+    background: active ? "#c186c8" : "#14130f",
     color: active ? "#2a1530" : "#a8a8a0",
     border: active ? "none" : "0.5px solid #2c2a27",
     padding: "6px 10px",

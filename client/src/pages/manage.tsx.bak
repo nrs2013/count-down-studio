@@ -1220,7 +1220,7 @@ export default function Manage() {
 
   if (outputOpen) {
     return (
-      <div className="relative flex flex-col h-full w-full bg-[#0a0a0a] overflow-hidden" data-testid="show-page">
+      <div className="relative flex flex-col h-full w-full bg-[#1a1918] overflow-hidden" data-testid="show-page">
         <div className="flex-1 min-h-0 overflow-hidden w-full">
           <PerformanceEditor
             songs={sortedSongs}
@@ -1283,7 +1283,7 @@ export default function Manage() {
       className="h-full flex flex-col relative pt-8"
       style={{
         fontFamily: UI_FONT,
-        background: "#0a0a0a", // warm gray canvas; header strip (deep black) creates contrast
+        background: "#1a1918", // warm gray canvas; header strip (deep black) creates contrast
       }}
       onDrop={handleFileDrop}
       onDragOver={handleFileDragOver}
@@ -1314,7 +1314,7 @@ export default function Manage() {
           className="px-3 py-2"
           style={{
             borderBottom: "1px solid #2c2a27",
-            background: "#0a0a0a",
+            background: "#1a1918",
           }}
         >
           <div className="flex items-center gap-1.5 flex-wrap max-w-7xl mx-auto">
@@ -1419,7 +1419,7 @@ export default function Manage() {
             <div className="flex items-center gap-2 mb-1">
               <button
                 className="w-8 h-8 rounded-full flex items-center justify-center text-white/30 transition-all duration-200 disabled:opacity-20"
-                style={{ background: "#0a0a0a", border: "1px solid #201e1c" }}
+                style={{ background: "#1a1918", border: "1px solid #201e1c" }}
                 disabled={currentSetlistIndex <= 0}
                 onClick={goToPrevSetlist}
                 data-testid="button-prev-setlist"
@@ -1431,7 +1431,7 @@ export default function Manage() {
               </span>
               <button
                 className="w-8 h-8 rounded-full flex items-center justify-center text-white/30 transition-all duration-200 disabled:opacity-20"
-                style={{ background: "#0a0a0a", border: "1px solid #201e1c" }}
+                style={{ background: "#1a1918", border: "1px solid #201e1c" }}
                 disabled={currentSetlistIndex >= setlists.length - 1}
                 onClick={goToNextSetlist}
                 data-testid="button-next-setlist"
@@ -1584,7 +1584,7 @@ export default function Manage() {
                   className="mb-4"
                   data-testid="song-list"
                   style={{
-                    background: "#141312",
+                    background: "#1c1b19",
                   }}
                 >
                   {(() => {
