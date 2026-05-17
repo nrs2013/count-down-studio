@@ -43,6 +43,10 @@ export interface LocalCue {
   shortcutKey: string;      // single key, e.g. "," "." "m" — also stored case-folded
   blink: boolean;           // whether to flash background <-> text color
   blinkSpeed: "slow" | "normal" | "fast"; // 1.2s / 0.7s / 0.35s
+  // User-tunable size delta layered on top of the auto-picked size.
+  // 0 = exactly the suggested size; each step = roughly ±8%. Stored as
+  // an integer so the +/- buttons in the Cue Manager map 1:1 to clicks.
+  fontSizeAdjust?: number;
   orderIndex: number;       // display order in the cue bar
 }
 
@@ -275,6 +279,7 @@ export const localDB = {
         shortcutKey: c.shortcutKey ?? "",
         blink: c.blink !== false,
         blinkSpeed: (c.blinkSpeed === "slow" || c.blinkSpeed === "fast") ? c.blinkSpeed : "normal",
+        fontSizeAdjust: typeof c.fontSizeAdjust === "number" ? c.fontSizeAdjust : 0,
         orderIndex: typeof c.orderIndex === "number" ? c.orderIndex : 0,
       }) as LocalCue)
       .sort((a, b) => a.orderIndex - b.orderIndex);

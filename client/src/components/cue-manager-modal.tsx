@@ -37,6 +37,7 @@ const blankDraft = (orderIndex: number): DraftCue => ({
   shortcutKey: "",
   blink: true,
   blinkSpeed: "normal",
+  fontSizeAdjust: 0,
   orderIndex,
 });
 
@@ -329,6 +330,35 @@ export function CueManagerModal({ open, onClose }: { open: boolean; onClose: () 
                   <button onClick={() => setDraft({ ...draft, blinkSpeed: "normal" })} style={blinkBtnStyle(draft.blinkSpeed === "normal")}>NORMAL</button>
                   <button onClick={() => setDraft({ ...draft, blinkSpeed: "fast" })} style={blinkBtnStyle(draft.blinkSpeed === "fast")}>FAST</button>
                 </div>
+              </div>
+            </div>
+
+            <div style={{ marginBottom: 14 }}>
+              <label style={{ display: "block", fontSize: 11, color: "#888780", marginBottom: 6, letterSpacing: "0.04em" }}>FONT SIZE <span style={{ color: "#5f5e5a", fontWeight: 400, letterSpacing: 0 }}>— starts auto-fitted; nudge with ± buttons</span></label>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <button
+                  onClick={() => setDraft({ ...draft, fontSizeAdjust: Math.max(-8, (draft.fontSizeAdjust ?? 0) - 1) })}
+                  title="Smaller"
+                  style={{ width: 38, height: 32, background: "#1d1b19", border: "0.5px solid #2c2a27", color: "#e8e5dc", borderRadius: 4, fontSize: 16, cursor: "pointer", fontFamily: "JetBrains Mono, monospace" }}
+                >−</button>
+                <div style={{ flex: 1, background: "#1d1b19", border: "0.5px solid #2c2a27", borderRadius: 4, padding: "7px 12px", fontSize: 12, color: "#e8e5dc", textAlign: "center", fontFamily: "JetBrains Mono, monospace" }}>
+                  {(() => {
+                    const a = draft.fontSizeAdjust ?? 0;
+                    if (a === 0) return "Auto";
+                    return `Auto ${a > 0 ? "+" : ""}${a}`;
+                  })()}
+                </div>
+                <button
+                  onClick={() => setDraft({ ...draft, fontSizeAdjust: Math.min(8, (draft.fontSizeAdjust ?? 0) + 1) })}
+                  title="Larger"
+                  style={{ width: 38, height: 32, background: "#1d1b19", border: "0.5px solid #2c2a27", color: "#e8e5dc", borderRadius: 4, fontSize: 16, cursor: "pointer", fontFamily: "JetBrains Mono, monospace" }}
+                >+</button>
+                <button
+                  onClick={() => setDraft({ ...draft, fontSizeAdjust: 0 })}
+                  title="Reset to auto"
+                  disabled={(draft.fontSizeAdjust ?? 0) === 0}
+                  style={{ height: 32, padding: "0 12px", background: "transparent", border: "0.5px solid #2c2a27", color: "#a8a8a0", borderRadius: 4, fontSize: 11, cursor: (draft.fontSizeAdjust ?? 0) === 0 ? "not-allowed" : "pointer", opacity: (draft.fontSizeAdjust ?? 0) === 0 ? 0.4 : 1 }}
+                >Reset</button>
               </div>
             </div>
 

@@ -3,7 +3,7 @@
 // We derive BASE_PATH from self.location so the same file works for local dev
 // (BASE_PATH = "/") and any other future deployment subpath.
 
-const CACHE_NAME = "songcountdown-v35";
+const CACHE_NAME = "songcountdown-v36";
 const BASE_PATH = self.location.pathname.replace(/sw\.js$/, "");
 
 const PRECACHE_URLS = [

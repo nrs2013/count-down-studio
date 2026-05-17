@@ -79,16 +79,31 @@ function effectiveLen(label: string): number {
 // tuned per-bucket so that the rendered text width stays under ~92cqw on
 // 16:9 canvases (border lives at ~97.75cqw), even for the heaviest CJK
 // labels.
-function pickFontSize(label: string): string {
+//
+// `adjust` (default 0) is the user's nudge on top of the auto-picked size.
+// Each step is ~8% of both cqh and cqw caps, so the visual change is
+// noticeable but a few clicks of fine-tuning still stays inside the
+// border. Results are clamped to safe bounds.
+function pickFontSize(label: string, adjust: number = 0): string {
   const len = effectiveLen(label);
-  if (len <= 3) return "min(95cqh, 75cqw)";
-  if (len <= 5) return "min(70cqh, 42cqw)";
-  if (len <= 7) return "min(60cqh, 32cqw)";
-  if (len <= 9) return "min(50cqh, 26cqw)";
-  if (len <= 12) return "min(45cqh, 17cqw)";
-  if (len <= 16) return "min(40cqh, 13cqw)";
-  if (len <= 20) return "min(35cqh, 10cqw)";
-  return "min(30cqh, 8cqw)";
+  let cqh: number;
+  let cqw: number;
+  if (len <= 3)       { cqh = 95; cqw = 75; }
+  else if (len <= 5)  { cqh = 70; cqw = 42; }
+  else if (len <= 7)  { cqh = 60; cqw = 32; }
+  else if (len <= 9)  { cqh = 50; cqw = 26; }
+  else if (len <= 12) { cqh = 45; cqw = 17; }
+  else if (len <= 16) { cqh = 40; cqw = 13; }
+  else if (len <= 20) { cqh = 35; cqw = 10; }
+  else                { cqh = 30; cqw =  8; }
+  if (adjust !== 0) {
+    const factor = Math.pow(1.08, adjust);
+    cqh *= factor;
+    cqw *= factor;
+    cqh = Math.max(10, Math.min(98, cqh));
+    cqw = Math.max(3, Math.min(95, cqw));
+  }
+  return `min(${cqh.toFixed(1)}cqh, ${cqw.toFixed(1)}cqw)`;
 }
 
 export function CueOverlay({ cue }: { cue: LocalCue }) {
@@ -142,7 +157,7 @@ export function CueOverlay({ cue }: { cue: LocalCue }) {
           // is barely visible and the two read as the same family.
           fontFamily: "'Bebas Neue', 'Noto Sans JP', Impact, 'Arial Narrow', sans-serif",
           fontWeight: 900,
-          fontSize: pickFontSize(cue.label),
+          fontSize: pickFontSize(cue.label, cue.fontSizeAdjust),
           lineHeight: 1,
           letterSpacing: "-0.02em",
           textAlign: "center",
