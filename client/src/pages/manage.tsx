@@ -1782,6 +1782,16 @@ export default function Manage() {
         )}
       </div>
       </div>
+      {/* Excel import modal — must live in BOTH the show-page and the edit-mode
+          return blocks. Without this, dropping an .xlsx in edit mode parses the
+          file successfully but the modal has nowhere to render, so nothing
+          visible happens to the director. Discovered 2026-05-17. */}
+      <ExcelImportModal
+        open={excelImportSheets !== null}
+        sheets={excelImportSheets || []}
+        onCancel={() => setExcelImportSheets(null)}
+        onConfirm={handleExcelImportConfirm}
+      />
     </div>
   );
 }
