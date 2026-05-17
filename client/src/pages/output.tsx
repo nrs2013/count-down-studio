@@ -53,39 +53,42 @@ const BLINK_SECONDS: Record<"slow" | "normal" | "fast", number> = {
   fast: 0.35,
 };
 
-// Effective character count — full-width characters (Japanese kanji /
-// hiragana / katakana / CJK punctuation) take roughly twice the horizontal
-// space of ASCII in any sans-serif font, so we count each one as 2 for
-// sizing purposes. Without this, a 5-char Japanese label like "平林待て！"
-// gets sized as if it were 5 ASCII chars and spills out the frame.
+// Effective character count — Bebas Neue ASCII glyphs sit at ~0.36em wide
+// while Noto Sans JP Black CJK glyphs sit at a full ~1em wide, so a
+// Japanese character occupies roughly 2.5x the horizontal space of an
+// ASCII one. We weight CJK characters at 2.5 so a 5-char Japanese label
+// like "平林待て！" gets bucketed as if it were ~13 ASCII chars, which
+// the size table below maps to a small-enough font for it to sit cleanly
+// INSIDE the yellow border (not touching it).
 function effectiveLen(label: string): number {
   let len = 0;
   for (const ch of label || "") {
     const code = ch.codePointAt(0) ?? 0;
     // ASCII range = half-width; everything else (CJK, full-width
-    // punctuation, emoji) gets counted as full-width.
-    if (code <= 0x7F) {
-      len += 1;
-    } else {
-      len += 2;
-    }
+    // punctuation, emoji) gets weighted heavier so the resulting bucket
+    // accounts for the larger glyph width.
+    len += code <= 0x7F ? 1 : 2.5;
   }
-  return len;
+  return Math.ceil(len);
 }
 
 // Pick a font-size that fills the panel for short labels (GO!) but stays
-// inside the 16:9 border for longer ones (STAND BY!). Both cqh and cqw
-// caps are tuned per-bucket so non-16:9 fullscreen targets (e.g. MacBook
-// internal displays at 16:10) never bleed past the frame.
+// inside the border — NOT just inside the screen — for longer ones. The
+// director wants the yellow border to remain part of the visual frame, so
+// the text must clear it with a small margin. Both cqh and cqw caps are
+// tuned per-bucket so that the rendered text width stays under ~92cqw on
+// 16:9 canvases (border lives at ~97.75cqw), even for the heaviest CJK
+// labels.
 function pickFontSize(label: string): string {
   const len = effectiveLen(label);
-  if (len <= 3) return "min(95cqh, 80cqw)";
-  if (len <= 5) return "min(70cqh, 45cqw)";
-  if (len <= 7) return "min(60cqh, 35cqw)";
-  if (len <= 9) return "min(50cqh, 28cqw)";
-  if (len <= 12) return "min(45cqh, 22cqw)";
-  if (len <= 16) return "min(40cqh, 18cqw)";
-  return "min(35cqh, 14cqw)";
+  if (len <= 3) return "min(95cqh, 75cqw)";
+  if (len <= 5) return "min(70cqh, 42cqw)";
+  if (len <= 7) return "min(60cqh, 32cqw)";
+  if (len <= 9) return "min(50cqh, 26cqw)";
+  if (len <= 12) return "min(45cqh, 17cqw)";
+  if (len <= 16) return "min(40cqh, 13cqw)";
+  if (len <= 20) return "min(35cqh, 10cqw)";
+  return "min(30cqh, 8cqw)";
 }
 
 export function CueOverlay({ cue }: { cue: LocalCue }) {
