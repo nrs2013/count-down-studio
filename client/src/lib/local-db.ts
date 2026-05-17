@@ -1,4 +1,5 @@
 import { openDB, type IDBPDatabase } from "idb";
+import { normalizeSongForImport } from "./song-serialize";
 
 export interface LocalSetlist {
   id: number;
@@ -245,22 +246,9 @@ export const localDB = {
     for (let i = 0; i < data.songs.length; i++) {
       const s = data.songs[i];
       await tx.store.add({
+        ...normalizeSongForImport(s),
         setlistId: newSetlist.id,
-        title: s.title ?? "",
-        nextTitle: s.nextTitle ?? null,
-        artist: s.artist ?? null,
-        durationSeconds: typeof s.durationSeconds === "number" ? s.durationSeconds : 0,
         orderIndex: i,
-        midiNote: typeof s.midiNote === "number" ? s.midiNote : null,
-        midiChannel: typeof s.midiChannel === "number" ? s.midiChannel : null,
-        timeRange: s.timeRange ?? null,
-        isEvent: s.isEvent === true,
-        isMC: s.isMC === true,
-        xTime: s.xTime === true,
-        isEncore: s.isEncore === true,
-        isEnd: (s as any).isEnd === true,
-        subTimerSeconds: typeof s.subTimerSeconds === "number" ? s.subTimerSeconds : 0,
-        subTimerTimeRange: s.subTimerTimeRange ?? null,
       });
     }
     await tx.done;
@@ -355,22 +343,9 @@ export const localDB = {
     for (let i = 0; i < songs.length; i++) {
       const s = songs[i];
       await songsStore.add({
+        ...normalizeSongForImport(s),
         setlistId,
-        title: s.title ?? "",
-        nextTitle: s.nextTitle ?? null,
-        artist: s.artist ?? null,
-        durationSeconds: typeof s.durationSeconds === "number" ? s.durationSeconds : 0,
         orderIndex: i,
-        midiNote: typeof s.midiNote === "number" ? s.midiNote : null,
-        midiChannel: typeof s.midiChannel === "number" ? s.midiChannel : null,
-        timeRange: s.timeRange ?? null,
-        isEvent: s.isEvent === true,
-        isMC: s.isMC === true,
-        xTime: s.xTime === true,
-        isEncore: s.isEncore === true,
-        isEnd: (s as any).isEnd === true,
-        subTimerSeconds: typeof s.subTimerSeconds === "number" ? s.subTimerSeconds : 0,
-        subTimerTimeRange: s.subTimerTimeRange ?? null,
       });
     }
 

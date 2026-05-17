@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useLocation } from "wouter";
 import { type LocalSong as Song, type LocalSetlist as Setlist, localDB } from "@/lib/local-db";
+import { serializeSongForExport, normalizeSongForImport } from "@/lib/song-serialize";
 import {
   useCreateSong,
   useUpdateSong,
@@ -541,22 +542,7 @@ export function PerformanceEditor({
       doorOpen: setlist.doorOpen ?? null,
       showTime: setlist.showTime ?? null,
       rehearsal: setlist.rehearsal ?? null,
-      songs: songs.map((s) => ({
-        title: s.title,
-        nextTitle: s.nextTitle,
-        artist: s.artist,
-        durationSeconds: s.durationSeconds,
-        midiNote: s.midiNote,
-        midiChannel: s.midiChannel,
-        timeRange: s.timeRange,
-        isEvent: s.isEvent ?? false,
-        isMC: s.isMC ?? false,
-        xTime: s.xTime ?? false,
-        isEncore: s.isEncore ?? false,
-        isEnd: s.isEnd ?? false,
-        subTimerSeconds: s.subTimerSeconds ?? 0,
-        subTimerTimeRange: s.subTimerTimeRange ?? null,
-      })),
+      songs: songs.map(serializeSongForExport),
     };
     const safeName = setlist.name.replace(/[^a-zA-Z0-9\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF _-]/g, "") || "setlist";
     const jsonStr = JSON.stringify(data, null, 2);
@@ -609,21 +595,8 @@ export function PerformanceEditor({
       );
       if (!confirmed) return;
       const songsData = data.songs.map((s: any) => ({
-        title: s.title ?? "",
-        nextTitle: s.nextTitle ?? null,
-        artist: s.artist ?? null,
-        durationSeconds: typeof s.durationSeconds === "number" ? s.durationSeconds : 0,
+        ...normalizeSongForImport(s),
         orderIndex: 0,
-        midiNote: typeof s.midiNote === "number" ? s.midiNote : null,
-        midiChannel: typeof s.midiChannel === "number" ? s.midiChannel : null,
-        timeRange: s.timeRange ?? null,
-        isEvent: s.isEvent === true,
-        isMC: s.isMC === true,
-        xTime: s.xTime === true,
-        isEncore: s.isEncore === true,
-        isEnd: s.isEnd === true,
-        subTimerSeconds: typeof s.subTimerSeconds === "number" ? s.subTimerSeconds : 0,
-        subTimerTimeRange: s.subTimerTimeRange ?? null,
       }));
       await localDB.replaceSetlistSongs(setlist.id, importName, songsData, {
         doorOpen: typeof data.doorOpen === "string" ? data.doorOpen : null,

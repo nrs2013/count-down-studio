@@ -5,6 +5,7 @@ import { useMidi } from "@/hooks/use-midi";
 import { useCountdown } from "@/hooks/use-countdown";
 import { useAppMode } from "@/hooks/use-app-mode";
 import { type LocalSong as Song, localDB } from "@/lib/local-db";
+import { serializeSongForExport, normalizeSongForImport } from "@/lib/song-serialize";
 import {
   useSetlists,
   useSongs,
@@ -865,23 +866,8 @@ export default function Manage() {
       );
       if (!confirmed) return;
       const songsData = data.songs.map((s: any) => ({
-        title: s.title ?? "",
-        nextTitle: s.nextTitle ?? null,
-        artist: s.artist ?? null,
-        durationSeconds: typeof s.durationSeconds === "number" ? s.durationSeconds : 0,
+        ...normalizeSongForImport(s),
         orderIndex: 0,
-        midiNote: typeof s.midiNote === "number" ? s.midiNote : null,
-        midiChannel: typeof s.midiChannel === "number" ? s.midiChannel : null,
-        timeRange: s.timeRange ?? null,
-        isEvent: s.isEvent === true,
-        isMC: s.isMC === true,
-        xTime: s.xTime === true,
-        isEncore: s.isEncore === true,
-        // END row marker — must round-trip or Director's exported .scd
-        // re-imported on the show machine loses the show-end summary trigger.
-        isEnd: s.isEnd === true,
-        subTimerSeconds: typeof s.subTimerSeconds === "number" ? s.subTimerSeconds : 0,
-        subTimerTimeRange: s.subTimerTimeRange ?? null,
       }));
       await localDB.replaceSetlistSongs(activeSetlist.id, importName, songsData, {
         doorOpen: typeof data.doorOpen === "string" ? data.doorOpen : null,
@@ -1278,22 +1264,7 @@ export default function Manage() {
       doorOpen: activeSetlist.doorOpen ?? null,
       showTime: activeSetlist.showTime ?? null,
       rehearsal: activeSetlist.rehearsal ?? null,
-      songs: sortedSongs.map((s) => ({
-        title: s.title,
-        nextTitle: s.nextTitle,
-        artist: s.artist,
-        durationSeconds: s.durationSeconds,
-        midiNote: s.midiNote,
-        midiChannel: s.midiChannel,
-        timeRange: s.timeRange,
-        isEvent: s.isEvent ?? false,
-        isMC: s.isMC ?? false,
-        xTime: s.xTime ?? false,
-        isEncore: s.isEncore ?? false,
-        isEnd: s.isEnd ?? false,
-        subTimerSeconds: s.subTimerSeconds ?? 0,
-        subTimerTimeRange: s.subTimerTimeRange ?? null,
-      })),
+      songs: sortedSongs.map(serializeSongForExport),
     };
     const safeName = activeSetlist.name.replace(/[^a-zA-Z0-9\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF _-]/g, "") || "setlist";
     const jsonStr = JSON.stringify(data, null, 2);
