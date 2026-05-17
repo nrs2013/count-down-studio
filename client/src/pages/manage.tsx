@@ -891,17 +891,117 @@ export default function Manage() {
     }
   }, [toast, activeSetlist]);
 
+  // Lazy-load SheetJS from CDN only when an Excel file is actually dropped,
+  // so the everyday flow (no Excel) ships nothing extra and PWA install size
+  // stays put. The CDN host is on the CSP allowlist (jsdelivr).
+  const loadXLSX = useCallback(async () => {
+    if ((window as any).XLSX) return (window as any).XLSX;
+    await new Promise<void>((resolve, reject) => {
+      const existing = document.querySelector('script[data-cds-xlsx]') as HTMLScriptElement | null;
+      if (existing) {
+        if ((window as any).XLSX) { resolve(); return; }
+        existing.addEventListener("load", () => resolve());
+        existing.addEventListener("error", () => reject(new Error("XLSX load failed")));
+        return;
+      }
+      const script = document.createElement("script");
+      script.src = "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js";
+      script.setAttribute("data-cds-xlsx", "1");
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error("XLSX load failed"));
+      document.head.appendChild(script);
+    });
+    return (window as any).XLSX;
+  }, []);
+
+  // Bulk-add songs from an Excel/CSV file. Column A is treated as the song
+  // title; every row becomes a plain SONG (director said SP/MC/EN/END are
+  // rare, so we'd rather drop them all in as songs and let the user click
+  // the # cell to retype one as MC/SP/EN/END). Skips a header row if the
+  // first cell looks like a label.
+  const processDroppedExcel = useCallback(async (file: File) => {
+    if (!activeSetlist) {
+      toast({ title: "セットリストがありません", description: "先にセットリストを作成してください", variant: "destructive" });
+      return;
+    }
+    try {
+      const XLSX = await loadXLSX();
+      const buf = await file.arrayBuffer();
+      const wb = XLSX.read(new Uint8Array(buf), { type: "array" });
+      const sheet = wb.Sheets[wb.SheetNames[0]];
+      if (!sheet) {
+        toast({ title: "Empty file", description: "シートが見つかりません", variant: "destructive" });
+        return;
+      }
+      const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, blankrows: false }) as any[][];
+      const titles: string[] = [];
+      for (const row of rows) {
+        if (!row || row.length === 0) continue;
+        const cell = row[0];
+        if (cell === null || cell === undefined) continue;
+        const s = String(cell).trim();
+        if (!s) continue;
+        titles.push(s);
+      }
+      // Auto-skip a header row if the first non-empty cell reads like a column label.
+      const firstLower = (titles[0] || "").toLowerCase();
+      const headerWords = ["title", "曲名", "name", "song", "セットリスト", "setlist", "タイトル"];
+      if (titles.length > 0 && headerWords.some((w) => firstLower.includes(w.toLowerCase()))) {
+        titles.shift();
+      }
+      if (titles.length === 0) {
+        toast({ title: "曲名が見つかりません", description: "A列に曲名を入れてください", variant: "destructive" });
+        return;
+      }
+      const confirmed = window.confirm(
+        `${titles.length} 曲を「${activeSetlist.name}」に追加します。\nすべて SONG として投入されます（あとで # セルをクリックして MC / SPECIAL / ENCORE / END に変更可能）。`
+      );
+      if (!confirmed) return;
+      const baseOrder = sortedSongs.length;
+      for (let i = 0; i < titles.length; i++) {
+        await addSong.mutateAsync({
+          setlistId: activeSetlist.id,
+          title: titles[i],
+          nextTitle: null,
+          artist: null,
+          durationSeconds: 0,
+          orderIndex: baseOrder + i,
+          midiNote: null,
+          midiChannel: null,
+          timeRange: null,
+          isEvent: false,
+          isMC: false,
+          xTime: false,
+          isEncore: false,
+          isEnd: false,
+          subTimerSeconds: 0,
+          subTimerTimeRange: null,
+        });
+      }
+      queryClient.invalidateQueries({ queryKey: ["songs", activeSetlist.id] });
+      toast({ title: "Imported", description: `${titles.length} 曲を追加しました` });
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error("Excel import failed:", err);
+      toast({ title: "Excel ファイルを読めませんでした", description: "ネット接続 or ファイル形式を確認してください", variant: "destructive" });
+    }
+  }, [toast, activeSetlist, addSong, sortedSongs.length, loadXLSX]);
+
   const handleFileDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragOver(false);
     const file = e.dataTransfer.files[0];
-    if (file && (file.name.endsWith(".json") || file.name.endsWith(".scd"))) {
+    if (!file) return;
+    const name = file.name.toLowerCase();
+    if (name.endsWith(".json") || name.endsWith(".scd")) {
       processDroppedFile(file);
+    } else if (name.endsWith(".xlsx") || name.endsWith(".xls") || name.endsWith(".csv")) {
+      processDroppedExcel(file);
     } else {
-      toast({ title: "Invalid file", description: "Please drop a .json or .scd file", variant: "destructive" });
+      toast({ title: "Invalid file", description: ".json / .scd / .xlsx / .csv が対応", variant: "destructive" });
     }
-  }, [processDroppedFile, toast]);
+  }, [processDroppedFile, processDroppedExcel, toast]);
 
   const handleFileDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();

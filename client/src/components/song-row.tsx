@@ -72,6 +72,22 @@ export function SongRow({
 
   const focusedFieldRef = useRef<string | null>(null);
 
+  // Click-to-retype category menu (SONG/SPECIAL/MC/ENCORE/END). Used right
+  // after bulk Excel import to switch a row's role without deleting +
+  // re-adding it.
+  const [catMenuOpen, setCatMenuOpen] = useState(false);
+  const catMenuRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!catMenuOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (catMenuRef.current && !catMenuRef.current.contains(e.target as Node)) {
+        setCatMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [catMenuOpen]);
+
   useEffect(() => {
     if (focusedFieldRef.current !== "title") setTitle(song.title);
     if (focusedFieldRef.current !== "nextTitle") setNextTitle(song.nextTitle || "");
@@ -335,11 +351,14 @@ export function SongRow({
         <GripVertical className="w-3.5 h-3.5" />
       </div>
 
-      {/* Category badge for MC/SP/EN/END — distinct colored tint with confident edges. */}
-      {(isEncore || isMC || isEvent || isEnd) ? (
-        <span
-          className="text-center shrink-0 flex items-center justify-center"
-          style={{
+      {/* Category badge — clickable trigger that pops a menu to retype the
+          row as SONG / SPECIAL / MC / ENCORE / END. Useful right after a
+          bulk Excel import, where every row lands as SONG by default. */}
+      <div ref={catMenuRef} style={{ position: "relative" }} className="shrink-0">
+        <button
+          type="button"
+          className="text-center flex items-center justify-center"
+          style={(isEncore || isMC || isEvent || isEnd) ? {
             fontFamily: MONO_FONT,
             fontSize: "10px",
             fontWeight: 900,
@@ -363,16 +382,8 @@ export function SongRow({
             padding: "3px 0",
             width: 30, minWidth: 30, maxWidth: 30,
             lineHeight: 1,
-            boxShadow: "0 1px 2px rgba(0,0,0,0.3)",
-          }}
-          data-testid={`text-song-index-${song.id}`}
-        >
-          {isEnd ? "END" : isEncore ? "EN" : isMC ? "MC" : "SP"}
-        </span>
-      ) : (
-        <span
-          className="text-center shrink-0 flex items-center justify-center"
-          style={{
+            cursor: "pointer",
+          } : {
             fontFamily: MONO_FONT,
             fontSize: "12px",
             fontWeight: 700,
@@ -380,12 +391,83 @@ export function SongRow({
             width: 30, minWidth: 30, maxWidth: 30,
             height: 22,
             lineHeight: 1,
+            background: "transparent",
+            border: "1px solid transparent",
+            borderRadius: 2,
+            cursor: "pointer",
           }}
+          onClick={(e) => { e.stopPropagation(); setCatMenuOpen((v) => !v); }}
+          title="クリックでカテゴリ変更（SONG / SPECIAL / MC / ENCORE / END）"
           data-testid={`text-song-index-${song.id}`}
         >
-          {songNumber ?? index + 1}
-        </span>
-      )}
+          {isEnd ? "END" : isEncore ? "EN" : isMC ? "MC" : isEvent ? "SP" : (songNumber ?? index + 1)}
+        </button>
+        {catMenuOpen && (
+          <div
+            style={{
+              position: "absolute",
+              top: "calc(100% + 4px)",
+              left: 0,
+              zIndex: 50,
+              background: "#141312",
+              border: "1px solid #2c2a27",
+              borderRadius: 4,
+              padding: 3,
+              minWidth: 96,
+              boxShadow: "0 4px 12px rgba(0,0,0,0.6)",
+            }}
+          >
+            {(["SONG", "SPECIAL", "MC", "ENCORE", "END"] as const).map((cat) => {
+              const cfg = {
+                SONG:    { color: "#d4a5db", bg: "rgba(193,134,200,0.15)" },
+                SPECIAL: { color: "#f5c878", bg: "rgba(245,168,40,0.15)" },
+                MC:      { color: "#7bc5e8", bg: "rgba(58,160,224,0.15)" },
+                ENCORE:  { color: "#a8e878", bg: "rgba(126,216,72,0.15)" },
+                END:     { color: "#ffe57a", bg: "rgba(255,212,68,0.15)" },
+              } as const;
+              const currentCat: "SONG" | "SPECIAL" | "MC" | "ENCORE" | "END" =
+                isEnd ? "END" : isEncore ? "ENCORE" : isMC ? "MC" : isEvent ? "SPECIAL" : "SONG";
+              const selected = currentCat === cat;
+              return (
+                <div
+                  key={cat}
+                  onClick={() => {
+                    updateSong.mutate({
+                      id: song.id,
+                      data: {
+                        isEvent: cat === "SPECIAL",
+                        isMC: cat === "MC",
+                        isEncore: cat === "ENCORE",
+                        isEnd: cat === "END",
+                      } as any,
+                      setlistId,
+                    });
+                    setCatMenuOpen(false);
+                  }}
+                  style={{
+                    fontFamily: MONO_FONT,
+                    fontSize: 11,
+                    fontWeight: 700,
+                    letterSpacing: "0.05em",
+                    padding: "5px 8px",
+                    borderRadius: 3,
+                    cursor: "pointer",
+                    color: cfg[cat].color,
+                    background: selected ? cfg[cat].bg : "transparent",
+                    border: selected ? `1px solid ${cfg[cat].color}55` : "1px solid transparent",
+                    marginBottom: 1,
+                  }}
+                  onMouseEnter={(e) => { if (!selected) (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.04)"; }}
+                  onMouseLeave={(e) => { if (!selected) (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+                  data-testid={`category-option-${cat}-${song.id}`}
+                >
+                  {cat}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
 
       {showPlayButton && (
         <button
