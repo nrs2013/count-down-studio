@@ -92,7 +92,10 @@ function pickFontSize(label: string): string {
 }
 
 export function CueOverlay({ cue }: { cue: LocalCue }) {
-  const fg = autoTextColor(cue.color);
+  // Honor an explicit textColor when the director set one; otherwise fall
+  // back to the luminance-based auto pick so legacy cues (no textColor in
+  // their DB record) still look right.
+  const fg = cue.textColor || autoTextColor(cue.color);
   const blinkDur = BLINK_SECONDS[cue.blinkSpeed] || 0.7;
   const animName = `cdsBlink_${cue.id}`;
   // Per-cue keyframes so each cue can have its own color pair without

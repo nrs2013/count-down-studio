@@ -39,6 +39,7 @@ export interface LocalCue {
   id: number;
   label: string;            // e.g. "STAND BY!"
   color: string;            // background hex, e.g. "#f5c518"
+  textColor?: string;       // optional text hex; when undefined, auto-picked from background luminance
   shortcutKey: string;      // single key, e.g. "," "." "m" — also stored case-folded
   blink: boolean;           // whether to flash background <-> text color
   blinkSpeed: "slow" | "normal" | "fast"; // 1.2s / 0.7s / 0.35s
@@ -270,6 +271,7 @@ export const localDB = {
         id: c.id,
         label: c.label ?? "",
         color: c.color ?? "#f5c518",
+        textColor: typeof c.textColor === "string" && c.textColor.length > 0 ? c.textColor : undefined,
         shortcutKey: c.shortcutKey ?? "",
         blink: c.blink !== false,
         blinkSpeed: (c.blinkSpeed === "slow" || c.blinkSpeed === "fast") ? c.blinkSpeed : "normal",

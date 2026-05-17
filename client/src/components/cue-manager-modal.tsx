@@ -20,6 +20,15 @@ const COLOR_PRESETS: { label: string; hex: string }[] = [
   { label: "White",  hex: "#f0ece0" },
 ];
 
+// Quick text-color presets the director can pick with one click. AUTO
+// (handled separately as a button) plus four common values.
+const TEXT_COLOR_PRESETS: { label: string; hex: string }[] = [
+  { label: "Black",       hex: "#1a1410" },
+  { label: "White",       hex: "#f5f1e0" },
+  { label: "Dark Gray",   hex: "#444441" },
+  { label: "Light Gray",  hex: "#a8a8a0" },
+];
+
 type DraftCue = Omit<LocalCue, "id"> & { id?: number };
 
 const blankDraft = (orderIndex: number): DraftCue => ({
@@ -41,6 +50,7 @@ export function CueManagerModal({ open, onClose }: { open: boolean; onClose: () 
   const [draft, setDraft] = useState<DraftCue | null>(null);
   const [capturingKey, setCapturingKey] = useState(false);
   const [hexInput, setHexInput] = useState("");
+  const [textHexInput, setTextHexInput] = useState("");
 
   // When the modal opens, default to the first cue or "new" mode.
   useEffect(() => {
@@ -60,6 +70,7 @@ export function CueManagerModal({ open, onClose }: { open: boolean; onClose: () 
     if (cue) {
       setDraft({ ...cue });
       setHexInput(cue.color.replace("#", ""));
+      setTextHexInput((cue.textColor || "").replace("#", ""));
     }
   }, [selectedId, cues]);
 
@@ -110,6 +121,7 @@ export function CueManagerModal({ open, onClose }: { open: boolean; onClose: () 
     setSelectedId(null);
     setDraft(blankDraft(cues.length));
     setHexInput("f5c518");
+    setTextHexInput("");
   };
 
   return (
@@ -231,7 +243,7 @@ export function CueManagerModal({ open, onClose }: { open: boolean; onClose: () 
             </div>
 
             <div style={{ marginBottom: 14 }}>
-              <label style={{ display: "block", fontSize: 11, color: "#888780", marginBottom: 6, letterSpacing: "0.04em" }}>COLOR</label>
+              <label style={{ display: "block", fontSize: 11, color: "#888780", marginBottom: 6, letterSpacing: "0.04em" }}>BACKGROUND COLOR</label>
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
                 {COLOR_PRESETS.map((p) => (
                   <button
@@ -250,6 +262,51 @@ export function CueManagerModal({ open, onClose }: { open: boolean; onClose: () 
                       const v = e.target.value.replace(/[^0-9a-fA-F]/g, "").slice(0, 6);
                       setHexInput(v);
                       if (v.length === 6) setDraft({ ...draft, color: `#${v}` });
+                    }}
+                    style={{ width: 80, background: "#1d1b19", border: "0.5px solid #2c2a27", color: "#e8e5dc", padding: "4px 8px", borderRadius: 4, fontSize: 11, fontFamily: "JetBrains Mono, monospace" }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div style={{ marginBottom: 14 }}>
+              <label style={{ display: "block", fontSize: 11, color: "#888780", marginBottom: 6, letterSpacing: "0.04em" }}>TEXT COLOR</label>
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+                {/* Auto = let the overlay pick black or off-white from the background's luminance */}
+                <button
+                  title="Auto (from background)"
+                  onClick={() => { setDraft({ ...draft, textColor: undefined }); setTextHexInput(""); }}
+                  style={{
+                    height: 28, padding: "0 10px", borderRadius: 4,
+                    background: !draft.textColor ? "#c186c8" : "#1d1b19",
+                    color: !draft.textColor ? "#2a1530" : "#a8a8a0",
+                    border: !draft.textColor ? "none" : "0.5px solid #2c2a27",
+                    cursor: "pointer", fontSize: 11, fontWeight: !draft.textColor ? 500 : 400,
+                  }}
+                >AUTO</button>
+                {TEXT_COLOR_PRESETS.map((p) => (
+                  <button
+                    key={p.hex}
+                    title={p.label}
+                    onClick={() => { setDraft({ ...draft, textColor: p.hex }); setTextHexInput(p.hex.replace("#", "")); }}
+                    style={{
+                      width: 28, height: 28, borderRadius: 4, background: p.hex,
+                      border: draft.textColor === p.hex ? "2px solid #c186c8" : "0.5px solid #2c2a27",
+                      cursor: "pointer", padding: 0,
+                    }}
+                  />
+                ))}
+                <div style={{ display: "inline-flex", alignItems: "center", gap: 4, marginLeft: 6 }}>
+                  <span style={{ fontSize: 10, color: "#888780", fontFamily: "JetBrains Mono, monospace" }}>#</span>
+                  <input
+                    type="text"
+                    value={textHexInput}
+                    placeholder="auto"
+                    onChange={(e) => {
+                      const v = e.target.value.replace(/[^0-9a-fA-F]/g, "").slice(0, 6);
+                      setTextHexInput(v);
+                      if (v.length === 6) setDraft({ ...draft, textColor: `#${v}` });
+                      else if (v.length === 0) setDraft({ ...draft, textColor: undefined });
                     }}
                     style={{ width: 80, background: "#1d1b19", border: "0.5px solid #2c2a27", color: "#e8e5dc", padding: "4px 8px", borderRadius: 4, fontSize: 11, fontFamily: "JetBrains Mono, monospace" }}
                   />
@@ -276,8 +333,8 @@ export function CueManagerModal({ open, onClose }: { open: boolean; onClose: () 
             </div>
 
             <div style={{ marginBottom: 16 }}>
-              <label style={{ display: "block", fontSize: 11, color: "#888780", marginBottom: 6, letterSpacing: "0.04em" }}>LIVE PREVIEW</label>
-              <div style={{ background: "#000", aspectRatio: "16 / 4.5", borderRadius: 4, position: "relative", overflow: "hidden" }}>
+              <label style={{ display: "block", fontSize: 11, color: "#888780", marginBottom: 6, letterSpacing: "0.04em" }}>LIVE PREVIEW <span style={{ color: "#5f5e5a", fontWeight: 400, letterSpacing: 0 }}>— 16:9, same render as the sub-display</span></label>
+              <div style={{ background: "#000", aspectRatio: "16 / 9", borderRadius: 4, position: "relative", overflow: "hidden", margin: "0 auto", maxWidth: 560 }}>
                 {draft.label ? (
                   <CueOverlay cue={{ id: -1, ...draft, orderIndex: 0 } as LocalCue} />
                 ) : (

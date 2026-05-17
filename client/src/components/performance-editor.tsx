@@ -1111,7 +1111,7 @@ export function PerformanceEditor({
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6, justifyContent: "center", alignItems: "center", marginTop: 10 }}>
             {cues.map((cue) => {
               const active = activeCueId === cue.id;
-              const fg = (() => {
+              const fg = cue.textColor || (() => {
                 const hex = (cue.color || "#f5c518").replace("#", "");
                 const full = hex.length === 3 ? hex.split("").map((c) => c + c).join("") : hex.padEnd(6, "0").slice(0, 6);
                 const r = parseInt(full.slice(0, 2), 16);
