@@ -882,27 +882,13 @@ export default function Manage() {
     }
   }, [toast, activeSetlist]);
 
-  // Lazy-load SheetJS from CDN only when an Excel file is actually dropped,
-  // so the everyday flow (no Excel) ships nothing extra and PWA install size
-  // stays put. The CDN host is on the CSP allowlist (jsdelivr).
+  // SheetJS bundled via dynamic import — Vite splits it into its own
+  // chunk so the everyday flow (no Excel drop) doesn't pay the cost.
+  // Bundled (vs the old CDN script tag) works offline once the PWA is
+  // installed and removes the CDN-trust + integrity-check dance.
   const loadXLSX = useCallback(async () => {
-    if ((window as any).XLSX) return (window as any).XLSX;
-    await new Promise<void>((resolve, reject) => {
-      const existing = document.querySelector('script[data-cds-xlsx]') as HTMLScriptElement | null;
-      if (existing) {
-        if ((window as any).XLSX) { resolve(); return; }
-        existing.addEventListener("load", () => resolve());
-        existing.addEventListener("error", () => reject(new Error("XLSX load failed")));
-        return;
-      }
-      const script = document.createElement("script");
-      script.src = "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js";
-      script.setAttribute("data-cds-xlsx", "1");
-      script.onload = () => resolve();
-      script.onerror = () => reject(new Error("XLSX load failed"));
-      document.head.appendChild(script);
-    });
-    return (window as any).XLSX;
+    const mod = await import("xlsx");
+    return (mod as any).default ?? mod;
   }, []);
 
   // Read every sheet of the dropped Excel/CSV and hand them to the
