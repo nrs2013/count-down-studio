@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useQueries } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { Trash2, Copy, Plus } from "lucide-react";
 import {
@@ -18,40 +19,26 @@ const MONO = "'SF Mono', 'Menlo', monospace";
 const ACCENT = "#c186c8";           // muted purple (PROMPTER-style)
 const ACCENT_2 = "#d8a7df";         // lighter muted purple (hover / gradient)
 
-function useSongCounts(setlistIds: number[]) {
-  const [counts, setCounts] = useState<Record<number, number>>({});
-  useEffect(() => {
-    let cancelled = false;
-    async function load() {
-      const result: Record<number, number> = {};
-      for (const id of setlistIds) {
-        const songs = await localDB.getSongsBySetlist(id);
-        result[id] = songs.filter(s => !s.isMC && !s.isEvent && !s.isEncore).length;
-      }
-      if (!cancelled) setCounts(result);
-    }
-    if (setlistIds.length > 0) load();
-    return () => { cancelled = true; };
-  }, [setlistIds.join(",")]);
-  return counts;
-}
+// Counts and total durations per setlist, sharing the React Query cache
+// with useSongs so /manage edits invalidate these and the cards refresh
+// without a re-mount. END rows (isEnd) are excluded from count, matching
+// what the director thinks of as "songs in the show".
+function useSongStats(setlistIds: number[]) {
+  const queries = useQueries({
+    queries: setlistIds.map((id) => ({
+      queryKey: ["songs", id] as const,
+      queryFn: () => localDB.getSongsBySetlist(id),
+    })),
+  });
 
-function useTotalDurations(setlistIds: number[]) {
-  const [durations, setDurations] = useState<Record<number, number>>({});
-  useEffect(() => {
-    let cancelled = false;
-    async function load() {
-      const result: Record<number, number> = {};
-      for (const id of setlistIds) {
-        const songs = await localDB.getSongsBySetlist(id);
-        result[id] = songs.reduce((sum, s) => sum + (s.durationSeconds || 0), 0);
-      }
-      if (!cancelled) setDurations(result);
-    }
-    if (setlistIds.length > 0) load();
-    return () => { cancelled = true; };
-  }, [setlistIds.join(",")]);
-  return durations;
+  const counts: Record<number, number> = {};
+  const durations: Record<number, number> = {};
+  setlistIds.forEach((id, i) => {
+    const songs = queries[i].data ?? [];
+    counts[id] = songs.filter((s) => !s.isMC && !s.isEvent && !s.isEncore && !s.isEnd).length;
+    durations[id] = songs.reduce((sum, s) => sum + (s.durationSeconds || 0), 0);
+  });
+  return { counts, durations };
 }
 
 export default function Home() {
@@ -64,8 +51,7 @@ export default function Home() {
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
 
   const setlistIds = setlists.map(s => s.id);
-  const songCounts = useSongCounts(setlistIds);
-  const totalDurations = useTotalDurations(setlistIds);
+  const { counts: songCounts, durations: totalDurations } = useSongStats(setlistIds);
 
   const handleOpen = async (id: number) => {
     await activateSetlist.mutateAsync(id);
