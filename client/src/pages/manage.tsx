@@ -1583,6 +1583,12 @@ export default function Manage() {
                 <div
                   className="mb-4"
                   data-testid="song-list"
+                  style={{
+                    border: "1px solid #2c2a27",
+                    borderRadius: 4,
+                    overflow: "hidden",
+                    background: "#1c1b19",
+                  }}
                 >
                   {(() => {
                     let songNum = 0;

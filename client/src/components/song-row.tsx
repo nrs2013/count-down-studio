@@ -306,14 +306,23 @@ export function SongRow({
       className={`flex items-center gap-1 py-1.5 px-2 transition-all duration-200 group`}
       style={{
         ...sortableStyle,
-        // Flat Claude-style: solid surface, lifted above warm gray canvas.
-        background: isCurrent ? "#2a1e28" : "#1c1b19",
-        borderRadius: "3px",
-        marginBottom: "3px",
-        border: isCurrent ? "1px solid #c186c8" : "1px solid #2c2a27",
-        boxShadow: isCurrent
-          ? "0 0 0 1px rgba(193,134,200,0.25)"
-          : "none",
+        // Zebra table — rows alternate between two near-canvas shades and
+        // sit flush (no per-row border or radius). The container wrapping
+        // the list draws the outer frame, so this row just contributes
+        // its band. Current row gets a fuchsia-tinted background plus a
+        // left accent bar instead of a full border to avoid breaking the
+        // flat-table look.
+        background: isCurrent
+          ? "#221a26"
+          : (index % 2 === 0 ? "#1c1b19" : "#161513"),
+        borderRadius: 0,
+        marginBottom: 0,
+        borderTop: "none",
+        borderRight: "none",
+        borderBottom: "none",
+        borderLeft: isCurrent ? "2px solid #c186c8" : "2px solid transparent",
+        paddingLeft: isCurrent ? "6px" : "8px",
+        boxShadow: "none",
       }}
       data-testid={`${pid}-song-${song.id}`}
       data-song-row=""
