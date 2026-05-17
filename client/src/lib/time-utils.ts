@@ -74,7 +74,7 @@ export const MIDI_NOTES_BY_NAME: { noteName: string; notes: { value: number; lab
 // Gives clear visual hierarchy: card raised, input sunken.
 export const INPUT_STYLES = {
   border: "1px solid #2c2a27",
-  background: "#1d1b19",                // warm dark gray — clearly sunken below #1f1d1b card but not black
+  background: "#14130f",                // warm dark gray — clearly sunken below #1c1b19 card but not black
   glowFocused: (accent: string) => {
     const match = accent.match(/rgba\(([^)]+)\)/);
     if (match) {
@@ -86,7 +86,7 @@ export const INPUT_STYLES = {
     }
     return `0 0 0 2px ${accent}`;
   },
-  borderBlur: "#1f1d1b",
+  borderBlur: "#1c1b19",
 } as const;
 
 export const ACCENT_COLORS = {

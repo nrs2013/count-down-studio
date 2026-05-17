@@ -234,7 +234,7 @@ function LiveMidiBigDisplay({
           flex: "1 1 0",
           minWidth: 0,
           borderRadius: 3,
-          border: "1px solid #1f1d1b",
+          border: "1px solid #1c1b19",
           background: "#201e1c",
           padding: "12px 16px",
           opacity: enabled ? 1 : 0.4,
@@ -1164,7 +1164,7 @@ export function PerformanceEditor({
               title="Manage cues"
               data-testid="cuebar-open-manager"
               style={{
-                background: "#1d1b19",
+                background: "#14130f",
                 color: "#a8a8a0",
                 border: "0.5px solid #2c2a27",
                 borderRadius: 4,
