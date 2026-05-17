@@ -65,16 +65,21 @@ export function CueManagerModal({ open, onClose }: { open: boolean; onClose: () 
     }
   }, [open, cues.length]);
 
-  // Sync draft to selectedId.
+  // Sync draft to selectedId. We DON'T re-run when cues changes — a
+  // refetch (focus return, sibling tab cue edit) would otherwise clobber
+  // the director's in-progress edits with the last-saved values. We read
+  // cues through a ref so the selectedId change always sees the latest.
+  const cuesRef = useRef(cues);
+  cuesRef.current = cues;
   useEffect(() => {
     if (selectedId == null) return;
-    const cue = cues.find((c) => c.id === selectedId);
+    const cue = cuesRef.current.find((c) => c.id === selectedId);
     if (cue) {
       setDraft({ ...cue });
       setHexInput(cue.color.replace("#", ""));
       setTextHexInput((cue.textColor || "").replace("#", ""));
     }
-  }, [selectedId, cues]);
+  }, [selectedId]);
 
   // Key capture mode: next key press becomes the cue's shortcut.
   // Accepts single ASCII characters AND any KeyboardEvent whose key
