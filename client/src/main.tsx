@@ -27,7 +27,7 @@ function moveToMainScreen() {
     (navigator as any).standalone === true;
   if (!isStandalone) return;
 
-  const isOutputPage = window.location.pathname === "/output";
+  const isOutputPage = window.location.pathname === import.meta.env.BASE_URL + "output";
   if (isOutputPage) return;
 
   const tryMove = async () => {
@@ -62,7 +62,7 @@ function moveToMainScreen() {
 
 moveToMainScreen();
 
-const SW_CACHE_NAME = "songcountdown-v56";
+const SW_CACHE_NAME = "songcountdown-v57";
 
 // Build banner — visible on every page load so we can tell at a glance
 // whether the director's tab is running the latest deploy.
