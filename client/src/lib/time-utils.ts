@@ -99,7 +99,7 @@ export const ACCENT_COLORS = {
 export const HEADER_FONT = "'Bebas Neue', Impact, 'Arial Narrow', sans-serif";
 export const TABLE_HEADER_STYLE = {
   color: "#a8a8a0",                  // --cds-text-2
-  borderBottom: "1px solid #2c2a27", // crisp divider, matches the table outline
+  borderBottom: "none",              // no hairline — the darker header band itself separates header from rows
   fontFamily: HEADER_FONT,
   background: "#0d0c0b",             // schedule-studio's dark table-header band
   letterSpacing: "0.12em",
