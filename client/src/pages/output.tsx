@@ -3,6 +3,8 @@ import { useLocation } from "wouter";
 import { useCountdownReceiver } from "@/hooks/use-countdown-broadcast";
 import { CountdownDisplay } from "@/components/countdown-display";
 import { EventInfoDisplay } from "@/components/event-info-display";
+import { useCues } from "@/hooks/use-local-data";
+import { type LocalCue } from "@/lib/local-db";
 
 // ===== Concert End Summary =====
 // Displayed on the sub-display when the director presses "End Show" in the main app.
@@ -22,25 +24,76 @@ function formatHMS(ms: number): string {
 const SUMMARY_DESIGN_W = 1920;
 const SUMMARY_DESIGN_H = 1080;
 
-// Press-and-hold key cue overlays (yellow STAND BY! / green GO!) drawn on top
-// of whatever the sub-display is currently showing. Director presses & holds
-// ',' or '.' on the PC keyboard to flash these — released = cleared.
-export function StandbyOverlay() {
+// ============================================================
+// Customisable cue overlay
+// ============================================================
+// One generic overlay component driven by a LocalCue record. Replaces the
+// three hard-coded STAND BY! / HOLD! / GO! components — the user can now
+// add, edit, recolor, rekey, and remove cards from the Cue Manager Modal.
+
+// Pick a readable text color (near-black on light fills, off-white on
+// dark fills) from a background hex. Keeps the user from having to think
+// about contrast when they pick a custom color.
+function autoTextColor(bgHex: string): string {
+  const hex = (bgHex || "#f5c518").replace("#", "").trim();
+  const full = hex.length === 3
+    ? hex.split("").map((c) => c + c).join("")
+    : hex.padEnd(6, "0").slice(0, 6);
+  const r = parseInt(full.slice(0, 2), 16);
+  const g = parseInt(full.slice(2, 4), 16);
+  const b = parseInt(full.slice(4, 6), 16);
+  if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b)) return "#1a1410";
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return luminance > 0.55 ? "#1a1410" : "#f5f1e0";
+}
+
+const BLINK_SECONDS: Record<"slow" | "normal" | "fast", number> = {
+  slow: 1.2,
+  normal: 0.7,
+  fast: 0.35,
+};
+
+// Pick a font-size that fills the panel for short labels (GO!) but stays
+// inside the 16:9 border for longer ones (STAND BY!). Both cqh and cqw
+// caps are tuned per-bucket so non-16:9 fullscreen targets (e.g. MacBook
+// internal displays at 16:10) never bleed past the frame.
+function pickFontSize(label: string): string {
+  const len = (label || "").length;
+  if (len <= 3) return "min(95cqh, 80cqw)";
+  if (len <= 5) return "min(70cqh, 45cqw)";
+  if (len <= 7) return "min(60cqh, 35cqw)";
+  if (len <= 9) return "min(50cqh, 28cqw)";
+  if (len <= 12) return "min(45cqh, 22cqw)";
+  return "min(40cqh, 18cqw)";
+}
+
+export function CueOverlay({ cue }: { cue: LocalCue }) {
+  const fg = autoTextColor(cue.color);
+  const blinkDur = BLINK_SECONDS[cue.blinkSpeed] || 0.7;
+  const animName = `cdsBlink_${cue.id}`;
+  // Per-cue keyframes so each cue can have its own color pair without
+  // colliding with other CueOverlay instances on the same document.
+  const blinkCSS = cue.blink
+    ? `@keyframes ${animName} {
+        0%, 49% { background: ${cue.color}; color: ${fg}; }
+        50%, 100% { background: ${fg}; color: ${cue.color}; }
+      }`
+    : "";
   return (
     <div
       style={{
         position: "absolute",
         inset: 0,
-        background: "#f5c518",
-        color: "#1a1410",
+        background: cue.color,
+        color: fg,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         zIndex: 100,
-        animation: "cdsStandbyBlink 0.7s steps(2, jump-none) infinite",
+        animation: cue.blink ? `${animName} ${blinkDur}s steps(2, jump-none) infinite` : "none",
         containerType: "size",
       } as any}
-      data-testid="overlay-standby"
+      data-testid={`overlay-cue-${cue.id}`}
     >
       <div
         style={{
@@ -55,14 +108,7 @@ export function StandbyOverlay() {
         style={{
           fontFamily: "'Bebas Neue', Impact, 'Arial Narrow', sans-serif",
           fontWeight: 400,
-          // Bound by BOTH height and width so the glyph never overflows the
-          // border on tall or non-16:9 fullscreen targets (e.g. MacBook
-          // internal displays at 16:10). On a 16:9 canvas the two values
-          // are virtually identical — min(50cqh, 28cqw) at 1920x1080 picks
-          // ~537 px, indistinguishable from the pure 50cqh = 540 px result
-          // that the director already approved. Width-bound only kicks in
-          // when the container is taller than 16:9.
-          fontSize: "min(50cqh, 28cqw)",
+          fontSize: pickFontSize(cue.label),
           lineHeight: 1,
           letterSpacing: "-0.02em",
           textAlign: "center",
@@ -70,119 +116,9 @@ export function StandbyOverlay() {
           transform: "translateY(8%)",
         } as any}
       >
-        STAND BY!
+        {cue.label}
       </div>
-      <style>{`
-        @keyframes cdsStandbyBlink {
-          0%, 49% { background: #f5c518; color: #1a1410; }
-          50%, 100% { background: #1a1410; color: #f5c518; }
-        }
-      `}</style>
-    </div>
-  );
-}
-
-export function GoOverlay() {
-  return (
-    <div
-      style={{
-        position: "absolute",
-        inset: 0,
-        background: "#2dba4e",
-        color: "#0d2818",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        zIndex: 100,
-        containerType: "size",
-      } as any}
-      data-testid="overlay-go"
-    >
-      <div
-        style={{
-          position: "absolute",
-          inset: "1.5cqh",
-          border: "0.5cqh solid #0d2818",
-          borderRadius: "0.5cqh",
-          pointerEvents: "none",
-        } as any}
-      />
-      <div
-        style={{
-          fontFamily: "'Bebas Neue', Impact, 'Arial Narrow', sans-serif",
-          fontWeight: 400,
-          // 'GO!' is only 3 chars but at 95cqh it can still threaten the
-          // border on very narrow (taller-than-square) viewports. Cap with
-          // 80cqw — on a 16:9 canvas 95cqh wins, on something closer to
-          // square the width keeps it inside the frame.
-          fontSize: "min(95cqh, 80cqw)",
-          lineHeight: 1,
-          letterSpacing: "-0.02em",
-          textAlign: "center",
-          whiteSpace: "nowrap",
-          transform: "translateY(8%)",
-        } as any}
-      >
-        GO!
-      </div>
-    </div>
-  );
-}
-
-export function HoldOverlay() {
-  return (
-    <div
-      style={{
-        position: "absolute",
-        inset: 0,
-        background: "#f5c518",
-        color: "#1a1410",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        zIndex: 100,
-        animation: "cdsStandbyBlink 0.7s steps(2, jump-none) infinite",
-        containerType: "size",
-      } as any}
-      data-testid="overlay-hold"
-    >
-      <div
-        style={{
-          position: "absolute",
-          inset: "1.5cqh",
-          border: "0.5cqh solid currentColor",
-          borderRadius: "0.5cqh",
-          pointerEvents: "none",
-        } as any}
-      />
-      <div
-        style={{
-          fontFamily: "'Bebas Neue', Impact, 'Arial Narrow', sans-serif",
-          fontWeight: 400,
-          // 'HOLD!' is 5 chars — sits between STAND BY! (9) and GO! (3) for
-          // sizing. min(70cqh, 45cqw) lets the glyph fill more of the panel
-          // than STAND BY! (since it has fewer characters) while still
-          // staying inside the border on any aspect ratio.
-          fontSize: "min(70cqh, 45cqw)",
-          lineHeight: 1,
-          letterSpacing: "-0.02em",
-          textAlign: "center",
-          whiteSpace: "nowrap",
-          transform: "translateY(8%)",
-        } as any}
-      >
-        HOLD!
-      </div>
-      {/* Inline keyframes so the overlay still blinks even when
-          StandbyOverlay isn't mounted (otherwise the @keyframes
-          definition would not be in the document). Duplicating the
-          rule is fine; the CSS engine dedupes identical keyframes. */}
-      <style>{`
-        @keyframes cdsStandbyBlink {
-          0%, 49% { background: #f5c518; color: #1a1410; }
-          50%, 100% { background: #1a1410; color: #f5c518; }
-        }
-      `}</style>
+      {cue.blink && <style>{blinkCSS}</style>}
     </div>
   );
 }
@@ -555,16 +491,19 @@ export default function Output() {
   // /output's own keyboard handler. The director may have focus on either
   // window; both should respond. /output keeps a separate local state so it
   // doesn't need to broadcast back to /manage just for visual feedback.
-  const [localOverlay, setLocalOverlay] = useState<"standby" | "go" | "hold" | null>(null);
+  const [localCueId, setLocalCueId] = useState<number | null>(null);
+  const { data: cues = [] } = useCues();
 
   useEffect(() => {
     document.title = "Output - COUNT DOWN STUDIO";
   }, []);
 
-  // Local press-and-hold key cue handler (mirrors /manage). Hold ',' for
-  // STAND BY!, hold '.' for GO!, release to clear. Skipped while focus is in
-  // an input / textarea / contenteditable so typing into a field never fires
-  // the overlay. Handles its own state — does not broadcast back to /manage.
+  // Local press-and-hold cue handler (mirrors /manage's dynamic version).
+  // Listens for each registered cue's shortcutKey. Skipped while focus is
+  // in an input / textarea / contenteditable so typing into a field never
+  // fires the overlay. Handles its own state — does not broadcast back to
+  // /manage; /output renders whichever of (broadcast state.activeCueId)
+  // OR (localCueId) is currently set.
   useEffect(() => {
     const isInputFocused = () => {
       const el = document.activeElement as HTMLElement | null;
@@ -572,30 +511,24 @@ export default function Output() {
       const tag = el.tagName.toLowerCase();
       return tag === "input" || tag === "textarea" || el.isContentEditable;
     };
+    const norm = (k: string) => (k || "").toLowerCase();
+    const matchCue = (k: string) => cues.find((c) => norm(c.shortcutKey) === norm(k));
     const handleKeyDown = (e: KeyboardEvent) => {
       if (isInputFocused()) return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
-      if (e.key === ",") {
+      const cue = matchCue(e.key);
+      if (cue) {
         e.preventDefault();
-        setLocalOverlay("standby");
-      } else if (e.key === ".") {
-        e.preventDefault();
-        setLocalOverlay("go");
-      } else if (e.key === "m" || e.key === "M") {
-        e.preventDefault();
-        setLocalOverlay("hold");
+        setLocalCueId(cue.id);
       }
     };
     const handleKeyUp = (e: KeyboardEvent) => {
-      if (e.key === ",") {
-        setLocalOverlay((cur) => (cur === "standby" ? null : cur));
-      } else if (e.key === ".") {
-        setLocalOverlay((cur) => (cur === "go" ? null : cur));
-      } else if (e.key === "m" || e.key === "M") {
-        setLocalOverlay((cur) => (cur === "hold" ? null : cur));
+      const cue = matchCue(e.key);
+      if (cue) {
+        setLocalCueId((cur) => (cur === cue.id ? null : cur));
       }
     };
-    const clearOnBlur = () => setLocalOverlay(null);
+    const clearOnBlur = () => setLocalCueId(null);
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
     window.addEventListener("blur", clearOnBlur);
@@ -604,7 +537,7 @@ export default function Output() {
       window.removeEventListener("keyup", handleKeyUp);
       window.removeEventListener("blur", clearOnBlur);
     };
-  }, []);
+  }, [cues]);
 
   useEffect(() => {
     if (!isLegitOutput) return;
@@ -795,9 +728,14 @@ export default function Output() {
       {/* Press-and-hold key cue overlays — z-index above all other content. */}
       {/* Driven by EITHER the broadcast (key pressed on /manage) OR the local */}
       {/* keyboard handler above (key pressed on /output). Same UX from both. */}
-      {(state.showStandby || localOverlay === "standby") && <StandbyOverlay />}
-      {(state.showHold || localOverlay === "hold") && !(state.showStandby || localOverlay === "standby") && <HoldOverlay />}
-      {(state.showGo || localOverlay === "go") && !(state.showStandby || localOverlay === "standby") && !(state.showHold || localOverlay === "hold") && <GoOverlay />}
+      {(() => {
+        // Render whichever cue is active — broadcast from /manage takes
+        // priority over the local keyboard handler if both fire at once.
+        const id = state.activeCueId ?? localCueId;
+        if (id == null) return null;
+        const cue = cues.find((c) => c.id === id);
+        return cue ? <CueOverlay cue={cue} /> : null;
+      })()}
 
       {!isFullscreen && showHint && (
         <div

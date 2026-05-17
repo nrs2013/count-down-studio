@@ -34,15 +34,11 @@ export interface CountdownState {
   summaryEndTime?: string;
   summaryDate?: string; // e.g. "2026.04.24 (Thu)" — the show's date, printed on the closing card
   summaryConcertTitle?: string; // the setlist's name, e.g. "Starlight Tour 2026 Final"
-  // Press-and-hold key cue overlays (yellow STAND BY! / green GO! / yellow
-  // HOLD!) drawn on top of whatever is currently on the sub-display. Director
-  // presses ',' (standby), '.' (go), or 'm' (hold) on the keyboard, holds
-  // while the overlay should show, releases to clear. HOLD! means "do not
-  // start the music yet" — a separate cue from STAND BY! even though they
-  // share the same blinking yellow visual treatment.
-  showStandby?: boolean;
-  showGo?: boolean;
-  showHold?: boolean;
+  // Press-and-hold cue overlay (now driven by the user's custom Cue Library).
+  // /manage publishes the id of the currently-pressed cue, /output renders the
+  // matching CueOverlay on top of whatever is on the sub-display. null = no
+  // cue currently pressed.
+  activeCueId?: number | null;
 }
 
 const LS_KEY = "countdown-state";

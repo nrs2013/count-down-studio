@@ -15,6 +15,7 @@ import {
   useUpdateSong,
   useUpdateSetlist,
   useReorderSongs,
+  useCues,
 } from "@/hooks/use-local-data";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -60,6 +61,7 @@ import { StyledInput, TimeInput, StyledSelect, useIMEGuard } from "@/components/
 import { MidiNoteIndicator } from "@/components/midi-note-indicator";
 import { PerformanceEditor } from "@/components/performance-editor";
 import { SongRow, SongTableHeader, AddSongButton, AddSpecialButton, AddMCButton, AddEncoreButton, InsertionRow } from "@/components/song-row";
+import { CueManagerModal } from "@/components/cue-manager-modal";
 
 function MobileSongCard({
   song,
@@ -353,13 +355,13 @@ export default function Manage() {
   const midi = useMidi({ onNoteOn: (note, vel, ch) => midiNoteOnRef.current?.(note, vel, ch) });
 
   const [currentSongId, setCurrentSongId] = useState<number | null>(null);
-  // Press-and-hold key cue overlays drawn on the sub-display:
-  //   ',' (comma) → STAND BY! (yellow blinking)
-  //   '.' (period) → GO! (green)
-  // Director presses & holds the key while the cue should show, releases to clear.
-  // Ignored while focus is in an input/textarea/contenteditable so that typing
-  // a comma or period into a song title doesn't fire the overlay.
-  const [keyOverlay, setKeyOverlay] = useState<"standby" | "go" | "hold" | null>(null);
+  // Press-and-hold cue overlay drawn on the sub-display. Now driven by the
+  // user's customisable Cue Library — pressing any cue's shortcut key sets
+  // activeCueId to that cue's id, releasing clears it. Skipped while focus
+  // is in an input/textarea/contenteditable so typing into a field never
+  // fires a cue.
+  const [activeCueId, setActiveCueId] = useState<number | null>(null);
+  const [cueManagerOpen, setCueManagerOpen] = useState(false);
   const [liveTitleOverrides, setLiveTitleOverrides] = useState<{ songId: number; title: string; nextTitle: string } | null>(null);
   const [liveDurationOverride, setLiveDurationOverride] = useState<{ songId: number; durationSeconds: number } | null>(null);
   const [showEventInfoOnPrimary, setShowEventInfoOnPrimary] = useState(false);
@@ -389,9 +391,15 @@ export default function Manage() {
     return () => window.removeEventListener("keydown", handler);
   }, [outputOpen, requestOutputFullscreen]);
 
-  // Keyboard cue overlays: press-and-hold ',' or '.' to flash STAND BY! / GO!
-  // on the sub-display. Skips if the user is typing in any input/textarea so
-  // editing song titles doesn't trip it.
+  const { data: cues = [] } = useCues();
+
+  // Dynamic cue keyboard handler — listens for every registered cue's
+  // shortcutKey instead of the old hard-coded ',' / '.' / 'm'. Pressing
+  // a key whose normalised value matches a cue's shortcutKey sets that
+  // cue as the active one; releasing the key (or losing window focus)
+  // clears it. Skipped while focus is in any input/textarea so typing
+  // never fires a cue. cues changes invalidate the listener so the user
+  // sees their edits take effect immediately.
   useEffect(() => {
     const isInputFocused = () => {
       const el = document.activeElement as HTMLElement | null;
@@ -399,32 +407,26 @@ export default function Manage() {
       const tag = el.tagName.toLowerCase();
       return tag === "input" || tag === "textarea" || el.isContentEditable;
     };
+    const norm = (k: string) => (k || "").toLowerCase();
+    const matchCue = (k: string) => cues.find((c) => norm(c.shortcutKey) === norm(k));
     const handleKeyDown = (e: KeyboardEvent) => {
       if (isInputFocused()) return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
-      if (e.key === ",") {
+      const cue = matchCue(e.key);
+      if (cue) {
         e.preventDefault();
-        setKeyOverlay("standby");
-      } else if (e.key === ".") {
-        e.preventDefault();
-        setKeyOverlay("go");
-      } else if (e.key === "m" || e.key === "M") {
-        e.preventDefault();
-        setKeyOverlay("hold");
+        setActiveCueId(cue.id);
       }
     };
     const handleKeyUp = (e: KeyboardEvent) => {
-      if (e.key === ",") {
-        setKeyOverlay((cur) => (cur === "standby" ? null : cur));
-      } else if (e.key === ".") {
-        setKeyOverlay((cur) => (cur === "go" ? null : cur));
-      } else if (e.key === "m" || e.key === "M") {
-        setKeyOverlay((cur) => (cur === "hold" ? null : cur));
+      const cue = matchCue(e.key);
+      if (cue) {
+        setActiveCueId((cur) => (cur === cue.id ? null : cur));
       }
     };
     // Releasing focus / switching apps mid-press should clear the overlay too,
-    // otherwise the keyup never fires and STAND BY! gets stuck on the screen.
-    const clearOnBlur = () => setKeyOverlay(null);
+    // otherwise the keyup never fires and the cue gets stuck on the screen.
+    const clearOnBlur = () => setActiveCueId(null);
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
     window.addEventListener("blur", clearOnBlur);
@@ -433,7 +435,7 @@ export default function Manage() {
       window.removeEventListener("keyup", handleKeyUp);
       window.removeEventListener("blur", clearOnBlur);
     };
-  }, []);
+  }, [cues]);
 
   const { data: setlists = [], isLoading: loadingSetlists } = useSetlists();
   const [selectedSetlistId, setSelectedSetlistId] = useState<number | null>(null);
@@ -809,11 +811,9 @@ export default function Manage() {
       subTimerActive,
       // Press-and-hold key cues — included in every broadcast so the receiver
       // immediately reflects the latest hold state (true while held, false on release).
-      showStandby: keyOverlay === "standby",
-      showGo: keyOverlay === "go",
-      showHold: keyOverlay === "hold",
+      activeCueId,
     });
-  }, [broadcast, outputOpen, showEventInfoOnPrimary, summaryActive, displayTime, displayStatus, countdown.progress, countdown.remainingSeconds, displaySongTitle, displayArtist, displayNextTitle, displayIsEvent, displayXTime, displayIsMC, displayIsEncore, countdown.isCountUp, countdown.elapsedSeconds, displayMcTarget, subTimerTotal, subTimerRemaining, subTimerFormatted, subTimerActive, keyOverlay]);
+  }, [broadcast, outputOpen, showEventInfoOnPrimary, summaryActive, displayTime, displayStatus, countdown.progress, countdown.remainingSeconds, displaySongTitle, displayArtist, displayNextTitle, displayIsEvent, displayXTime, displayIsMC, displayIsEncore, countdown.isCountUp, countdown.elapsedSeconds, displayMcTarget, subTimerTotal, subTimerRemaining, subTimerFormatted, subTimerActive, activeCueId]);
 
   const createSetlist = useCreateSetlist();
   const deleteSetlist = useDeleteSetlist();
@@ -1266,9 +1266,14 @@ export default function Manage() {
             onEndConcert={endConcert}
             onResetConcertTracking={resetConcertTracking}
             summaryActive={summaryActive}
-            keyOverlay={keyOverlay}
+            activeCueId={activeCueId}
+            cues={cues}
+            onCueButtonDown={(id) => setActiveCueId(id)}
+            onCueButtonUp={() => setActiveCueId(null)}
+            onOpenCueManager={() => setCueManagerOpen(true)}
           />
         </div>
+        <CueManagerModal open={cueManagerOpen} onClose={() => setCueManagerOpen(false)} />
       </div>
     );
   }

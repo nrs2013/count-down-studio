@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { localDB, type LocalSetlist, type LocalSong } from "@/lib/local-db";
+import { localDB, type LocalSetlist, type LocalSong, type LocalCue } from "@/lib/local-db";
 import { undoManager } from "@/lib/undo-manager";
 
 export function useSetlists() {
@@ -126,5 +126,47 @@ export function useReorderSongs() {
       return localDB.reorderSongs(setlistId, songIds);
     },
     onSuccess: (_data, variables) => { qc.invalidateQueries({ queryKey: ["songs", variables.setlistId] }); },
+  });
+}
+
+// ============================================================
+// Cue cards (customisable press-and-hold overlays)
+// ============================================================
+export function useCues() {
+  return useQuery<LocalCue[]>({
+    queryKey: ["cues"],
+    queryFn: () => localDB.getAllCues(),
+  });
+}
+
+export function useCreateCue() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Omit<LocalCue, "id">) => localDB.createCue(data),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["cues"] }); },
+  });
+}
+
+export function useUpdateCue() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: Partial<LocalCue> }) => localDB.updateCue(id, data),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["cues"] }); },
+  });
+}
+
+export function useDeleteCue() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => localDB.deleteCue(id),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["cues"] }); },
+  });
+}
+
+export function useReorderCues() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (cueIds: number[]) => localDB.reorderCues(cueIds),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["cues"] }); },
   });
 }

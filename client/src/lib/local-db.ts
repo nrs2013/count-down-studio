@@ -31,21 +31,58 @@ export interface LocalSong {
   subTimerTimeRange: string | null;
 }
 
+// A user-customisable press-and-hold cue card (replaces the hard-coded
+// STAND BY! / HOLD! / GO! overlays). Director presses & holds the
+// shortcutKey while the cue should flash on the sub-display and on the
+// in-app preview rectangle.
+export interface LocalCue {
+  id: number;
+  label: string;            // e.g. "STAND BY!"
+  color: string;            // background hex, e.g. "#f5c518"
+  shortcutKey: string;      // single key, e.g. "," "." "m" — also stored case-folded
+  blink: boolean;           // whether to flash background <-> text color
+  blinkSpeed: "slow" | "normal" | "fast"; // 1.2s / 0.7s / 0.35s
+  orderIndex: number;       // display order in the cue bar
+}
+
 const DB_NAME = "songcountdown";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
+
+// Default cues seeded the first time a user lands on DB_VERSION >= 2.
+// These reproduce the hard-coded STAND BY! / HOLD! / GO! cards that used
+// to live in output.tsx so existing muscle memory keeps working.
+const DEFAULT_CUES: Omit<LocalCue, "id">[] = [
+  { label: "STAND BY!", color: "#f5c518", shortcutKey: ",", blink: true,  blinkSpeed: "normal", orderIndex: 0 },
+  { label: "HOLD!",     color: "#f5c518", shortcutKey: "m", blink: true,  blinkSpeed: "normal", orderIndex: 1 },
+  { label: "GO!",       color: "#2dba4e", shortcutKey: ".", blink: false, blinkSpeed: "normal", orderIndex: 2 },
+];
 
 let dbPromise: Promise<IDBPDatabase> | null = null;
 
 function getDB() {
   if (!dbPromise) {
     dbPromise = openDB(DB_NAME, DB_VERSION, {
-      upgrade(db) {
+      upgrade(db, oldVersion, _newVersion, tx) {
         if (!db.objectStoreNames.contains("setlists")) {
           db.createObjectStore("setlists", { keyPath: "id", autoIncrement: true });
         }
         if (!db.objectStoreNames.contains("songs")) {
           const songStore = db.createObjectStore("songs", { keyPath: "id", autoIncrement: true });
           songStore.createIndex("bySetlist", "setlistId");
+        }
+        // v2: introduce the customisable cue cards store and seed it with
+        // the three classic cues. We seed inside the upgrade transaction so
+        // the user sees them on their first opening of the new version.
+        if (!db.objectStoreNames.contains("cues")) {
+          const cuesStore = db.createObjectStore("cues", { keyPath: "id", autoIncrement: true });
+          cuesStore.createIndex("byOrder", "orderIndex");
+          if (oldVersion < 2) {
+            // tx is the upgrade transaction; we can add() through it.
+            const seedStore = tx.objectStore("cues");
+            for (const cue of DEFAULT_CUES) {
+              seedStore.add(cue);
+            }
+          }
         }
       },
     });
@@ -220,6 +257,57 @@ export const localDB = {
     }
     await tx.done;
     return newSetlist.id;
+  },
+
+  // ============================================================
+  // Cue cards — user-customisable STAND BY! / GO! / HOLD! style overlays
+  // ============================================================
+  async getAllCues(): Promise<LocalCue[]> {
+    const db = await getDB();
+    const all = await db.getAll("cues");
+    return all
+      .map((c: any) => ({
+        id: c.id,
+        label: c.label ?? "",
+        color: c.color ?? "#f5c518",
+        shortcutKey: c.shortcutKey ?? "",
+        blink: c.blink !== false,
+        blinkSpeed: (c.blinkSpeed === "slow" || c.blinkSpeed === "fast") ? c.blinkSpeed : "normal",
+        orderIndex: typeof c.orderIndex === "number" ? c.orderIndex : 0,
+      }) as LocalCue)
+      .sort((a, b) => a.orderIndex - b.orderIndex);
+  },
+
+  async createCue(data: Omit<LocalCue, "id">): Promise<LocalCue> {
+    const db = await getDB();
+    const id = (await db.add("cues", { ...data })) as number;
+    return { ...data, id };
+  },
+
+  async updateCue(id: number, data: Partial<LocalCue>): Promise<LocalCue> {
+    const db = await getDB();
+    const existing = await db.get("cues", id);
+    if (!existing) throw new Error("Cue not found");
+    const updated: LocalCue = { ...existing, ...data, id };
+    await db.put("cues", updated);
+    return updated;
+  },
+
+  async deleteCue(id: number): Promise<void> {
+    const db = await getDB();
+    await db.delete("cues", id);
+  },
+
+  async reorderCues(cueIds: number[]): Promise<void> {
+    const db = await getDB();
+    const tx = db.transaction("cues", "readwrite");
+    for (let i = 0; i < cueIds.length; i++) {
+      const cue = await tx.store.get(cueIds[i]);
+      if (cue) {
+        await tx.store.put({ ...cue, orderIndex: i });
+      }
+    }
+    await tx.done;
   },
 
   async replaceSetlistSongs(setlistId: number, newName: string, songs: Omit<LocalSong, "id" | "setlistId">[], extra?: { doorOpen?: string | null; showTime?: string | null; rehearsal?: string | null }): Promise<void> {

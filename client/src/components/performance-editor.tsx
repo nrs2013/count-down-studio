@@ -26,7 +26,8 @@ import {
 } from "@dnd-kit/sortable";
 import { CountdownDisplay } from "./countdown-display";
 import { EventInfoDisplay } from "./event-info-display";
-import { StandbyOverlay, GoOverlay, HoldOverlay } from "@/pages/output";
+import { CueOverlay } from "@/pages/output";
+import { type LocalCue } from "@/lib/local-db";
 import { type CountdownStatus } from "@/hooks/use-countdown";
 import {
   UI_FONT,
@@ -304,9 +305,13 @@ interface PerformanceEditorProps {
   // suppress the screensaver (event-info overlay) so it doesn't overwrite the summary.
   summaryActive?: boolean;
   // Press-and-hold cue overlay state from the director's keyboard. Drives the
-  // STAND BY! / GO! / HOLD! cards that appear inside the sub-display preview
-  // rectangle.
-  keyOverlay?: "standby" | "go" | "hold" | null;
+  // CueOverlay card that appears inside the sub-display preview rectangle.
+  // Driven by the customisable Cue Library (cues prop).
+  activeCueId?: number | null;
+  cues?: LocalCue[];
+  onOpenCueManager?: () => void;
+  onCueButtonDown?: (cueId: number) => void;
+  onCueButtonUp?: () => void;
 }
 
 export function PerformanceEditor({
@@ -348,7 +353,11 @@ export function PerformanceEditor({
   onEndConcert,
   onResetConcertTracking,
   summaryActive,
-  keyOverlay,
+  activeCueId,
+  cues = [],
+  onOpenCueManager,
+  onCueButtonDown,
+  onCueButtonUp,
 }: PerformanceEditorProps) {
   const addSong = useCreateSong();
   const reorderSongs = useReorderSongs();
@@ -1083,14 +1092,91 @@ export function PerformanceEditor({
                 subTimerActive={subTimerActive}
               />
             )}
-            {/* Stage cue overlays — scoped to the 16:9 sub-display preview ONLY.
-                Director wanted the STAND BY! / HOLD! / GO! cues to appear inside
-                this preview rectangle, the same way they appear on the real
-                sub-display, without covering the rest of the /manage editor UI.
-                Priority: STAND BY > HOLD > GO if multiple keys are pressed. */}
-            {keyOverlay === "standby" && <StandbyOverlay />}
-            {keyOverlay === "hold" && <HoldOverlay />}
-            {keyOverlay === "go" && <GoOverlay />}
+            {/* Stage cue overlay — scoped to the 16:9 sub-display preview ONLY.
+                Mirrors what's on the real sub-display without covering the
+                rest of the /manage editor UI. Driven by the user's Cue
+                Library (Cue Manager Modal). */}
+            {(() => {
+              if (activeCueId == null) return null;
+              const cue = cues.find((c) => c.id === activeCueId);
+              return cue ? <CueOverlay cue={cue} /> : null;
+            })()}
+          </div>
+
+          {/* Cue Bar — horizontal strip of clickable buttons right below the
+              preview rectangle. Each button mirrors a registered cue and
+              fires it on mousedown/mouseup (matching the press-and-hold
+              keyboard semantics). The cog at the right opens the Cue
+              Manager Modal for editing/adding/deleting cues. */}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, justifyContent: "center", alignItems: "center", marginTop: 10 }}>
+            {cues.map((cue) => {
+              const active = activeCueId === cue.id;
+              const fg = (() => {
+                const hex = (cue.color || "#f5c518").replace("#", "");
+                const full = hex.length === 3 ? hex.split("").map((c) => c + c).join("") : hex.padEnd(6, "0").slice(0, 6);
+                const r = parseInt(full.slice(0, 2), 16);
+                const g = parseInt(full.slice(2, 4), 16);
+                const b = parseInt(full.slice(4, 6), 16);
+                if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b)) return "#1a1410";
+                const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+                return lum > 0.55 ? "#1a1410" : "#f5f1e0";
+              })();
+              return (
+                <button
+                  key={cue.id}
+                  onMouseDown={() => onCueButtonDown && onCueButtonDown(cue.id)}
+                  onMouseUp={() => onCueButtonUp && onCueButtonUp()}
+                  onMouseLeave={() => active && onCueButtonUp && onCueButtonUp()}
+                  onTouchStart={(e) => { e.preventDefault(); onCueButtonDown && onCueButtonDown(cue.id); }}
+                  onTouchEnd={() => onCueButtonUp && onCueButtonUp()}
+                  title={`${cue.label} (key: ${cue.shortcutKey || "—"}) — press and hold`}
+                  data-testid={`cuebar-button-${cue.id}`}
+                  style={{
+                    background: cue.color,
+                    color: fg,
+                    border: active ? "1.5px solid #ffffff" : "0.5px solid rgba(0,0,0,0.2)",
+                    borderRadius: 4,
+                    padding: "5px 12px",
+                    fontFamily: "'Bebas Neue', Impact, sans-serif",
+                    fontSize: 14,
+                    letterSpacing: "0.03em",
+                    cursor: "pointer",
+                    userSelect: "none",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                    transform: active ? "scale(0.97)" : "scale(1)",
+                    transition: "transform 60ms",
+                  } as React.CSSProperties}
+                >
+                  <span>{cue.label}</span>
+                  {cue.shortcutKey && (
+                    <span style={{ fontSize: 10, opacity: 0.7, fontFamily: "JetBrains Mono, monospace", letterSpacing: 0, padding: "1px 4px", border: `0.5px solid ${fg}33`, borderRadius: 2 }}>
+                      {cue.shortcutKey}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+            <button
+              onClick={() => onOpenCueManager && onOpenCueManager()}
+              title="Manage cues"
+              data-testid="cuebar-open-manager"
+              style={{
+                background: "#1d1b19",
+                color: "#a8a8a0",
+                border: "0.5px solid #2c2a27",
+                borderRadius: 4,
+                padding: "5px 10px",
+                fontSize: 13,
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
+              }}
+            >
+              <span style={{ fontSize: 14 }}>⚙</span>
+            </button>
           </div>
         </div>
 
