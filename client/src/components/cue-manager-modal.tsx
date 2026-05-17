@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { type LocalCue } from "@/lib/local-db";
 import { useCues, useCreateCue, useUpdateCue, useDeleteCue } from "@/hooks/use-local-data";
-import { CueOverlay } from "@/pages/output";
+import { CueOverlay, displayKey } from "@/pages/output";
 
 // Cue Manager Modal — full edit UI for the customisable cue cards.
 // Mounted from PerformanceEditor's cue bar (cog button). Lets the
@@ -52,6 +52,7 @@ export function CueManagerModal({ open, onClose }: { open: boolean; onClose: () 
   const [capturingKey, setCapturingKey] = useState(false);
   const [hexInput, setHexInput] = useState("");
   const [textHexInput, setTextHexInput] = useState("");
+  const [saving, setSaving] = useState(false);
 
   // When the modal opens, default to the first cue or "new" mode.
   useEffect(() => {
@@ -76,19 +77,23 @@ export function CueManagerModal({ open, onClose }: { open: boolean; onClose: () 
   }, [selectedId, cues]);
 
   // Key capture mode: next key press becomes the cue's shortcut.
+  // Accepts single ASCII characters AND any KeyboardEvent whose key
+  // string is a useful name (arrow keys, space, etc) so the director
+  // can map cues to the left/right arrow keys for the default
+  // HOLD! / GO! layout.
   useEffect(() => {
     if (!capturingKey) return;
+    const SKIP = new Set(["Escape", "Shift", "Control", "Meta", "Alt", "CapsLock", "Fn", "Hyper", "Super", "OS", "Dead"]);
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setCapturingKey(false);
         return;
       }
       if (e.metaKey || e.ctrlKey || e.altKey) return;
-      if (e.key.length === 1) {
-        e.preventDefault();
-        setDraft((d) => d ? { ...d, shortcutKey: e.key } : d);
-        setCapturingKey(false);
-      }
+      if (SKIP.has(e.key)) return;
+      e.preventDefault();
+      setDraft((d) => d ? { ...d, shortcutKey: e.key } : d);
+      setCapturingKey(false);
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
@@ -101,12 +106,29 @@ export function CueManagerModal({ open, onClose }: { open: boolean; onClose: () 
   const handleSave = async () => {
     if (!draft) return;
     if (!draft.label.trim()) return;
-    if (draft.id != null) {
-      await updateCue.mutateAsync({ id: draft.id, data: draft });
-    } else {
-      const orderIndex = cues.length;
-      const created = await createCue.mutateAsync({ ...draft, orderIndex });
-      setSelectedId(created.id);
+    if (saving) return;
+    setSaving(true);
+    try {
+      if (draft.id != null) {
+        await updateCue.mutateAsync({ id: draft.id, data: draft });
+      } else {
+        const orderIndex = cues.length;
+        const created = await createCue.mutateAsync({ ...draft, orderIndex });
+        setSelectedId(created.id);
+      }
+      // Close the modal so the director gets immediate visual feedback
+      // that the save succeeded — without this the dialog just stays
+      // open and the click feels like it did nothing.
+      onClose();
+    } catch (e) {
+      // Keep the modal open if the write failed so the director can
+      // retry without losing their edits. (IndexedDB rarely fails on
+      // a single small put, but we surface it in the console for the
+      // patrol pass.)
+      // eslint-disable-next-line no-console
+      console.error("Failed to save cue:", e);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -186,7 +208,7 @@ export function CueManagerModal({ open, onClose }: { open: boolean; onClose: () 
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6, fontSize: 10 }}>
                   <span style={{ color: "#888780" }}>key</span>
-                  <span style={{ background: "#1d1b19", border: "0.5px solid #2c2a27", padding: "1px 6px", borderRadius: 3, fontFamily: "JetBrains Mono, monospace", color: "#e8e5dc" }}>{cue.shortcutKey || "—"}</span>
+                  <span style={{ background: "#1d1b19", border: "0.5px solid #2c2a27", padding: "1px 6px", borderRadius: 3, fontFamily: "JetBrains Mono, monospace", color: "#e8e5dc" }}>{displayKey(cue.shortcutKey)}</span>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4, fontSize: 10 }}>
                   <span style={{ color: "#888780" }}>blink</span>
@@ -230,7 +252,7 @@ export function CueManagerModal({ open, onClose }: { open: boolean; onClose: () 
                 <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
                   <div style={{ flex: 1, background: "#1d1b19", border: "0.5px solid #2c2a27", color: "#e8e5dc", padding: "7px 10px", borderRadius: 4, fontSize: 13 }}>
                     <span style={{ color: "#888780" }}>currently: </span>
-                    <span style={{ background: "#2a2622", padding: "1px 7px", borderRadius: 3, fontFamily: "JetBrains Mono, monospace", fontWeight: 500, color: "#c186c8" }}>{draft.shortcutKey || "—"}</span>
+                    <span style={{ background: "#2a2622", padding: "1px 7px", borderRadius: 3, fontFamily: "JetBrains Mono, monospace", fontWeight: 500, color: "#c186c8" }}>{displayKey(draft.shortcutKey)}</span>
                   </div>
                   <button
                     onClick={() => setCapturingKey(true)}
@@ -385,8 +407,8 @@ export function CueManagerModal({ open, onClose }: { open: boolean; onClose: () 
               </div>
               <div style={{ display: "flex", gap: 6 }}>
                 <button onClick={onClose} style={{ background: "transparent", border: "0.5px solid #2c2a27", color: "#a8a8a0", padding: "8px 14px", borderRadius: 4, fontSize: 12, cursor: "pointer" }}>Cancel</button>
-                <button onClick={handleSave} disabled={!draft.label.trim()} style={{ background: draft.label.trim() ? "#c186c8" : "#3a3530", color: "#2a1530", border: "none", padding: "8px 18px", borderRadius: 4, fontSize: 12, fontWeight: 500, cursor: draft.label.trim() ? "pointer" : "not-allowed" }}>
-                  {isNew ? "Create cue" : "Save changes"}
+                <button onClick={handleSave} disabled={!draft.label.trim() || saving} style={{ background: draft.label.trim() && !saving ? "#c186c8" : "#3a3530", color: "#2a1530", border: "none", padding: "8px 18px", borderRadius: 4, fontSize: 12, fontWeight: 500, cursor: draft.label.trim() && !saving ? "pointer" : "not-allowed" }}>
+                  {saving ? "Saving..." : (isNew ? "Create cue" : "Save changes")}
                 </button>
               </div>
             </div>

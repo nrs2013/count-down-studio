@@ -26,7 +26,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CountdownDisplay } from "./countdown-display";
 import { EventInfoDisplay } from "./event-info-display";
-import { CueOverlay } from "@/pages/output";
+import { CueOverlay, displayKey } from "@/pages/output";
 import { type LocalCue } from "@/lib/local-db";
 import { type CountdownStatus } from "@/hooks/use-countdown";
 import {
@@ -1153,7 +1153,7 @@ export function PerformanceEditor({
                   <span>{cue.label}</span>
                   {cue.shortcutKey && (
                     <span style={{ fontSize: 10, opacity: 0.7, fontFamily: "JetBrains Mono, monospace", letterSpacing: 0, padding: "1px 4px", border: `0.5px solid ${fg}33`, borderRadius: 2 }}>
-                      {cue.shortcutKey}
+                      {displayKey(cue.shortcutKey)}
                     </span>
                   )}
                 </button>

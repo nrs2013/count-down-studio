@@ -24,6 +24,24 @@ function formatHMS(ms: number): string {
 const SUMMARY_DESIGN_W = 1920;
 const SUMMARY_DESIGN_H = 1080;
 
+// Convert a raw KeyboardEvent.key value to a short symbol the director
+// can recognise at a glance. Arrow names get arrows, space gets a label.
+// Anything else (single ASCII chars like "m" or ",") passes through.
+export function displayKey(key: string | undefined | null): string {
+  if (!key) return "—";
+  switch (key) {
+    case "ArrowLeft":  return "←";
+    case "ArrowRight": return "→";
+    case "ArrowUp":    return "↑";
+    case "ArrowDown":  return "↓";
+    case " ":          return "Space";
+    case "Enter":      return "Enter";
+    case "Tab":        return "Tab";
+    case "Backspace":  return "⌫";
+    default:           return key;
+  }
+}
+
 // ============================================================
 // Customisable cue overlay
 // ============================================================

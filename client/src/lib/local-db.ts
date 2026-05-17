@@ -54,12 +54,15 @@ const DB_NAME = "songcountdown";
 const DB_VERSION = 2;
 
 // Default cues seeded the first time a user lands on DB_VERSION >= 2.
-// These reproduce the hard-coded STAND BY! / HOLD! / GO! cards that used
-// to live in output.tsx so existing muscle memory keeps working.
+// Director's chosen baseline: just HOLD! (yellow, blinking, ← arrow) and
+// GO! (green, solid, → arrow). The left-hand "wait" cue and right-hand
+// "go" cue map naturally to the arrow keys, which keeps the most-used
+// signals as muscle memory across shows. Anything else (STAND BY!,
+// MIC ON, custom Japanese cues, etc.) is treated as a user-added
+// custom cue and gets created through the Cue Manager.
 const DEFAULT_CUES: Omit<LocalCue, "id">[] = [
-  { label: "STAND BY!", color: "#f5c518", shortcutKey: ",", blink: true,  blinkSpeed: "normal", orderIndex: 0 },
-  { label: "HOLD!",     color: "#f5c518", shortcutKey: "m", blink: true,  blinkSpeed: "normal", orderIndex: 1 },
-  { label: "GO!",       color: "#2dba4e", shortcutKey: ".", blink: false, blinkSpeed: "normal", orderIndex: 2 },
+  { label: "HOLD!", color: "#f5c518", shortcutKey: "ArrowLeft",  blink: true,  blinkSpeed: "normal", orderIndex: 0 },
+  { label: "GO!",   color: "#2dba4e", shortcutKey: "ArrowRight", blink: false, blinkSpeed: "normal", orderIndex: 1 },
 ];
 
 let dbPromise: Promise<IDBPDatabase> | null = null;
