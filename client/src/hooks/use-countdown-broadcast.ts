@@ -549,8 +549,12 @@ export function useCountdownReceiver() {
 
     try {
       localStorage.setItem(LS_PING_KEY, JSON.stringify({ type: "output-alive", _ts: Date.now() }));
-      localStorage.setItem(LS_PING_KEY, JSON.stringify({ type: "request-state", _ts: Date.now() }));
     } catch (_) {}
+    setTimeout(() => {
+      try {
+        localStorage.setItem(LS_PING_KEY, JSON.stringify({ type: "request-state", _ts: Date.now() }));
+      } catch (_) {}
+    }, 0);
 
     try {
       if (window.opener) {
