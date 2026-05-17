@@ -1332,12 +1332,12 @@ export default function Manage() {
                 fontFamily: HEADER_FONT,
                 fontSize: "15px",
                 letterSpacing: "0.12em",
-                background: "linear-gradient(180deg, #3a3a37 0%, #252522 100%)",
-                border: "1px solid #4a4a43",
-                color: "#c2c2b8",
+                background: "rgba(168,168,160,0.06)",
+                border: "1px solid #3a3a35",
+                color: "#a8a8a0",
                 width: "96px",
                 height: "32px",
-                boxShadow: "0 1px 0 rgba(255,255,255,0.07) inset, 0 2px 6px rgba(0,0,0,0.35)",
+                boxShadow: "none",
               }}
               onClick={() => fileInputRef.current?.click()}
               data-testid="button-import-setlist"
@@ -1351,12 +1351,12 @@ export default function Manage() {
                 fontFamily: HEADER_FONT,
                 fontSize: "15px",
                 letterSpacing: "0.12em",
-                background: "linear-gradient(180deg, #3a3a37 0%, #252522 100%)",
-                border: "1px solid #4a4a43",
-                color: "#c2c2b8",
+                background: "rgba(168,168,160,0.06)",
+                border: "1px solid #3a3a35",
+                color: "#a8a8a0",
                 width: "96px",
                 height: "32px",
-                boxShadow: "0 1px 0 rgba(255,255,255,0.07) inset, 0 2px 6px rgba(0,0,0,0.35)",
+                boxShadow: "none",
               }}
               onClick={handleExport}
               disabled={!activeSetlist || sortedSongs.length === 0}
@@ -1373,12 +1373,12 @@ export default function Manage() {
                     fontFamily: HEADER_FONT,
                     fontSize: "15px",
                     letterSpacing: "0.12em",
-                    background: "linear-gradient(180deg, rgba(193,134,200,0.38) 0%, rgba(193,134,200,0.15) 100%), #2a2028",
-                    border: "1px solid rgba(193,134,200,0.6)",
-                    color: "#f0d4f2",
+                    background: "rgba(193,134,200,0.16)",
+                    border: "1px solid #c186c8",
+                    color: "#d4a5db",
                     width: "96px",
                     height: "32px",
-                    boxShadow: "0 1px 0 rgba(255,255,255,0.1) inset, 0 2px 8px rgba(0,0,0,0.4)",
+                    boxShadow: "none",
                   }}
                   onClick={handleNewConcert}
                   data-testid="button-new-concert"
@@ -1392,12 +1392,12 @@ export default function Manage() {
                     fontFamily: HEADER_FONT,
                     fontSize: "15px",
                     letterSpacing: "0.12em",
-                    background: "linear-gradient(180deg, #3a3230 0%, #252020 100%)",
-                    border: "1px solid #4e4040",
-                    color: "#c8a0a0",
+                    background: "rgba(226,75,74,0.12)",
+                    border: "1px solid #e24b4a",
+                    color: "#f08585",
                     width: "96px",
                     height: "32px",
-                    boxShadow: "0 1px 0 rgba(255,255,255,0.06) inset, 0 2px 6px rgba(0,0,0,0.35)",
+                    boxShadow: "none",
                   }}
                   onClick={handleDeleteConcert}
                   data-testid="button-delete-concert"
