@@ -128,12 +128,14 @@ export function CueOverlay({ cue }: { cue: LocalCue }) {
       <div
         style={{
           // Half-width characters resolve to Bebas Neue (tall narrow English).
-          // Full-width / CJK characters fall through to Train One — a Google
-          // Fonts Japanese display face that's similarly tall and chunky, so
-          // mixed labels like 「平林待て！」 read as a single bold cue card
-          // instead of switching to a polite default Mincho.
-          fontFamily: "'Bebas Neue', 'Train One', Impact, 'Arial Narrow', sans-serif",
-          fontWeight: 400,
+          // Full-width / CJK characters fall through to Noto Sans JP at its
+          // Black (900) weight — a heavy gothic that reads as the JP twin of
+          // Bebas Neue's visual mass. font-weight: 900 makes the browser pick
+          // Noto's Black glyphs and applies a synthetic bold to Bebas Neue;
+          // since Bebas is already a black display face, the synthetic bump
+          // is barely visible and the two read as the same family.
+          fontFamily: "'Bebas Neue', 'Noto Sans JP', Impact, 'Arial Narrow', sans-serif",
+          fontWeight: 900,
           fontSize: pickFontSize(cue.label),
           lineHeight: 1,
           letterSpacing: "-0.02em",
