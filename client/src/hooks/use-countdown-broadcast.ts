@@ -571,7 +571,11 @@ export function useCountdownReceiver() {
 
     readFromStorage();
 
-    pollInterval = setInterval(readFromStorage, 200);
+    // 2s polling as a safety net for storage / bcChannel coalescing.
+    // The fast path is the storage event + bcChannel message; this only
+    // exists to catch updates the browser drops (rare). 200ms was
+    // measurably warming up the CPU on sub-display machines.
+    pollInterval = setInterval(readFromStorage, 2000);
 
     const handleUnload = () => {
       notifyParentClosed();
