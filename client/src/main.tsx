@@ -62,7 +62,13 @@ function moveToMainScreen() {
 
 moveToMainScreen();
 
-const SW_CACHE_NAME = "songcountdown-v53";
+const SW_CACHE_NAME = "songcountdown-v54";
+
+// Build banner — visible on every page load so we can tell at a glance
+// whether the director's tab is running the latest deploy.
+// eslint-disable-next-line no-console
+console.log("%c[CDS] build " + SW_CACHE_NAME + " loaded", "color:#c186c8;font-weight:600");
+
 
 async function clearOldCaches() {
   try {
