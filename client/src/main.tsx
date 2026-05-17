@@ -62,7 +62,7 @@ function moveToMainScreen() {
 
 moveToMainScreen();
 
-const SW_CACHE_NAME = "songcountdown-v58";
+const SW_CACHE_NAME = "songcountdown-v59";
 
 // Build banner — visible on every page load so we can tell at a glance
 // whether the director's tab is running the latest deploy.
