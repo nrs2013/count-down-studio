@@ -1322,7 +1322,13 @@ export default function Manage() {
 
   if (outputOpen) {
     return (
-      <div className="relative flex flex-col h-full w-full bg-[#0a0a0a] overflow-hidden" data-testid="show-page">
+      <div
+        className="relative flex flex-col h-full w-full bg-[#0a0a0a] overflow-hidden"
+        data-testid="show-page"
+        onDrop={handleFileDrop}
+        onDragOver={handleFileDragOver}
+        onDragLeave={handleFileDragLeave}
+      >
         <div className="flex-1 min-h-0 overflow-hidden w-full">
           <PerformanceEditor
             songs={sortedSongs}

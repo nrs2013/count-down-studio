@@ -951,9 +951,9 @@ export function InsertionRow({ onAddSong, onAddSpecial, onAddMC, onAddEncore, on
         disabled={disabled}
         className="flex-1 flex items-center justify-center gap-1 py-1 rounded text-[10px] font-bold tracking-wider uppercase transition-all duration-200 disabled:opacity-30"
         style={{
-          color: "#d4a5db",
+          color: "#fafaf8",
           background: "rgba(193,134,200,0.15)",
-          border: "1px solid #c186c8",
+          border: "0.5px solid #c186c8",
           boxShadow: "none",
         }}
         data-testid={`${pfx}insert-song`}
@@ -966,9 +966,9 @@ export function InsertionRow({ onAddSong, onAddSpecial, onAddMC, onAddEncore, on
         disabled={disabled}
         className="flex-1 flex items-center justify-center gap-1 py-1 rounded text-[10px] font-bold tracking-wider uppercase transition-all duration-200 disabled:opacity-30"
         style={{
-          color: "#f5c878",
+          color: "#fafaf8",
           background: "rgba(245,168,40,0.15)",
-          border: "1px solid #f5a828",
+          border: "0.5px solid #f5a828",
           boxShadow: "none",
         }}
         data-testid={`${pfx}insert-special`}
@@ -981,9 +981,9 @@ export function InsertionRow({ onAddSong, onAddSpecial, onAddMC, onAddEncore, on
         disabled={disabled}
         className="flex-1 flex items-center justify-center gap-1 py-1 rounded text-[10px] font-bold tracking-wider uppercase transition-all duration-200 disabled:opacity-30"
         style={{
-          color: "#7bc5e8",
+          color: "#fafaf8",
           background: "rgba(58,160,224,0.15)",
-          border: "1px solid #3aa0e0",
+          border: "0.5px solid #3aa0e0",
           boxShadow: "none",
         }}
         data-testid={`${pfx}insert-mc`}
@@ -997,9 +997,9 @@ export function InsertionRow({ onAddSong, onAddSpecial, onAddMC, onAddEncore, on
           disabled={disabled}
           className="flex-1 flex items-center justify-center gap-1 py-1 rounded text-[10px] font-bold tracking-wider uppercase transition-all duration-200 disabled:opacity-30"
           style={{
-            color: "#a8e878",
+            color: "#fafaf8",
             background: "rgba(126,216,72,0.15)",
-            border: "1px solid #7ed848",
+            border: "0.5px solid #7ed848",
             boxShadow: "none",
           }}
           data-testid={`${pfx}insert-encore`}
@@ -1014,9 +1014,9 @@ export function InsertionRow({ onAddSong, onAddSpecial, onAddMC, onAddEncore, on
           disabled={disabled}
           className="flex-1 flex items-center justify-center gap-1 py-1 rounded text-[10px] font-bold tracking-wider uppercase transition-all duration-200 disabled:opacity-30"
           style={{
-            color: "#ffe57a",
+            color: "#fafaf8",
             background: "rgba(255,212,68,0.15)",
-            border: "1px solid #ffd444",
+            border: "0.5px solid #ffd444",
             boxShadow: "none",
           }}
           data-testid={`${pfx}insert-end`}
