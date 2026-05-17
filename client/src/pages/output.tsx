@@ -53,18 +53,39 @@ const BLINK_SECONDS: Record<"slow" | "normal" | "fast", number> = {
   fast: 0.35,
 };
 
+// Effective character count — full-width characters (Japanese kanji /
+// hiragana / katakana / CJK punctuation) take roughly twice the horizontal
+// space of ASCII in any sans-serif font, so we count each one as 2 for
+// sizing purposes. Without this, a 5-char Japanese label like "平林待て！"
+// gets sized as if it were 5 ASCII chars and spills out the frame.
+function effectiveLen(label: string): number {
+  let len = 0;
+  for (const ch of label || "") {
+    const code = ch.codePointAt(0) ?? 0;
+    // ASCII range = half-width; everything else (CJK, full-width
+    // punctuation, emoji) gets counted as full-width.
+    if (code <= 0x7F) {
+      len += 1;
+    } else {
+      len += 2;
+    }
+  }
+  return len;
+}
+
 // Pick a font-size that fills the panel for short labels (GO!) but stays
 // inside the 16:9 border for longer ones (STAND BY!). Both cqh and cqw
 // caps are tuned per-bucket so non-16:9 fullscreen targets (e.g. MacBook
 // internal displays at 16:10) never bleed past the frame.
 function pickFontSize(label: string): string {
-  const len = (label || "").length;
+  const len = effectiveLen(label);
   if (len <= 3) return "min(95cqh, 80cqw)";
   if (len <= 5) return "min(70cqh, 45cqw)";
   if (len <= 7) return "min(60cqh, 35cqw)";
   if (len <= 9) return "min(50cqh, 28cqw)";
   if (len <= 12) return "min(45cqh, 22cqw)";
-  return "min(40cqh, 18cqw)";
+  if (len <= 16) return "min(40cqh, 18cqw)";
+  return "min(35cqh, 14cqw)";
 }
 
 export function CueOverlay({ cue }: { cue: LocalCue }) {
@@ -106,7 +127,12 @@ export function CueOverlay({ cue }: { cue: LocalCue }) {
       />
       <div
         style={{
-          fontFamily: "'Bebas Neue', Impact, 'Arial Narrow', sans-serif",
+          // Half-width characters resolve to Bebas Neue (tall narrow English).
+          // Full-width / CJK characters fall through to Train One — a Google
+          // Fonts Japanese display face that's similarly tall and chunky, so
+          // mixed labels like 「平林待て！」 read as a single bold cue card
+          // instead of switching to a polite default Mincho.
+          fontFamily: "'Bebas Neue', 'Train One', Impact, 'Arial Narrow', sans-serif",
           fontWeight: 400,
           fontSize: pickFontSize(cue.label),
           lineHeight: 1,

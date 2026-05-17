@@ -168,7 +168,7 @@ export function CueManagerModal({ open, onClose }: { open: boolean; onClose: () 
                   boxShadow: editing ? "0 0 0 1px rgba(193,134,200,0.2)" : "none",
                 }}
               >
-                <div style={{ background: cue.color, color: autoTextColor(cue.color), padding: "8px 6px", borderRadius: 3, textAlign: "center", fontWeight: 500, fontSize: 11, letterSpacing: "0.03em", fontFamily: "'Bebas Neue', Impact, sans-serif" }}>
+                <div style={{ background: cue.color, color: autoTextColor(cue.color), padding: "8px 6px", borderRadius: 3, textAlign: "center", fontWeight: 500, fontSize: 11, letterSpacing: "0.03em", fontFamily: "'Bebas Neue', 'Train One', Impact, sans-serif" }}>
                   {cue.label}
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6, fontSize: 10 }}>
@@ -207,7 +207,7 @@ export function CueManagerModal({ open, onClose }: { open: boolean; onClose: () 
                   value={draft.label}
                   maxLength={20}
                   onChange={(e) => setDraft({ ...draft, label: e.target.value })}
-                  style={{ width: "100%", background: "#1d1b19", border: "0.5px solid #2c2a27", color: "#e8e5dc", padding: "7px 10px", borderRadius: 4, fontSize: 14, fontFamily: "'Bebas Neue', Impact, sans-serif", letterSpacing: "0.02em", boxSizing: "border-box" }}
+                  style={{ width: "100%", background: "#1d1b19", border: "0.5px solid #2c2a27", color: "#e8e5dc", padding: "7px 10px", borderRadius: 4, fontSize: 14, fontFamily: "'Bebas Neue', 'Train One', Impact, sans-serif", letterSpacing: "0.02em", boxSizing: "border-box" }}
                 />
                 <div style={{ fontSize: 10, color: "#5f5e5a", marginTop: 4 }}>max 20 chars · Bebas Neue auto-applied</div>
               </div>

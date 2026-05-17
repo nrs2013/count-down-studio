@@ -1137,7 +1137,7 @@ export function PerformanceEditor({
                     border: active ? "1.5px solid #ffffff" : "0.5px solid rgba(0,0,0,0.2)",
                     borderRadius: 4,
                     padding: "5px 12px",
-                    fontFamily: "'Bebas Neue', Impact, sans-serif",
+                    fontFamily: "'Bebas Neue', 'Train One', Impact, sans-serif",
                     fontSize: 14,
                     letterSpacing: "0.03em",
                     cursor: "pointer",
