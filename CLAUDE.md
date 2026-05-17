@@ -77,6 +77,22 @@ push / デプロイ系の作業で発動。
 - ❌ DB_VERSION を上げる時に migration を忘れる
 - ❌ SCHEDULE STUDIO のルール（PAT 禁止）を CDS に持ち込む（CDS は PAT OK）
 - ❌ 怒りサイン後に作業継続
+- ❌ **`<ExcelImportModal>` を `manage.tsx` の片方の return ブロックだけに書く**（両方の return 末尾に必ず置く。`PATTERN-進行表ドロップ取り込み.md` §3-1）
+- ❌ **`/output` や preview rectangle 内部の見た目を触る**（のむさん厳命）
+- ❌ **ボタンを塗りつぶし or 太線で作る**（必ず 0.5px 細線 + 半透明背景 + 白文字）
+- ❌ **X-TIME ボタンのアクティブ色を fuchsia にする**（必ず緑）
+
+---
+
+## デバッグの「自分で 3 段階潰す」ルール（2026-05-17）
+
+「動かない」と言われたら、のむさんに何か頼む前に Claude が以下を **自分で** 確認：
+
+1. **配信届いてる？** → Console に `[CDS] build songcountdown-vXX loaded`（ピンク太字）が出てるか
+2. **DOM に届いてる？** → 該当ハンドラのログ（`[CDS drop] event fired` 等）が出てるか
+3. **コンポーネント描画されてる？** → `document.querySelector('[data-testid="..."]')` で実在確認
+
+Chrome MCP（`mcp__Claude_in_Chrome__*`）で本番 URL を開いて全部確認できる。3 段階潰してから「ここが原因です」と返す。
 
 ---
 
@@ -84,6 +100,7 @@ push / デプロイ系の作業で発動。
 
 - `replit.md` — 仕様の要点（README より濃い）
 - `~/Documents/CDS/CDS-引き継ぎ-*.md` — 日付別スナップショット
+- `~/Documents/CDS/PATTERN-進行表ドロップ取り込み.md` — Excel/CSV ドロップ取り込みの汎用パターン書
 - パトロール報告書（`outputs/CDS-パトロール...`）
 
 — のむさん × Claude
