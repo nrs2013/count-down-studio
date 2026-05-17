@@ -70,12 +70,12 @@ export const MIDI_NOTES_BY_NAME: { noteName: string; notes: { value: number; lab
     return { noteName, notes };
   }).filter((g) => g.notes.length > 0);
 
-// Brutalist Vivid: pure-black canvas + vivid accents. Inputs sit on a
-// near-black surface with a thin border; focus rings use the vivid
-// accent colour passed in.
+// Row-card layout: every input sits transparently INSIDE the row's card.
+// No per-cell box, no per-cell border. The row itself is the surface.
+// Focus rings still fire so the director knows which cell is being edited.
 export const INPUT_STYLES = {
-  border: "1px solid #1f1f1f",
-  background: "#141312",                // surface tone — sits on the #0a0a0a canvas
+  border: "1px solid transparent",
+  background: "transparent",
   glowFocused: (accent: string) => {
     const match = accent.match(/rgba\(([^)]+)\)/);
     if (match) {
@@ -87,7 +87,7 @@ export const INPUT_STYLES = {
     }
     return `0 0 0 2px ${accent}`;
   },
-  borderBlur: "#1f1f1f",
+  borderBlur: "transparent",
 } as const;
 
 export const ACCENT_COLORS = {

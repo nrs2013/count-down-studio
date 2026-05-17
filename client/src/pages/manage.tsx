@@ -1584,7 +1584,7 @@ export default function Manage() {
                   className="mb-4"
                   data-testid="song-list"
                   style={{
-                    background: "#141312",
+                    background: "transparent",
                   }}
                 >
                   {(() => {

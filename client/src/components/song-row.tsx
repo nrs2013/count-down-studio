@@ -306,20 +306,17 @@ export function SongRow({
       className={`flex items-center gap-1 py-1.5 px-2 transition-all duration-200 group`}
       style={{
         ...sortableStyle,
-        // Zebra table — rows alternate between two near-canvas shades and
-        // sit flush (no per-row border or radius). The container wrapping
-        // the list draws the outer frame, so this row just contributes
-        // its band. Current row gets a fuchsia-tinted background plus a
-        // left accent bar instead of a full border to avoid breaking the
-        // flat-table look.
+        // Row card — each song is its own subtle card on the canvas, with
+        // a small gap between rows. Per-cell boxes are deleted at the
+        // INPUT_STYLES level so the row card itself becomes the surface.
+        // Current row gets a fuchsia gradient + left accent bar instead
+        // of a flat solid, so it pops without becoming a "box inside a box".
         background: isCurrent
-          ? "#221a26"
-          : (index % 2 === 0 ? "#141312" : "#0d0c0b"),
-        borderRadius: 0,
-        marginBottom: 0,
-        borderTop: "none",
-        borderRight: "none",
-        borderBottom: "none",
+          ? "linear-gradient(90deg, rgba(193,134,200,0.16), rgba(193,134,200,0.04) 70%, transparent)"
+          : "#131211",
+        borderRadius: 4,
+        marginBottom: 4,
+        border: "none",
         borderLeft: isCurrent ? "2px solid #c186c8" : "2px solid transparent",
         paddingLeft: isCurrent ? "6px" : "8px",
         boxShadow: "none",
