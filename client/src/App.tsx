@@ -11,6 +11,7 @@ import Home from "@/pages/home";
 import Manage from "@/pages/manage";
 import Output from "@/pages/output";
 import NotFound from "@/pages/not-found";
+import { ErrorBoundary } from "@/components/error-boundary";
 
 const INSTANCE_CHANNEL = "songcountdown-instance";
 const INSTANCE_LS_KEY = "songcountdown-instance-active";
@@ -227,16 +228,18 @@ const ROUTER_BASE = (import.meta.env.BASE_URL || "/").replace(/\/$/, "");
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <WouterRouter base={ROUTER_BASE}>
-          <AppModeProvider>
-            <Toaster />
-            <AppLayout />
-          </AppModeProvider>
-        </WouterRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <WouterRouter base={ROUTER_BASE}>
+            <AppModeProvider>
+              <Toaster />
+              <AppLayout />
+            </AppModeProvider>
+          </WouterRouter>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 
