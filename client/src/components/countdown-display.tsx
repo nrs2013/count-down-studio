@@ -334,7 +334,7 @@ export function CountdownDisplay({
                     color: "rgba(255,255,255,0.6)",
                   }}
                 >
-                  {status === "idle" ? "00:00" : displayFormattedTime}
+                  {displayFormattedTime}
                 </div>
                 <div style={{
                   fontFamily: "Impact, 'Arial Narrow', sans-serif",

@@ -439,7 +439,7 @@ export function useCountdownReceiver() {
     if (ts <= lastTsRef.current) return;
     lastTsRef.current = ts;
     const { _ts, ...rest } = data;
-    setState(rest as CountdownState);
+    setState(rest as unknown as CountdownState);
   }, []);
 
   useEffect(() => {
