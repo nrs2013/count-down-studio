@@ -484,8 +484,11 @@ export function useCountdownReceiver() {
 
       setTimeout(() => {
         if (!window.closed) {
+          // Don't paint a giant warning over the sub-display — if it's
+          // mirrored to a LED rig or projector the audience will see it.
+          // Stay black, and let the director close the tab manually.
           document.title = "CLOSED";
-          document.body.innerHTML = '<div style="position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center;font-family:sans-serif;color:#555;font-size:18px;letter-spacing:2px;">WINDOW CLOSED — Please close this tab manually</div>';
+          try { document.body.style.background = "#000"; } catch (_) {}
         }
       }, 600);
     };
