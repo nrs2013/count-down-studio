@@ -35,6 +35,16 @@ export function useCountdown(): UseCountdownReturn {
     statusRef.current = status;
   }, [status]);
 
+  // Expose "is the show actively counting down" as a window flag + event,
+  // so main.tsx's SW auto-reload can hold off mid-show. The director must
+  // never see the page reload while a song's timer is running.
+  useEffect(() => {
+    (window as any).__cdsActive = status === "running";
+    if (status !== "running") {
+      window.dispatchEvent(new Event("cds-countdown-idle"));
+    }
+  }, [status]);
+
   const clearTimer = useCallback(() => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);

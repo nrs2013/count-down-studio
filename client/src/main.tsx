@@ -62,7 +62,7 @@ function moveToMainScreen() {
 
 moveToMainScreen();
 
-const SW_CACHE_NAME = "songcountdown-v59";
+const SW_CACHE_NAME = "songcountdown-v60";
 
 // Build banner — visible on every page load so we can tell at a glance
 // whether the director's tab is running the latest deploy.
@@ -98,8 +98,38 @@ if ("serviceWorker" in navigator) {
   navigator.serviceWorker.addEventListener("controllerchange", () => {
     if (reloadingForNewSW) return;
     if (!hadControllerAtLoad) return; // first-ever registration on this device
-    reloadingForNewSW = true;
-    window.location.reload();
+
+    // Don't yank the page out from under the director mid-show. Defer the
+    // reload until BOTH:
+    //   1) the tab is actually being looked at (visibilityState === visible)
+    //   2) no countdown is currently running (window.__cdsActive set by
+    //      use-countdown.ts)
+    // The "cds-countdown-idle" event is dispatched from use-countdown.ts
+    // every time status leaves "running", so a paused/finished show can
+    // catch up immediately. Without this guard a second CDS tab updating
+    // the SW could trigger a reload on the active performance tab.
+    const safeToReload = () =>
+      document.visibilityState === "visible" && !(window as any).__cdsActive;
+
+    const doReload = () => {
+      reloadingForNewSW = true;
+      window.location.reload();
+    };
+
+    if (safeToReload()) {
+      doReload();
+      return;
+    }
+
+    const retry = () => {
+      if (safeToReload()) {
+        document.removeEventListener("visibilitychange", retry);
+        window.removeEventListener("cds-countdown-idle", retry);
+        doReload();
+      }
+    };
+    document.addEventListener("visibilitychange", retry);
+    window.addEventListener("cds-countdown-idle", retry);
   });
 
   window.addEventListener("load", async () => {
