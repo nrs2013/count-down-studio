@@ -911,7 +911,33 @@ export default function Manage() {
       const wb = XLSX.read(new Uint8Array(buf), { type: "array" });
       // eslint-disable-next-line no-console
       console.log("[CDS xlsx] workbook sheets:", wb.SheetNames);
-      const parsed = wb.SheetNames.map((name: string) => {
+
+      // Excel で非表示にしてあるシート（Hidden=1 hidden, 2=very hidden）は
+      // director が「進行表として使わない」と意思表示しているので除外する。
+      // 1 ページ目に紛れているとそれを既定で読み込んでしまう問題があった。
+      // wb.Workbook は xlsx 形式でだけ存在し、CSV や旧 xls では undefined。
+      // その場合は sheetMeta が空になり、全シートが visible として扱われる。
+      const sheetMeta: any[] = wb.Workbook?.Sheets ?? [];
+      const isHidden = (name: string) => {
+        const meta = sheetMeta.find((s: any) => s?.name === name);
+        return meta?.Hidden === 1 || meta?.Hidden === 2;
+      };
+      const hiddenNames = wb.SheetNames.filter((n: string) => isHidden(n));
+      const visibleSheetNames = wb.SheetNames.filter((n: string) => !isHidden(n));
+      if (hiddenNames.length > 0) {
+        // eslint-disable-next-line no-console
+        console.log("[CDS xlsx] hidden sheets skipped:", hiddenNames);
+      }
+      if (visibleSheetNames.length === 0) {
+        toast({
+          title: "シートが全部非表示です",
+          description: `${wb.SheetNames.length} シートすべてが Excel で非表示設定になっています`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const parsed = visibleSheetNames.map((name: string) => {
         const sheet = wb.Sheets[name];
         // raw: false makes SheetJS hand back formatted strings instead of
         // raw values, so an Excel time cell like 0:04:12 arrives as the
