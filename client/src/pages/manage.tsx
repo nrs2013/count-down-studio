@@ -6,6 +6,7 @@ import { useCountdown } from "@/hooks/use-countdown";
 import { useAppMode } from "@/hooks/use-app-mode";
 import { type LocalSong as Song, localDB } from "@/lib/local-db";
 import { serializeSongForExport, normalizeSongForImport } from "@/lib/song-serialize";
+import { undoManager } from "@/lib/undo-manager";
 import {
   useSetlists,
   useSongs,
@@ -387,7 +388,18 @@ export default function Manage() {
 
   useEffect(() => {
     if (!outputOpen) return;
+    // Skip while focus is in any input — otherwise the director typing
+    // a literal "F" in a song title fires fullscreen and the cue
+    // manager / Excel modal lose focus mid-edit.
+    const isInputFocused = () => {
+      const el = document.activeElement as HTMLElement | null;
+      if (!el) return false;
+      if (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.tagName === "SELECT") return true;
+      if (el.isContentEditable) return true;
+      return false;
+    };
     const handler = (e: KeyboardEvent) => {
+      if (isInputFocused()) return;
       if ((e.metaKey || e.ctrlKey) && (e.key === "f" || e.key === "F")) {
         e.preventDefault();
         requestOutputFullscreen();
@@ -865,6 +877,10 @@ export default function Manage() {
         `「${importName}」をインポートしますか？\n現在のセットリストのデータは上書きされます。`
       );
       if (!confirmed) return;
+      // Snapshot BEFORE the destructive replace so Cmd+Z can undo a wrong
+      // .scd drop. Without this the director loses an entire show in
+      // one click with no recovery path.
+      await undoManager.pushSnapshot(activeSetlist.id, "Import .scd");
       const songsData = data.songs.map((s: any) => ({
         ...normalizeSongForImport(s),
         orderIndex: 0,

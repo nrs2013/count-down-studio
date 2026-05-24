@@ -1099,7 +1099,12 @@ export function PerformanceEditor({
                   key={cue.id}
                   onMouseDown={() => onCueButtonDown && onCueButtonDown(cue.id)}
                   onMouseUp={() => onCueButtonUp && onCueButtonUp()}
-                  onMouseLeave={() => active && onCueButtonUp && onCueButtonUp()}
+                  // DO NOT release on mouseleave — that was firing every time the
+                  // director's hand drifted 1px past the button edge during a
+                  // press-and-hold, which made the cue overlay flicker off on
+                  // the LED mid-show. Window-level mouseup at the parent (or
+                  // touchend below) already covers cleanup if the director
+                  // releases off the button.
                   onTouchStart={(e) => { e.preventDefault(); onCueButtonDown && onCueButtonDown(cue.id); }}
                   onTouchEnd={() => onCueButtonUp && onCueButtonUp()}
                   title={`${cue.label} (key: ${cue.shortcutKey || "—"}) — press and hold`}

@@ -705,7 +705,18 @@ export default function Output() {
   }, [goFullscreenOnSecondary]);
 
   useEffect(() => {
+    // Skip while focus is in any input — even though /output has no
+    // visible inputs day-to-day, a tab forwarded modal or third-party
+    // overlay (devtools, browser autofill) could trap the F key.
+    const isInputFocused = () => {
+      const el = document.activeElement as HTMLElement | null;
+      if (!el) return false;
+      if (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.tagName === "SELECT") return true;
+      if (el.isContentEditable) return true;
+      return false;
+    };
     const handler = (e: KeyboardEvent) => {
+      if (isInputFocused()) return;
       if (e.key === "f" || e.key === "F" || ((e.metaKey || e.ctrlKey) && (e.key === "f" || e.key === "F"))) {
         e.preventDefault();
         toggleFullscreen();

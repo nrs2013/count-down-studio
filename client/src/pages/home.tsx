@@ -68,7 +68,19 @@ export default function Home() {
 
   const handleDelete = (id: number) => {
     if (deleteConfirm === id) {
-      deleteSetlist.mutate(id);
+      // 2nd tap: extra OS-level confirm with the setlist name + song count
+      // so the director can't lose a show by accidentally double-tapping
+      // the trash icon. Tap-once still arms the red state for visual
+      // feedback, but only the explicit "OK" actually deletes.
+      const setlist = setlists.find(s => s.id === id);
+      const name = setlist?.name || "(無題)";
+      const count = songCounts[id] ?? 0;
+      const ok = window.confirm(
+        `「${name}」を本当に削除しますか？\n含まれる ${count} 曲もまとめて消えます。`
+      );
+      if (ok) {
+        deleteSetlist.mutate(id);
+      }
       setDeleteConfirm(null);
     } else {
       setDeleteConfirm(id);

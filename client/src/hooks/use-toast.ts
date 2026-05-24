@@ -5,8 +5,13 @@ import type {
   ToastProps,
 } from "@/components/ui/toast"
 
-const TOAST_LIMIT = 1
-const TOAST_REMOVE_DELAY = 1000000
+// Show up to 3 stacked toasts so destructive errors (save failed, IME
+// rejected, MIDI duplicate) don't get swallowed by the next info toast.
+// Auto-dismiss after 4 seconds — the previous 1,000,000 ms made toasts
+// effectively permanent, which combined with the hover-only close ×
+// meant iPad operators could never clear one.
+const TOAST_LIMIT = 3
+const TOAST_REMOVE_DELAY = 4000
 
 type ToasterToast = ToastProps & {
   id: string
