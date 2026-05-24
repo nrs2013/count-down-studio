@@ -7,6 +7,7 @@ import { useAppMode } from "@/hooks/use-app-mode";
 import { type LocalSong as Song, localDB } from "@/lib/local-db";
 import { serializeSongForExport, normalizeSongForImport } from "@/lib/song-serialize";
 import { undoManager } from "@/lib/undo-manager";
+import { useFirebaseNow } from "@/hooks/use-firebase-now";
 import {
   useSetlists,
   useSongs,
@@ -473,6 +474,19 @@ export default function Manage() {
   const sortedSongs = [...songs].sort((a, b) => a.orderIndex - b.orderIndex);
 
   const currentSongIndex = currentSongId !== null ? sortedSongs.findIndex((s) => s.id === currentSongId) : -1;
+
+  // Push the live show state to Firebase /cds/now so SCHEDULE STUDIO's
+  // phone-staff NOW tab can mirror the countdown without holding a copy of
+  // CDS. Only writes on transitions (start / pause / resume / song change
+  // / end) — the consumer reconstructs the live remaining from updatedAt.
+  const currentSongForBroadcast = currentSongIndex >= 0 ? sortedSongs[currentSongIndex] : null;
+  useFirebaseNow({
+    status: countdown.status,
+    remainingSeconds: countdown.remainingSeconds,
+    totalSeconds: countdown.totalSeconds,
+    activeSongId: currentSongId,
+    songTitle: currentSongForBroadcast?.title ?? null,
+  });
 
   const prevSetlistIdRef = useRef(activeSetlist?.id);
   useEffect(() => {
