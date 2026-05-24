@@ -32,8 +32,7 @@ export interface ImportRow {
   isEnd: boolean;
 }
 
-// Tap-to-cycle category labels shown in the preview pane. Order matters:
-// SONG → SPECIAL → MC → ENCORE → END → back to SONG.
+// Preview-pane category labels. Director picks via the per-row dropdown.
 const CATEGORIES = ["SONG", "SPECIAL", "MC", "ENCORE", "END"] as const;
 type Category = typeof CATEGORIES[number];
 
@@ -52,11 +51,6 @@ function categoryToFlags(cat: Category): { isEvent: boolean; isMC: boolean; isEn
     isEncore: cat === "ENCORE",
     isEnd: cat === "END",
   };
-}
-
-function cycleCategory(cat: Category): Category {
-  const idx = CATEGORIES.indexOf(cat);
-  return CATEGORIES[(idx + 1) % CATEGORIES.length];
 }
 
 interface Sheet {
@@ -328,10 +322,7 @@ export function ExcelImportModal({ open, sheets, defaultSheet, onCancel, onConfi
     try { await onConfirm(finalImportRows); } finally { setImporting(false); }
   };
 
-  const handleCategoryClick = (i: number) => {
-    const base = flagsToCategory(importRows[i]);
-    const current = overrides[i]?.category ?? base;
-    const next = cycleCategory(current);
+  const handleCategoryChange = (i: number, next: Category) => {
     setOverrides((prev) => ({ ...prev, [i]: { ...prev[i], category: next } }));
   };
 
@@ -361,7 +352,7 @@ export function ExcelImportModal({ open, sheets, defaultSheet, onCancel, onConfi
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: 12, borderBottom: "0.5px solid #2c2a27", marginBottom: 16 }}>
           <div>
             <div style={{ fontSize: 13, fontWeight: 500, letterSpacing: "0.04em" }}>IMPORT FROM EXCEL</div>
-            <div style={{ fontSize: 11, color: "#888780", marginTop: 1 }}>シート・列・スキップ行を調整 — プレビューでカテゴリ変更 / 行削除も可能</div>
+            <div style={{ fontSize: 11, color: "#888780", marginTop: 1 }}>シート・列・スキップ行を調整 — プレビューでカテゴリのプルダウン変更 / × 削除も可能</div>
           </div>
           <button onClick={onCancel} style={{ background: "transparent", border: "none", color: "#a8a8a0", fontSize: 20, cursor: "pointer", padding: 4 }}>×</button>
         </div>
@@ -421,7 +412,7 @@ export function ExcelImportModal({ open, sheets, defaultSheet, onCancel, onConfi
 
         <div style={{ borderTop: "0.5px solid #2c2a27", paddingTop: 14, marginBottom: 14 }}>
           <div style={{ fontSize: 11, color: "#888780", letterSpacing: "0.08em", marginBottom: 8, fontWeight: 500, display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-            <span>PREVIEW — {finalImportRows.length} 曲（タップでカテゴリ変更 / × で削除）</span>
+            <span>PREVIEW — {finalImportRows.length} 曲（プルダウンでカテゴリ変更 / × で削除）</span>
             {deletedCount > 0 && (
               <span style={{ color: "#888780", fontSize: 10, letterSpacing: 0, fontWeight: 400 }}>
                 {deletedCount} 行を取り込み対象から外しています
@@ -443,29 +434,32 @@ export function ExcelImportModal({ open, sheets, defaultSheet, onCancel, onConfi
                 };
                 const isOverridden = overrides[originalIndex]?.category != null;
                 return (
-                  <div key={originalIndex} style={{ display: "grid", gridTemplateColumns: "24px 78px 1fr 60px 26px", gap: 8, alignItems: "center", padding: "6px 8px", borderRadius: 3, fontSize: 12 }}>
+                  <div key={originalIndex} style={{ display: "grid", gridTemplateColumns: "24px 96px 1fr 60px 26px", gap: 8, alignItems: "center", padding: "6px 8px", borderRadius: 3, fontSize: 12 }}>
                     <span style={{ color: "#5a5a55", fontFamily: "JetBrains Mono, monospace", fontSize: 10 }}>{displayIndex + 1}</span>
-                    <button
-                      onClick={() => handleCategoryClick(originalIndex)}
-                      title="タップでカテゴリを変更（SONG → SPECIAL → MC → ENCORE → END）"
+                    <select
+                      value={effectiveCat}
+                      onChange={(e) => handleCategoryChange(originalIndex, e.target.value as Category)}
+                      title="カテゴリを変更"
                       style={{
                         background: cfg[effectiveCat].bg,
                         border: `0.5px solid ${cfg[effectiveCat].color}${isOverridden ? "" : "55"}`,
                         color: cfg[effectiveCat].color,
-                        padding: "3px 6px",
+                        padding: "2px 4px",
                         borderRadius: 2,
-                        fontSize: 9,
+                        fontSize: 10,
                         fontWeight: 700,
-                        letterSpacing: "0.05em",
-                        textAlign: "center",
+                        letterSpacing: "0.04em",
                         fontFamily: "JetBrains Mono, monospace",
                         cursor: "pointer",
+                        width: "100%",
                         boxShadow: isOverridden ? `inset 0 0 0 0.5px ${cfg[effectiveCat].color}55` : "none",
                       }}
                       data-testid={`import-preview-category-${originalIndex}`}
                     >
-                      {effectiveCat}
-                    </button>
+                      {CATEGORIES.map((c) => (
+                        <option key={c} value={c} style={{ background: "#141312", color: "#e8e5dc" }}>{c}</option>
+                      ))}
+                    </select>
                     <span style={{ color: "#fafaf8", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.title}</span>
                     <span style={{ color: r.durationSeconds > 0 ? "#f5c878" : "#3a3a35", fontFamily: "JetBrains Mono, monospace", fontSize: 11, textAlign: "right" }}>{r.durationSeconds > 0 ? `${Math.floor(r.durationSeconds / 60)}:${String(r.durationSeconds % 60).padStart(2, "0")}` : "—"}</span>
                     <button
