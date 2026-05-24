@@ -966,13 +966,30 @@ export default function Manage() {
   // Bulk-add the rows the director confirmed in the import modal.
   const handleExcelImportConfirm = useCallback(async (importRows: ImportRow[]) => {
     if (!activeSetlist) return;
+
+    // What to pre-fill into the "next" column (the right-side label shown
+    // during the show). Use the next row's actual title when it has one;
+    // otherwise fall back to the category label so the right column isn't
+    // a confusing blank for MC / EVENT / ENCORE / END rows.
+    // Director can freely edit afterwards — this is only a first pass.
+    const nextLabel = (row: ImportRow | undefined): string | null => {
+      if (!row) return null;
+      const t = (row.title || "").trim();
+      if (t) return t;
+      if (row.isMC) return "MC";
+      if (row.isEvent) return "EVENT";
+      if (row.isEncore) return "ENCORE";
+      if (row.isEnd) return "END";
+      return null;
+    };
+
     const baseOrder = sortedSongs.length;
     for (let i = 0; i < importRows.length; i++) {
       const r = importRows[i];
       await addSong.mutateAsync({
         setlistId: activeSetlist.id,
         title: r.title,
-        nextTitle: null,
+        nextTitle: nextLabel(importRows[i + 1]),
         artist: null,
         durationSeconds: r.durationSeconds || 0,
         orderIndex: baseOrder + i,
