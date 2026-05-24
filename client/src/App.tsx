@@ -15,11 +15,26 @@ import { ErrorBoundary } from "@/components/error-boundary";
 
 const INSTANCE_CHANNEL = "songcountdown-instance";
 const INSTANCE_LS_KEY = "songcountdown-instance-active";
+const INSTANCE_SS_KEY = "songcountdown-instance-id";
+
+// Same instance id across reloads in the SAME tab — sessionStorage is per-tab,
+// so a SW auto-reload or hand-reload re-uses the id and avoids the page
+// "seeing itself" as a different instance + showing the duplicate-tab
+// warning. A brand new tab gets a brand new id (sessionStorage is empty).
+function getOrCreateInstanceId(): string {
+  try {
+    const existing = sessionStorage.getItem(INSTANCE_SS_KEY);
+    if (existing) return existing;
+  } catch (_) {}
+  const fresh = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  try { sessionStorage.setItem(INSTANCE_SS_KEY, fresh); } catch (_) {}
+  return fresh;
+}
 
 function useDuplicateGuard(enabled: boolean = true) {
   const [isDuplicate, setIsDuplicate] = useState(false);
   const [dismissed, setDismissed] = useState(false);
-  const instanceId = useRef(Date.now().toString(36) + Math.random().toString(36).slice(2, 6));
+  const instanceId = useRef(getOrCreateInstanceId());
 
   useEffect(() => {
     if (!enabled) return;
@@ -36,7 +51,10 @@ function useDuplicateGuard(enabled: boolean = true) {
         const raw = localStorage.getItem(INSTANCE_LS_KEY);
         if (raw) {
           const data = JSON.parse(raw);
-          if (data.id !== instanceId.current && Date.now() - data.ts < 5000) {
+          // 4000 ms window: markActive runs every 3s, so a live tab's ts
+          // is always <= 3s old. 4s gives a 1s margin without being so
+          // wide that a tab closed seconds ago still looks alive.
+          if (data.id !== instanceId.current && Date.now() - data.ts < 4000) {
             return true;
           }
         }
@@ -79,9 +97,27 @@ function useDuplicateGuard(enabled: boolean = true) {
     };
     window.addEventListener("storage", handleStorage);
 
+    // Clear our own active marker when the tab closes — otherwise the next
+    // tab opened within the 4-second window sees a stale ts and falsely
+    // triggers DuplicateWarning. Only clear when WE are the one holding
+    // the marker, so concurrent tabs aren't disrupted.
+    const handleBeforeUnload = () => {
+      try {
+        const raw = localStorage.getItem(INSTANCE_LS_KEY);
+        if (raw) {
+          const data = JSON.parse(raw);
+          if (data.id === instanceId.current) {
+            localStorage.removeItem(INSTANCE_LS_KEY);
+          }
+        }
+      } catch (_) {}
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
     return () => {
       clearInterval(interval);
       window.removeEventListener("storage", handleStorage);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
       try { bc?.close(); } catch (_) {}
     };
   }, [enabled]);
