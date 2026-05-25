@@ -475,19 +475,6 @@ export default function Manage() {
 
   const currentSongIndex = currentSongId !== null ? sortedSongs.findIndex((s) => s.id === currentSongId) : -1;
 
-  // Push the live show state to Firebase /cds/now so SCHEDULE STUDIO's
-  // phone-staff NOW tab can mirror the countdown without holding a copy of
-  // CDS. Only writes on transitions (start / pause / resume / song change
-  // / end) — the consumer reconstructs the live remaining from updatedAt.
-  const currentSongForBroadcast = currentSongIndex >= 0 ? sortedSongs[currentSongIndex] : null;
-  useFirebaseNow({
-    status: countdown.status,
-    remainingSeconds: countdown.remainingSeconds,
-    totalSeconds: countdown.totalSeconds,
-    activeSongId: currentSongId,
-    songTitle: currentSongForBroadcast?.title ?? null,
-  });
-
   const prevSetlistIdRef = useRef(activeSetlist?.id);
   useEffect(() => {
     if (prevSetlistIdRef.current !== activeSetlist?.id) {
@@ -792,6 +779,37 @@ export default function Manage() {
   const displayIsMC = activeSong?.isMC ?? false;
   const displayIsEncore = activeSong?.isEncore ?? false;
   const displayMcTarget = (displayIsMC || displayIsEncore) && activeSong ? activeSong.durationSeconds : 0;
+
+  // Push the live show state to Firebase /cds/now so SCHEDULE STUDIO's
+  // phone-staff / phone-artist NOW tab can mirror the countdown without
+  // holding a copy of CDS. Only writes on transitions (start / pause /
+  // resume / song change / category change / cue press) — the consumer
+  // reconstructs the live remaining from updatedAt.
+  //
+  // Phase 1: /output 表示の主要情報をすべて転送:
+  //   - 現在曲 / 次曲
+  //   - カテゴリ flag (MC / SE / ENCORE / X-TIME)
+  //   - 押下中の cue (HOLD! / GO! 等) の label + color
+  const currentSongForBroadcast = currentSongIndex >= 0 ? sortedSongs[currentSongIndex] : null;
+  const activeCueForBroadcast = activeCueId != null ? cues.find((c) => c.id === activeCueId) ?? null : null;
+  useFirebaseNow({
+    status: countdown.status,
+    remainingSeconds: countdown.remainingSeconds,
+    totalSeconds: countdown.totalSeconds,
+    activeSongId: currentSongId,
+    songTitle: currentSongForBroadcast?.title ?? null,
+    nextSongTitle: displayNextTitle ?? null,
+    isMC: !!displayIsMC,
+    isEvent: !!displayIsEvent,
+    isEncore: !!displayIsEncore,
+    xTime: !!displayXTime,
+    activeCueId: activeCueId,
+    activeCue: activeCueForBroadcast ? {
+      label: activeCueForBroadcast.label,
+      color: activeCueForBroadcast.color,
+      textColor: activeCueForBroadcast.textColor ?? null,
+    } : null,
+  });
 
   const subTimerTotal = activeSong?.subTimerSeconds ?? 0;
   const subTimerStartOffset = (() => {

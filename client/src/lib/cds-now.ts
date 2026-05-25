@@ -2,36 +2,37 @@
 // Realtime Database so phone-staff (SCHEDULE STUDIO の NOW タブ) can
 // mirror the show without holding a copy of CDS itself.
 //
-// Contract (consumed by SCHEDULE STUDIO):
-//   {
-//     songTitle:   string | null,
-//     remainingMs: number,
-//     totalMs:     number,
-//     isRunning:   boolean,
-//     isPaused:    boolean,
-//     sectionLabel: string | null,   // reserved; CDS does not emit yet
-//     updatedAt:   number             // Firebase serverTimestamp ms
-//   }
+// Phase 1 (R388 / CDS commit 後継): /output に出てる主要情報を全部送る:
+//   { songTitle, nextSongTitle, remainingMs, totalMs, isRunning, isPaused,
+//     isMC, isEvent, isEncore, xTime,
+//     activeCueId, activeCueLabel, activeCueColor, activeCueTextColor,
+//     sectionLabel, updatedAt }
 //
-// We only write on state TRANSITION (start / pause / resume / song change
-// / end), not every tick — the consumer recomputes live remaining from
-// updatedAt + server-time offset, so per-second writes would just burn
-// quota.
+// 受信側 (SCHEDULE STUDIO phone-staff/phone-artist) は category flag で
+// "MC" / "SE" / "ENCORE" のラベル切替、nextSongTitle で「NEXT: ...」、
+// activeCue* で画面全体に cue overlay を被せる。
 //
-// `updatedAt` uses Firebase serverTimestamp() instead of Date.now() so the
-// receiver doesn't trust a director machine that might be off NTP. The
-// receiver should subtract `database.getServerTimeOffset` from Date.now()
-// when computing live remaining.
+// 書き込みタイミング: 状態遷移時のみ。受け取り側は updatedAt と
+// remainingMs から live remaining を計算する。
 
 import { ref, set, remove, onDisconnect, serverTimestamp } from "firebase/database";
 import { realtimeDb } from "./firebase";
 
 export interface CdsNowSnapshot {
   songTitle: string | null;
+  nextSongTitle?: string | null;
   remainingMs: number;
   totalMs: number;
   isRunning: boolean;
   isPaused: boolean;
+  isMC?: boolean;
+  isEvent?: boolean;
+  isEncore?: boolean;
+  xTime?: boolean;
+  activeCueId?: number | null;
+  activeCueLabel?: string | null;
+  activeCueColor?: string | null;
+  activeCueTextColor?: string | null;
   sectionLabel?: string | null;
 }
 
@@ -44,14 +45,20 @@ function nowRef() {
 export async function writeCdsNow(snap: CdsNowSnapshot): Promise<void> {
   await set(nowRef(), {
     songTitle: snap.songTitle,
+    nextSongTitle: snap.nextSongTitle ?? null,
     remainingMs: snap.remainingMs,
     totalMs: snap.totalMs,
     isRunning: snap.isRunning,
     isPaused: snap.isPaused,
+    isMC: snap.isMC ?? false,
+    isEvent: snap.isEvent ?? false,
+    isEncore: snap.isEncore ?? false,
+    xTime: snap.xTime ?? false,
+    activeCueId: snap.activeCueId ?? null,
+    activeCueLabel: snap.activeCueLabel ?? null,
+    activeCueColor: snap.activeCueColor ?? null,
+    activeCueTextColor: snap.activeCueTextColor ?? null,
     sectionLabel: snap.sectionLabel ?? null,
-    // serverTimestamp resolves to the Firebase server's wall-clock ms,
-    // not the director machine's clock. Receiver adds getServerTimeOffset
-    // to its own Date.now() when computing the live remaining.
     updatedAt: serverTimestamp(),
   });
 }
