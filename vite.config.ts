@@ -16,6 +16,17 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist"),
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        // Split the Firebase Realtime DB client into its own chunk so the
+        // ~43KB gzipped doesn't sit inside the main bundle for routes
+        // (like /output) that never touch it. Loaded on first call from
+        // manage.tsx's useFirebaseNow path.
+        manualChunks: {
+          firebase: ["firebase/app", "firebase/database"],
+        },
+      },
+    },
   },
   server: {
     fs: {
