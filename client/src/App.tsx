@@ -238,7 +238,9 @@ function DuplicateWarning({ onTakeOver }: { onTakeOver: () => void }) {
 
 function AppLayout() {
   const [location] = useLocation();
-  const isOutput = location === "/output";
+  // /output-firebase も chrome なし (phone-staff の iframe 埋め込みで director の
+  // AppHeader = SET LIST / SHOW ON-OFF ボタンが出ると邪魔なので)
+  const isOutput = location === "/output" || location === "/output-firebase";
   const isHome = location === "/";
   const { isDuplicate, takeOver } = useDuplicateGuard(!isOutput && !isHome);
 
