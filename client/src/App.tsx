@@ -10,6 +10,7 @@ import { useUndo } from "@/hooks/use-undo";
 import Home from "@/pages/home";
 import Manage from "@/pages/manage";
 import Output from "@/pages/output";
+import OutputFirebase from "@/pages/output-firebase";
 import NotFound from "@/pages/not-found";
 import { ErrorBoundary } from "@/components/error-boundary";
 
@@ -173,6 +174,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/manage" component={Manage} />
       <Route path="/output" component={Output} />
+      <Route path="/output-firebase" component={OutputFirebase} />
       <Route component={NotFound} />
     </Switch>
   );
