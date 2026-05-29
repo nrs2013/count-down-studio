@@ -808,6 +808,8 @@ export default function Manage() {
       label: activeCueForBroadcast.label,
       color: activeCueForBroadcast.color,
       textColor: activeCueForBroadcast.textColor ?? null,
+      blink: activeCueForBroadcast.blink,
+      blinkSpeed: activeCueForBroadcast.blinkSpeed,
     } : null,
   });
 

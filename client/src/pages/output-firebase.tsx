@@ -19,7 +19,7 @@ import { useEffect, useState } from "react";
 import { ref, onValue } from "firebase/database";
 import { realtimeDb } from "@/lib/firebase";
 import { CountdownDisplay } from "@/components/countdown-display";
-import { useCues } from "@/hooks/use-local-data";
+import { type LocalCue } from "@/lib/local-db";
 import { CueOverlay } from "@/pages/output";
 
 interface CdsNowSnapshot {
@@ -37,6 +37,8 @@ interface CdsNowSnapshot {
   activeCueLabel?: string | null;
   activeCueColor?: string | null;
   activeCueTextColor?: string | null;
+  activeCueBlink?: boolean | null;
+  activeCueBlinkSpeed?: string | null;
   updatedAt?: number;
 }
 
@@ -44,7 +46,6 @@ export default function OutputFirebase() {
   const [snap, setSnap] = useState<CdsNowSnapshot | null>(null);
   const [serverOffset, setServerOffset] = useState(0);
   const [, setTick] = useState(0);
-  const { data: cues = [] } = useCues();
 
   // /cds/now を購読
   useEffect(() => {
@@ -90,8 +91,22 @@ export default function OutputFirebase() {
     : snap.isRunning ? "running"
     : "idle";
 
-  const activeCue = snap?.activeCueId != null
-    ? cues.find((c) => c.id === snap.activeCueId) ?? null
+  // Firebase から来た cue 情報を「そのまま」使う。
+  // 以前は cues.find(c => c.id === activeCueId) でローカル IndexedDB の cue を
+  // 引いていたが、director の Mac とスマホ（このページを iframe で開く端末）で
+  // cue の id が一致せず、左矢印 HOLD! を押しても スマホ側で別 id の GO! が出る
+  // バグがあった。activeCueLabel / Color / Blink を Firebase の値から直接組み立てる。
+  const activeCue: LocalCue | null = (snap && snap.activeCueId != null && snap.activeCueLabel)
+    ? {
+        id: snap.activeCueId,
+        label: snap.activeCueLabel,
+        color: snap.activeCueColor ?? "#f5c518",
+        textColor: snap.activeCueTextColor ?? undefined,
+        shortcutKey: "",
+        blink: snap.activeCueBlink ?? true,
+        blinkSpeed: (snap.activeCueBlinkSpeed ?? "normal") as "slow" | "normal" | "fast",
+        orderIndex: 0,
+      }
     : null;
 
   if (!snap) {

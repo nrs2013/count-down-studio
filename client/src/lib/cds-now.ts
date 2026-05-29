@@ -33,6 +33,8 @@ export interface CdsNowSnapshot {
   activeCueLabel?: string | null;
   activeCueColor?: string | null;
   activeCueTextColor?: string | null;
+  activeCueBlink?: boolean | null;
+  activeCueBlinkSpeed?: string | null;
   sectionLabel?: string | null;
 }
 
@@ -58,6 +60,8 @@ export async function writeCdsNow(snap: CdsNowSnapshot): Promise<void> {
     activeCueLabel: snap.activeCueLabel ?? null,
     activeCueColor: snap.activeCueColor ?? null,
     activeCueTextColor: snap.activeCueTextColor ?? null,
+    activeCueBlink: snap.activeCueBlink ?? null,
+    activeCueBlinkSpeed: snap.activeCueBlinkSpeed ?? null,
     sectionLabel: snap.sectionLabel ?? null,
     updatedAt: serverTimestamp(),
   });

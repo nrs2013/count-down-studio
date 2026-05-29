@@ -24,6 +24,8 @@ interface CueInfo {
   label: string;
   color: string;
   textColor?: string | null;
+  blink?: boolean;
+  blinkSpeed?: string;
 }
 
 interface UseFirebaseNowArgs {
@@ -180,6 +182,8 @@ export function useFirebaseNow({
       activeCueLabel: cue?.label ?? null,
       activeCueColor: cue?.color ?? null,
       activeCueTextColor: cue?.textColor ?? null,
+      activeCueBlink: cue?.blink ?? null,
+      activeCueBlinkSpeed: cue?.blinkSpeed ?? null,
       sectionLabel: null,
     };
     const op = writeCdsNow(snapshot).catch((e) => reportError("write", e));
