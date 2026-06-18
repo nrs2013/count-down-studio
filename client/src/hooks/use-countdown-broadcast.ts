@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import { type CountdownStatus } from "./use-countdown";
+import { type LocalCue } from "@/lib/local-db";
 
 export interface CountdownState {
   formattedTime: string;
@@ -39,6 +40,10 @@ export interface CountdownState {
   // matching CueOverlay on top of whatever is on the sub-display. null = no
   // cue currently pressed.
   activeCueId?: number | null;
+  // v73: 押下中の cue を id だけでなく実体（label/color/blink 等）ごと送る。
+  // 受け手(/output)は id 逆引きせずこの実体をそのまま描画できるので、
+  // /output 窓側の IndexedDB ロード timing や cue id 不一致に依存しなくなる。
+  activeCue?: LocalCue | null;
 }
 
 const LS_KEY = "countdown-state";
@@ -249,6 +254,23 @@ export function useCountdownBroadcaster() {
     // Base URL respects Vite's base config (e.g. "/count-down-studio/" on GitHub Pages)
     const BASE_URL = import.meta.env.BASE_URL || "/";
     const w = window.open(`${BASE_URL}output?secondary=1`, "songcountdown_output", features);
+
+    // v73: window.open がポップアップブロックで null を返すと、従来は何のエラーも
+    // 出さず静かに終了していた（＝「SHOW ON 押しても何も起きない」の正体）。
+    // ブロックされた場合は明示的に知らせ、解除手順を案内する。
+    if (!w) {
+      openingRef.current = false;
+      setOutputOpen(false);
+      try {
+        alert(
+          "出力ウィンドウを開けませんでした。\n\n" +
+          "ブラウザがポップアップをブロックしています。\n" +
+          "アドレスバー右端の「ポップアップとリダイレクト」アイコンをクリックし、\n" +
+          "「このサイトでは常に許可」を選んでから、もう一度 SHOW ON を押してください。"
+        );
+      } catch (_) {}
+      return;
+    }
 
     if (w) {
       outputWindowRef.current = w;

@@ -807,8 +807,13 @@ export default function Output() {
       {/* Driven by EITHER the broadcast (key pressed on /manage) OR the local */}
       {/* keyboard handler above (key pressed on /output). Same UX from both. */}
       {(() => {
-        // Render whichever cue is active — broadcast from /manage takes
-        // priority over the local keyboard handler if both fire at once.
+        // v73: /manage から cue 実体が送られてきていれば、それをそのまま描画する
+        // （id 逆引きに依存しない＝この窓の IndexedDB ロード timing / id 不一致で
+        //   cue が出ない事故を防ぐ）。実体が無ければ従来通り id 逆引きで描画し、
+        //   /output 自身のローカルキー入力（localCueId）にも対応する。
+        if (state.activeCueId != null && state.activeCue) {
+          return <CueOverlay cue={state.activeCue} />;
+        }
         const id = state.activeCueId ?? localCueId;
         if (id == null) return null;
         const cue = cues.find((c) => c.id === id);

@@ -863,9 +863,11 @@ export default function Manage() {
       subTimerActive,
       // Press-and-hold key cues — included in every broadcast so the receiver
       // immediately reflects the latest hold state (true while held, false on release).
+      // v73: id だけでなく cue 実体も同梱（受け手が id 逆引きに依存しないように）。
       activeCueId,
+      activeCue: activeCueId != null ? (cues.find((c) => c.id === activeCueId) ?? null) : null,
     });
-  }, [broadcast, outputOpen, showEventInfoOnPrimary, summaryActive, displayTime, displayStatus, countdown.progress, countdown.remainingSeconds, displaySongTitle, displayArtist, displayNextTitle, displayIsEvent, displayXTime, displayIsMC, displayIsEncore, countdown.isCountUp, countdown.elapsedSeconds, displayMcTarget, subTimerTotal, subTimerRemaining, subTimerFormatted, subTimerActive, activeCueId]);
+  }, [broadcast, outputOpen, showEventInfoOnPrimary, summaryActive, displayTime, displayStatus, countdown.progress, countdown.remainingSeconds, displaySongTitle, displayArtist, displayNextTitle, displayIsEvent, displayXTime, displayIsMC, displayIsEncore, countdown.isCountUp, countdown.elapsedSeconds, displayMcTarget, subTimerTotal, subTimerRemaining, subTimerFormatted, subTimerActive, activeCueId, cues]);
 
   const createSetlist = useCreateSetlist();
   const deleteSetlist = useDeleteSetlist();
