@@ -3,7 +3,6 @@ import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppModeProvider, useAppMode } from "@/hooks/use-app-mode";
 import { ModeTabBar } from "@/components/mode-tab-bar";
 import { useUndo } from "@/hooks/use-undo";
@@ -270,14 +269,12 @@ function App() {
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <WouterRouter base={ROUTER_BASE}>
-            <AppModeProvider>
-              <Toaster />
-              <AppLayout />
-            </AppModeProvider>
-          </WouterRouter>
-        </TooltipProvider>
+        <WouterRouter base={ROUTER_BASE}>
+          <AppModeProvider>
+            <Toaster />
+            <AppLayout />
+          </AppModeProvider>
+        </WouterRouter>
       </QueryClientProvider>
     </ErrorBoundary>
   );
