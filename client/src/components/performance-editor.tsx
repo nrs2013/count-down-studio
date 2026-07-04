@@ -1315,7 +1315,6 @@ export function PerformanceEditor({
                         setlistId={setlist!.id}
                         isLast={index === songs.length - 1}
                         isCurrent={index === currentSongIndex}
-                        prevNextTitle={index > 0 ? songs[index - 1].nextTitle || "" : ""}
                         onStartSong={onStartSong}
                         onLiveTitleChange={onLiveTitleChange}
                         onLiveDurationChange={onLiveDurationChange}

@@ -45,7 +45,9 @@ export function useMidi(options: UseMidiOptions = {}) {
     if (!enabledRef.current) return;
     if (!event.data || event.data.length < 2) return;
 
-    const [status, note, velocity] = event.data;
+    const status = event.data[0];
+    const note = event.data[1];
+    const velocity = event.data[2];
     const command = status & 0xf0;
     const channel = status & 0x0f;
 

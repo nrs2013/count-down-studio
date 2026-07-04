@@ -343,9 +343,9 @@ export function SongRow({
       <div
         className="shrink-0 cursor-grab active:cursor-grabbing flex items-center justify-center w-4"
         style={{ color: "rgba(255,255,255,0.15)", touchAction: "none" }}
-        tabIndex={-1}
         {...attributes}
         {...listeners}
+        tabIndex={-1}
         data-testid={`drag-handle-${song.id}`}
       >
         <GripVertical className="w-3.5 h-3.5" />
