@@ -27,6 +27,9 @@ interface CdsNowSnapshot {
   nextSongTitle?: string | null;
   remainingMs: number;
   totalMs: number;
+  isCountUp?: boolean;
+  elapsedMs?: number;
+  mcTargetMs?: number;
   isRunning: boolean;
   isPaused: boolean;
   isMC?: boolean;
@@ -65,27 +68,37 @@ export default function OutputFirebase() {
     return () => clearInterval(id);
   }, []);
 
-  // ライブ残り時間 (serverTimestamp 補正)
-  const liveRemainingMs = (() => {
-    if (!snap) return 0;
-    if (!snap.isRunning) return Math.max(0, snap.remainingMs ?? 0);
+  // 送信からの経過 (serverTimestamp 補正)。isRunning 中のみ進める。
+  const sinceUpdateMs = (() => {
+    if (!snap || !snap.isRunning) return 0;
     const nowServer = Date.now() + serverOffset;
-    const elapsed = nowServer - (snap.updatedAt ?? nowServer);
-    return Math.max(0, (snap.remainingMs ?? 0) - elapsed);
+    return Math.max(0, nowServer - (snap.updatedAt ?? nowServer));
   })();
 
-  const totalSeconds = (snap?.totalMs ?? 0) / 1000;
-  const remainingSeconds = liveRemainingMs / 1000;
-  const elapsedSeconds = Math.max(0, totalSeconds - remainingSeconds);
-  const progress = totalSeconds > 0 ? Math.min(100, (elapsedSeconds / totalSeconds) * 100) : 0;
+  // カウントアップ (MC / ENCORE / X-TIME): elapsedMs を起点に進める。
+  // director 側は遷移時しか書かないので、経過はこちらで再構成する。
+  const isCountUp = !!snap?.isCountUp;
+  const liveElapsedMs = (snap?.elapsedMs ?? 0) + sinceUpdateMs;
 
-  const totalSecondsCeil = Math.ceil(remainingSeconds);
-  const mm = Math.floor(totalSecondsCeil / 60);
-  const ss = totalSecondsCeil - mm * 60;
-  const formattedTime = `${mm}:${ss.toString().padStart(2, "0")}`;
+  // カウントダウン: remainingMs を起点に減らす。
+  const liveRemainingMs = Math.max(0, (snap?.remainingMs ?? 0) - sinceUpdateMs);
+
+  const totalSeconds = (snap?.totalMs ?? 0) / 1000;
+  const remainingSeconds = isCountUp ? liveElapsedMs / 1000 : liveRemainingMs / 1000;
+  const elapsedSeconds = isCountUp
+    ? liveElapsedMs / 1000
+    : Math.max(0, totalSeconds - remainingSeconds);
+  const progress = !isCountUp && totalSeconds > 0 ? Math.min(100, (elapsedSeconds / totalSeconds) * 100) : 0;
+
+  // /output と同じ整形: countdown は切り上げ、count-up は切り捨て、分は 2 桁。
+  const displaySeconds = isCountUp ? Math.floor(elapsedSeconds) : Math.ceil(remainingSeconds);
+  const mm = Math.floor(displaySeconds / 60);
+  const ss = displaySeconds - mm * 60;
+  const formattedTime = `${mm.toString().padStart(2, "0")}:${ss.toString().padStart(2, "0")}`;
 
   const status: "idle" | "running" | "paused" | "finished" =
     !snap ? "idle"
+    : isCountUp ? (snap.isPaused ? "paused" : snap.isRunning ? "running" : "idle")
     : remainingSeconds <= 0 && (snap.isRunning || snap.isPaused) ? "finished"
     : snap.isPaused ? "paused"
     : snap.isRunning ? "running"
@@ -153,6 +166,9 @@ export default function OutputFirebase() {
         xTime={snap.xTime}
         isMC={snap.isMC}
         isEncore={snap.isEncore}
+        isCountUp={isCountUp}
+        elapsedSeconds={elapsedSeconds}
+        mcTargetSeconds={(snap.mcTargetMs ?? 0) / 1000}
         fillWidth
       />
       {activeCue && <CueOverlay cue={activeCue} />}

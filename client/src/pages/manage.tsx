@@ -504,6 +504,10 @@ export default function Manage() {
       const nextIdx = idx + 1;
       const nextSong = sortedSongs[nextIdx];
       if (nextIdx < sortedSongs.length && nextSong.isMC) {
+        // This path bypasses startSong(), so dismiss the event-info
+        // screensaver here too — otherwise its broadcast suppression
+        // would keep the MC timer off the LED entirely.
+        if (stopEventInfoRef.current) stopEventInfoRef.current();
         setCurrentSongId(nextSong.id);
         countdown.startCountUp();
       }
@@ -796,6 +800,9 @@ export default function Manage() {
     status: countdown.status,
     remainingSeconds: countdown.remainingSeconds,
     totalSeconds: countdown.totalSeconds,
+    isCountUp: countdown.isCountUp,
+    elapsedSeconds: countdown.elapsedSeconds,
+    mcTargetSeconds: displayMcTarget,
     activeSongId: currentSongId,
     songTitle: currentSongForBroadcast?.title ?? null,
     nextSongTitle: displayNextTitle ?? null,

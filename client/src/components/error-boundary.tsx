@@ -15,6 +15,18 @@ interface State {
   error: Error | null;
 }
 
+// /output and /output-firebase are audience-facing: an error card with a
+// reload button must never appear on the LED. Show plain black instead and
+// auto-reload after 3s — the receiver re-requests the current state on
+// boot, so the countdown comes back on its own.
+function isAudienceFacing(): boolean {
+  try {
+    return window.location.pathname.includes("/output");
+  } catch {
+    return false;
+  }
+}
+
 export class ErrorBoundary extends Component<Props, State> {
   state: State = { error: null };
 
@@ -25,10 +37,20 @@ export class ErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error, info: ErrorInfo) {
     // eslint-disable-next-line no-console
     console.error("[CDS ErrorBoundary]", error, info);
+    if (isAudienceFacing()) {
+      setTimeout(() => {
+        try { window.location.reload(); } catch {}
+      }, 3000);
+    }
   }
 
   render() {
     if (this.state.error) {
+      if (isAudienceFacing()) {
+        return (
+          <div style={{ width: "100vw", height: "100vh", background: "#000" }} />
+        );
+      }
       return (
         <div
           style={{

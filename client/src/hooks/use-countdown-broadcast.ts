@@ -106,6 +106,15 @@ export function useCountdownBroadcaster() {
     return false;
   }, []);
 
+  // Re-adopt an already-open /output after /manage reloads (SW auto-reload,
+  // hand reload, crash recovery). /output heartbeats LS_OUTPUT_ALIVE_KEY
+  // every 2s; a fresh marker at mount means the projector window survived
+  // the reload — without this, outputOpen stays false and every broadcast
+  // is silently gated, leaving the projector frozen on its last frame.
+  useEffect(() => {
+    if (isOutputWindowAlive()) setOutputOpen(true);
+  }, [isOutputWindowAlive]);
+
   useEffect(() => {
     const handleStorage = (e: StorageEvent) => {
       if (e.key === LS_PING_KEY && e.newValue) {
@@ -374,6 +383,11 @@ export function useCountdownBroadcaster() {
 
   useEffect(() => {
     const handleBeforeUnload = () => {
+      // Mid-show, beforeunload means a RELOAD (SW auto-update, accidental
+      // Cmd+R), not the director packing up. Closing the projector window
+      // here would black out the LED in front of the audience — leave it
+      // alive; the reloaded /manage re-adopts it via the alive heartbeat.
+      if ((window as any).__cdsActive) return;
       try { localStorage.removeItem(LS_OUTPUT_ALIVE_KEY); } catch (_) {}
       try {
         localStorage.setItem(LS_PING_KEY, JSON.stringify({ type: "request-close", _ts: Date.now() }));
@@ -458,7 +472,11 @@ export function useCountdownReceiver() {
 
   const applyState = useCallback((data: Record<string, unknown>) => {
     const ts = (data._ts as number) || 0;
-    if (ts <= lastTsRef.current) return;
+    // Reject only NEAR-past timestamps (out-of-order delivery across the
+    // 4 channels). A jump further back than 5s means the sender's clock
+    // was stepped (NTP correction) — accept it and re-anchor, otherwise
+    // the receiver would ignore every broadcast until the clock catches up.
+    if (ts <= lastTsRef.current && lastTsRef.current - ts < 5000) return;
     lastTsRef.current = ts;
     const { _ts, ...rest } = data;
     setState(rest as unknown as CountdownState);

@@ -90,9 +90,11 @@ export function CueManagerModal({ open, onClose }: { open: boolean; onClose: () 
     if (!capturingKey) return;
     // Skip keys whose normal action would clash with cue triggering:
     // Tab moves focus (would shift focus AND fire the cue on every Tab
-    // press), Enter submits forms / activates buttons (would double-fire).
-    // Both are easy to assign by accident — explicitly blocked.
-    const SKIP = new Set(["Escape", "Tab", "Enter", "Shift", "Control", "Meta", "Alt", "CapsLock", "Fn", "Hyper", "Super", "OS", "Dead"]);
+    // press), Enter submits forms / activates buttons (would double-fire),
+    // f/F toggles fullscreen on /output (a cue on F would knock the LED
+    // out of fullscreen every time it fires), Space re-activates the last
+    // focused button. All easy to assign by accident — explicitly blocked.
+    const SKIP = new Set(["Escape", "Tab", "Enter", "Shift", "Control", "Meta", "Alt", "CapsLock", "Fn", "Hyper", "Super", "OS", "Dead", "f", "F", " "]);
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setCapturingKey(false);

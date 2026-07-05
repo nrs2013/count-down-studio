@@ -15,7 +15,7 @@
 // 書き込みタイミング: 状態遷移時のみ。受け取り側は updatedAt と
 // remainingMs から live remaining を計算する。
 
-import { ref, set, remove, onDisconnect, serverTimestamp } from "firebase/database";
+import { ref, set, remove, onDisconnect, onValue, serverTimestamp } from "firebase/database";
 import { realtimeDb } from "./firebase";
 
 export interface CdsNowSnapshot {
@@ -23,6 +23,11 @@ export interface CdsNowSnapshot {
   nextSongTitle?: string | null;
   remainingMs: number;
   totalMs: number;
+  // Count-up (MC / ENCORE / X-TIME): the phone reconstructs the live
+  // elapsed as elapsedMs + (serverNow - updatedAt) while isRunning.
+  isCountUp?: boolean;
+  elapsedMs?: number;
+  mcTargetMs?: number;
   isRunning: boolean;
   isPaused: boolean;
   isMC?: boolean;
@@ -50,6 +55,9 @@ export async function writeCdsNow(snap: CdsNowSnapshot): Promise<void> {
     nextSongTitle: snap.nextSongTitle ?? null,
     remainingMs: snap.remainingMs,
     totalMs: snap.totalMs,
+    isCountUp: snap.isCountUp ?? false,
+    elapsedMs: snap.elapsedMs ?? 0,
+    mcTargetMs: snap.mcTargetMs ?? 0,
     isRunning: snap.isRunning,
     isPaused: snap.isPaused,
     isMC: snap.isMC ?? false,
@@ -84,5 +92,22 @@ export function registerCdsNowDisconnect(): void {
   } catch {
     // Best-effort; if Firebase isn't ready yet we accept the worst case
     // (a stale node if the tab closes before any state arrives).
+  }
+}
+
+// Fires the callback every time the Firebase connection (re)establishes.
+// Needed because onDisconnect registrations are CONSUMED when they fire:
+// after a Wi-Fi blip the server has wiped /cds/now and forgotten the
+// registration, so the writer must re-register AND re-push its state —
+// otherwise every phone shows "CDS WAITING…" until the next transition.
+// Returns the unsubscribe function.
+export function onCdsNowConnected(cb: () => void): () => void {
+  try {
+    const connRef = ref(realtimeDb, ".info/connected");
+    return onValue(connRef, (s) => {
+      if (s.val() === true) cb();
+    });
+  } catch {
+    return () => {};
   }
 }

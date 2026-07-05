@@ -2,6 +2,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { useLocation } from "wouter";
 import { type LocalSong as Song, type LocalSetlist as Setlist, localDB } from "@/lib/local-db";
 import { serializeSongForExport, normalizeSongForImport } from "@/lib/song-serialize";
+import { undoManager } from "@/lib/undo-manager";
 import {
   useCreateSong,
   useUpdateSong,
@@ -377,6 +378,28 @@ export function PerformanceEditor({
   const summaryActiveRef = useRef(false);
   summaryActiveRef.current = !!summaryActive;
 
+  // Cue button press-and-hold: the button's own onMouseUp misses releases
+  // that happen off the button (finger drifts 1px past the edge before
+  // letting go) — that left GO! stuck on the LED. This window-level
+  // listener is the real cleanup; the ref makes sure a mouse release
+  // never cancels a cue held via its keyboard shortcut.
+  const cuePointerHeldRef = useRef(false);
+  useEffect(() => {
+    const release = () => {
+      if (!cuePointerHeldRef.current) return;
+      cuePointerHeldRef.current = false;
+      onCueButtonUp?.();
+    };
+    window.addEventListener("mouseup", release);
+    window.addEventListener("touchend", release);
+    window.addEventListener("touchcancel", release);
+    return () => {
+      window.removeEventListener("mouseup", release);
+      window.removeEventListener("touchend", release);
+      window.removeEventListener("touchcancel", release);
+    };
+  }, [onCueButtonUp]);
+
   const stopEventInfoBroadcast = useCallback(() => {
     showingEventInfoRef.current = false;
     setShowingEventInfo(false);
@@ -444,6 +467,10 @@ export function PerformanceEditor({
     if (summaryActiveRef.current) return;
     screensaverTimerRef.current = setTimeout(() => {
       if (summaryActiveRef.current) return;
+      // Never take over the LED while a show is in progress (running /
+      // paused / between songs). A long MC or encore wait can easily pass
+      // 10 minutes hands-off — the audience must not see DOOR OPEN then.
+      if ((window as any).__cdsActive) return;
       if (!showingEventInfoRef.current) {
         screensaverActiveRef.current = true;
         startEventInfoBroadcastRef.current();
@@ -594,6 +621,9 @@ export function PerformanceEditor({
         `「${importName}」をインポートしますか？\n現在のセットリストのデータは上書きされます。`
       );
       if (!confirmed) return;
+      // Snapshot BEFORE the destructive replace so Cmd+Z can bring the
+      // whole setlist back — manage.tsx's .scd import does the same.
+      await undoManager.pushSnapshot(setlist.id, "Import .scd");
       const songsData = data.songs.map((s: any) => ({
         ...normalizeSongForImport(s),
         orderIndex: 0,
@@ -1097,15 +1127,14 @@ export function PerformanceEditor({
               return (
                 <button
                   key={cue.id}
-                  onMouseDown={() => onCueButtonDown && onCueButtonDown(cue.id)}
+                  onMouseDown={() => { cuePointerHeldRef.current = true; onCueButtonDown && onCueButtonDown(cue.id); }}
                   onMouseUp={() => onCueButtonUp && onCueButtonUp()}
                   // DO NOT release on mouseleave — that was firing every time the
                   // director's hand drifted 1px past the button edge during a
                   // press-and-hold, which made the cue overlay flicker off on
-                  // the LED mid-show. Window-level mouseup at the parent (or
-                  // touchend below) already covers cleanup if the director
-                  // releases off the button.
-                  onTouchStart={(e) => { e.preventDefault(); onCueButtonDown && onCueButtonDown(cue.id); }}
+                  // the LED mid-show. The window-level mouseup/touchend listener
+                  // (cuePointerHeldRef above) covers releases off the button.
+                  onTouchStart={(e) => { e.preventDefault(); cuePointerHeldRef.current = true; onCueButtonDown && onCueButtonDown(cue.id); }}
                   onTouchEnd={() => onCueButtonUp && onCueButtonUp()}
                   title={`${cue.label} (key: ${cue.shortcutKey || "—"}) — press and hold`}
                   data-testid={`cuebar-button-${cue.id}`}

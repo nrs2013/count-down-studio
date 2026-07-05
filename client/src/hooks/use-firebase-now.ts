@@ -14,7 +14,7 @@
 // 連続書き込みは inFlightRef で直列化、失敗時は throttled toast。
 
 import { useEffect, useRef } from "react";
-import { writeCdsNow, clearCdsNow, registerCdsNowDisconnect } from "@/lib/cds-now";
+import { writeCdsNow, clearCdsNow, registerCdsNowDisconnect, onCdsNowConnected, type CdsNowSnapshot } from "@/lib/cds-now";
 import { toast } from "@/hooks/use-toast";
 
 type CountdownStatus = "idle" | "running" | "paused" | "finished";
@@ -32,6 +32,9 @@ interface UseFirebaseNowArgs {
   status: CountdownStatus;
   remainingSeconds: number;
   totalSeconds: number;
+  isCountUp?: boolean;
+  elapsedSeconds?: number;
+  mcTargetSeconds?: number;
   activeSongId: number | null;
   songTitle: string | null;
   nextSongTitle?: string | null;
@@ -49,6 +52,9 @@ export function useFirebaseNow({
   status,
   remainingSeconds,
   totalSeconds,
+  isCountUp = false,
+  elapsedSeconds = 0,
+  mcTargetSeconds = 0,
   activeSongId,
   songTitle,
   nextSongTitle = null,
@@ -65,6 +71,12 @@ export function useFirebaseNow({
   remainingRef.current = remainingSeconds;
   const totalRef = useRef(totalSeconds);
   totalRef.current = totalSeconds;
+  const isCountUpRef = useRef(isCountUp);
+  isCountUpRef.current = isCountUp;
+  const elapsedRef = useRef(elapsedSeconds);
+  elapsedRef.current = elapsedSeconds;
+  const mcTargetRef = useRef(mcTargetSeconds);
+  mcTargetRef.current = mcTargetSeconds;
   const songTitleRef = useRef(songTitle);
   songTitleRef.current = songTitle;
   const nextSongTitleRef = useRef(nextSongTitle);
@@ -107,11 +119,27 @@ export function useFirebaseNow({
     console.warn("[CDS NOW]", where, e);
   };
 
-  // Register onDisconnect ONCE on mount. Browser tab close / Wi-Fi loss /
-  // PC sleep all clear /cds/now via this hook — React unmount cleanup
-  // does NOT cover tab close.
+  // Last snapshot actually written (null = cleared / nothing yet). Used to
+  // re-push after a reconnect, because the server wipes /cds/now via
+  // onDisconnect on any Wi-Fi blip and nothing else would rewrite it
+  // until the NEXT transition — phones would sit on "CDS WAITING…".
+  const lastSnapshotRef = useRef<CdsNowSnapshot | null>(null);
+
+  // (Re)register the server-side auto-clear on EVERY (re)connect —
+  // onDisconnect registrations are consumed when they fire — and re-push
+  // the state the server just wiped. Covers tab close / Wi-Fi loss /
+  // PC sleep; React unmount cleanup does NOT cover tab close.
   useEffect(() => {
-    registerCdsNowDisconnect();
+    const off = onCdsNowConnected(() => {
+      registerCdsNowDisconnect();
+      const snap = lastSnapshotRef.current;
+      if (snap) {
+        const op = writeCdsNow(snap).catch((e) => reportError("reconnect", e));
+        inFlightRef.current = inFlightRef.current.then(() => op);
+      }
+    });
+    return off;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Encode flags into a single string so we can detect category changes
@@ -154,8 +182,38 @@ export function useFirebaseNow({
 
     // End / reset — clear ONLY when status hits idle. finished は last
     // snapshot を残す (自動 next song でブランクにならないように)。
+    // 例外: 開演前 (idle) に cue を押した場合は cue だけのスナップショットを
+    // 送る — STAND BY! はタイマーが走る前にこそ出したいもの。離したら clear。
     if (status === "idle") {
-      if (prevStatus === "running" || prevStatus === "paused" || prevStatus === "finished") {
+      const idleCue = activeCueRef.current;
+      if (activeCueId != null && idleCue) {
+        const snapshot: CdsNowSnapshot = {
+          songTitle: null,
+          nextSongTitle: null,
+          remainingMs: 0,
+          totalMs: 0,
+          isCountUp: false,
+          elapsedMs: 0,
+          mcTargetMs: 0,
+          isRunning: false,
+          isPaused: false,
+          isMC: false,
+          isEvent: false,
+          isEncore: false,
+          xTime: false,
+          activeCueId: activeCueId,
+          activeCueLabel: idleCue.label,
+          activeCueColor: idleCue.color,
+          activeCueTextColor: idleCue.textColor ?? null,
+          activeCueBlink: idleCue.blink ?? null,
+          activeCueBlinkSpeed: idleCue.blinkSpeed ?? null,
+          sectionLabel: null,
+        };
+        lastSnapshotRef.current = snapshot;
+        const op = writeCdsNow(snapshot).catch((e) => reportError("write", e));
+        inFlightRef.current = inFlightRef.current.then(() => op);
+      } else if (prevStatus === "running" || prevStatus === "paused" || prevStatus === "finished" || cueChanged) {
+        lastSnapshotRef.current = null;
         const op = clearCdsNow().catch((e) => reportError("clear", e));
         inFlightRef.current = inFlightRef.current.then(() => op);
       }
@@ -167,11 +225,14 @@ export function useFirebaseNow({
     }
 
     const cue = activeCueRef.current;
-    const snapshot = {
+    const snapshot: CdsNowSnapshot = {
       songTitle: songTitleRef.current,
       nextSongTitle: nextSongTitleRef.current,
       remainingMs: Math.max(0, Math.round(remainingRef.current * 1000)),
       totalMs: Math.max(0, Math.round(totalRef.current * 1000)),
+      isCountUp: isCountUpRef.current,
+      elapsedMs: Math.max(0, Math.round(elapsedRef.current * 1000)),
+      mcTargetMs: Math.max(0, Math.round(mcTargetRef.current * 1000)),
       isRunning: status === "running",
       isPaused: status === "paused",
       isMC: isMCRef.current,
@@ -186,6 +247,7 @@ export function useFirebaseNow({
       activeCueBlinkSpeed: cue?.blinkSpeed ?? null,
       sectionLabel: null,
     };
+    lastSnapshotRef.current = snapshot;
     const op = writeCdsNow(snapshot).catch((e) => reportError("write", e));
     inFlightRef.current = inFlightRef.current.then(() => op);
     // eslint-disable-next-line react-hooks/exhaustive-deps

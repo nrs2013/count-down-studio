@@ -36,6 +36,13 @@ function useDuplicateGuard(enabled: boolean = true) {
   const [dismissed, setDismissed] = useState(false);
   const instanceId = useRef(getOrCreateInstanceId());
 
+  // A live show is sacred: while a countdown is in progress on THIS tab
+  // (running / paused / between songs), no signal from another tab may
+  // replace this screen with the DuplicateWarning — unmounting /manage
+  // would wipe the remaining time and freeze the projector output.
+  // The NEW tab still sees its own warning via checkExisting().
+  const showInProgress = () => !!(window as any).__cdsActive;
+
   useEffect(() => {
     if (!enabled) return;
     let bc: BroadcastChannel | null = null;
@@ -66,6 +73,7 @@ function useDuplicateGuard(enabled: boolean = true) {
       bc = new BroadcastChannel(INSTANCE_CHANNEL);
       bc.postMessage({ type: "ping", id: instanceId.current });
       bc.addEventListener("message", (e) => {
+        if (showInProgress()) return;
         if (e.data?.type === "ping" && e.data.id !== instanceId.current) {
           setIsDuplicate(true);
         }
@@ -86,6 +94,7 @@ function useDuplicateGuard(enabled: boolean = true) {
     const interval = setInterval(markActive, 3000);
 
     const handleStorage = (e: StorageEvent) => {
+      if (showInProgress()) return;
       if (e.key === INSTANCE_LS_KEY && e.newValue) {
         try {
           const data = JSON.parse(e.newValue);

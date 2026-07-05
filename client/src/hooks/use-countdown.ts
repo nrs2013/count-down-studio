@@ -35,12 +35,16 @@ export function useCountdown(): UseCountdownReturn {
     statusRef.current = status;
   }, [status]);
 
-  // Expose "is the show actively counting down" as a window flag + event,
-  // so main.tsx's SW auto-reload can hold off mid-show. The director must
-  // never see the page reload while a song's timer is running.
+  // Expose "is a show in progress" as a window flag + event. Consumers:
+  //   - main.tsx defers the SW auto-reload while the flag is set
+  //   - App.tsx's duplicate guard refuses to replace a live show screen
+  //   - performance-editor's screensaver stays away mid-show
+  // "In progress" = anything but idle: paused and finished (between songs)
+  // are still mid-show — a reload there loses the in-memory concert
+  // tracking (start time / MC history), so only true idle is safe.
   useEffect(() => {
-    (window as any).__cdsActive = status === "running";
-    if (status !== "running") {
+    (window as any).__cdsActive = status !== "idle";
+    if (status === "idle") {
       window.dispatchEvent(new Event("cds-countdown-idle"));
     }
   }, [status]);

@@ -551,6 +551,17 @@ export default function Output() {
   }, [isLegitOutput, setLocation]);
 
   const state = useCountdownReceiver();
+
+  // Mirror "show in progress" into the same window flag /manage uses, so
+  // main.tsx's SW auto-reload defers on THIS window too — without it a
+  // deploy mid-show reloads the projector and flashes the LED black.
+  // Overlays (event info / end summary) count: they're audience-visible.
+  useEffect(() => {
+    const active = state.status !== "idle" || !!state.showEventInfo || !!state.showConcertSummary;
+    (window as any).__cdsActive = active;
+    if (!active) window.dispatchEvent(new Event("cds-countdown-idle"));
+  }, [state.status, state.showEventInfo, state.showConcertSummary]);
+
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showHint, setShowHint] = useState(true);
   const secondaryRef = useRef<any>(null);
@@ -735,7 +746,8 @@ export default function Output() {
   //     also exits via the browser's built-in fullscreen behavior).
   useEffect(() => {
     let lastClick = 0;
-    const handler = () => {
+    let lastTouch = 0;
+    const registerTap = () => {
       const now = Date.now();
       if (now - lastClick < 400) {
         toggleFullscreen();
@@ -744,11 +756,22 @@ export default function Output() {
         lastClick = now;
       }
     };
-    window.addEventListener("click", handler);
-    window.addEventListener("touchend", handler);
+    const handleClick = () => {
+      // Touch devices fire touchend AND a synthetic click for the same tap;
+      // counting both made a SINGLE tap register as a double-click and
+      // toggle fullscreen — the one thing a stray touch must never do.
+      if (Date.now() - lastTouch < 700) return;
+      registerTap();
+    };
+    const handleTouchEnd = () => {
+      lastTouch = Date.now();
+      registerTap();
+    };
+    window.addEventListener("click", handleClick);
+    window.addEventListener("touchend", handleTouchEnd);
     return () => {
-      window.removeEventListener("click", handler);
-      window.removeEventListener("touchend", handler);
+      window.removeEventListener("click", handleClick);
+      window.removeEventListener("touchend", handleTouchEnd);
     };
   }, [toggleFullscreen]);
 
