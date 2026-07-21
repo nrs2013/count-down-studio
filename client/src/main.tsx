@@ -56,7 +56,7 @@ function moveToMainScreen() {
 
 moveToMainScreen();
 
-const SW_CACHE_NAME = "songcountdown-v76";
+const SW_CACHE_NAME = "songcountdown-v77";
 
 // Build banner — visible on every page load so we can tell at a glance
 // whether the director's tab is running the latest deploy.
@@ -103,7 +103,9 @@ if ("serviceWorker" in navigator) {
     // The "cds-countdown-idle" event fires when status returns to idle,
     // so a deferred reload catches up the moment the show ends.
     const safeToReload = () =>
-      document.visibilityState === "visible" && !(window as any).__cdsActive;
+      document.visibilityState === "visible" &&
+      !(window as any).__cdsActive &&
+      !(window as any).__cdsOverlayActive; // サマリー/EVENT INFO 表示中もリロード保留
 
     const doReload = () => {
       reloadingForNewSW = true;

@@ -423,11 +423,20 @@ export function PerformanceEditor({
     });
   }, [broadcast, onShowEventInfoChange]);
 
+  // EVENT INFO 表示中も cue（HOLD!/GO!）を LED に重ねる。interval の closure が
+  // 古い props を掴まないよう ref 経由で毎回読む。
+  const activeCueIdRef = useRef<number | null>(activeCueId ?? null);
+  activeCueIdRef.current = activeCueId ?? null;
+  const cuesRef = useRef(cues);
+  cuesRef.current = cues;
+  const eventInfoSendRef = useRef<(() => void) | null>(null);
+
   const startEventInfoBroadcast = useCallback(() => {
     showingEventInfoRef.current = true;
     setShowingEventInfo(true);
     onShowEventInfoChange?.(true);
     const sendInfo = () => {
+      const cueId = activeCueIdRef.current;
       broadcast({
         formattedTime: "--:--",
         status: "idle",
@@ -438,12 +447,21 @@ export function PerformanceEditor({
         eventDoorOpen: doorOpenValueRef.current || null,
         eventShowTime: showTimeValueRef.current || null,
         eventRehearsal: rehearsalValueRef.current || null,
+        activeCueId: cueId,
+        activeCue: cueId != null ? (cuesRef.current.find((c) => c.id === cueId) ?? null) : null,
       });
     };
+    eventInfoSendRef.current = sendInfo;
     sendInfo();
     clearInterval(eventInfoIntervalRef.current);
     eventInfoIntervalRef.current = setInterval(sendInfo, 1000);
   }, [broadcast]);
+
+  // cue 押下/解除を 1 秒 interval を待たずに即時反映（EVENT INFO 表示中のみ）
+  useEffect(() => {
+    if (showingEventInfoRef.current) eventInfoSendRef.current?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeCueId]);
 
   const toggleEventInfo = useCallback(() => {
     screensaverActiveRef.current = false;

@@ -134,7 +134,15 @@ export function useFirebaseNow({
       registerCdsNowDisconnect();
       const snap = lastSnapshotRef.current;
       if (snap) {
-        const op = writeCdsNow(snap).catch((e) => reportError("reconnect", e));
+        // 凍結スナップショットをそのまま再送すると updatedAt だけ今の時刻になり、
+        // スマホの残り時間が「最後の遷移時点の値」まで巻き戻って見える。
+        // 時間系フィールドだけ毎 tick 更新済みの ref から現在値で組み直して送る。
+        const fresh: CdsNowSnapshot = {
+          ...snap,
+          remainingMs: Math.max(0, Math.round(remainingRef.current * 1000)),
+          elapsedMs: Math.max(0, Math.round(elapsedRef.current * 1000)),
+        };
+        const op = writeCdsNow(fresh).catch((e) => reportError("reconnect", e));
         inFlightRef.current = inFlightRef.current.then(() => op);
       }
     });

@@ -386,6 +386,8 @@ export default function Manage() {
   // When true, suppress the recurring countdown broadcast so the summary screen on the
   // sub-display isn't overwritten by stale idle state.
   const [summaryActive, setSummaryActive] = useState(false);
+  // サマリー表示中に cue を重ねて再送するための「最後に送ったサマリー state」
+  const lastSummaryPayloadRef = useRef<Parameters<typeof broadcast>[0] | null>(null);
 
   useEffect(() => {
     if (!outputOpen) return;
@@ -614,9 +616,9 @@ export default function Manage() {
       return `${y}.${mo}.${da} (${dows[d.getDay()]})`;
     };
     setSummaryActive(true);
-    broadcast({
+    const summaryPayload = {
       formattedTime: "--:--",
-      status: "idle",
+      status: "idle" as const,
       progress: 0,
       remainingSeconds: 0,
       showConcertSummary: true,
@@ -627,7 +629,9 @@ export default function Manage() {
       summaryEndTime: fmt(now),
       summaryDate: dateFmt(startAt),
       summaryConcertTitle: activeSetlist?.name || "",
-    });
+    };
+    lastSummaryPayloadRef.current = summaryPayload;
+    broadcast(summaryPayload);
     toast({ title: "End of Show", description: "サマリーをサブディスプレイに表示中" });
   }, [mcSegments, encoreSegments, broadcast, countdown, toast, activeSetlist?.name]);
 
@@ -844,6 +848,29 @@ export default function Manage() {
   const subTimerFormatted = subTimerTotal > 0
     ? `${subTimerMin.toString().padStart(2, "0")}:${subTimerSec.toString().padStart(2, "0")}`
     : "";
+
+  // END SHOW サマリー / EVENT INFO は idle でも客に見えている——「ショー進行中」として
+  // SW 自動リロード保留(main.tsx)と beforeunload の窓保護(use-countdown-broadcast)に
+  // 伝える姉妹フラグ。__cdsActive（カウントダウン status 由来）の意味は変えない。
+  useEffect(() => {
+    (window as any).__cdsOverlayActive = summaryActive || showEventInfoOnPrimary;
+    return () => { (window as any).__cdsOverlayActive = false; };
+  }, [summaryActive, showEventInfoOnPrimary]);
+
+  // サマリー表示中の cue（HOLD!/GO!）も LED に届ける。下のメイン broadcast effect は
+  // summaryActive 中 early-return するため、サマリー state ごと cue を載せて再送する
+  // （受信側は state を丸ごと置換するので cue 単独では送れない）。
+  useEffect(() => {
+    if (!outputOpen || !summaryActive) return;
+    const base = lastSummaryPayloadRef.current;
+    if (!base) return;
+    broadcast({
+      ...base,
+      activeCueId,
+      activeCue: activeCueId != null ? (cues.find((c) => c.id === activeCueId) ?? null) : null,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeCueId]);
 
   useEffect(() => {
     if (!outputOpen || showEventInfoOnPrimary) return;

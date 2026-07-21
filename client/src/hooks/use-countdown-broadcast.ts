@@ -387,7 +387,8 @@ export function useCountdownBroadcaster() {
       // Cmd+R), not the director packing up. Closing the projector window
       // here would black out the LED in front of the audience — leave it
       // alive; the reloaded /manage re-adopts it via the alive heartbeat.
-      if ((window as any).__cdsActive) return;
+      // __cdsOverlayActive: END SHOW サマリー / EVENT INFO 表示中（idle でも客に見えている）。
+      if ((window as any).__cdsActive || (window as any).__cdsOverlayActive) return;
       try { localStorage.removeItem(LS_OUTPUT_ALIVE_KEY); } catch (_) {}
       try {
         localStorage.setItem(LS_PING_KEY, JSON.stringify({ type: "request-close", _ts: Date.now() }));
