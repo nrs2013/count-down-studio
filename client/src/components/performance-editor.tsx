@@ -48,15 +48,12 @@ import { useToast } from "@/hooks/use-toast";
 //   Left half  = TOTAL TIME elapsed since first song started (with RESET)
 //   Right half = current wall clock time
 // ==================================================================
-function TotalTimeAndClockDisplay({ countdownStatus }: { countdownStatus: CountdownStatus }) {
-  const [startedAt, setStartedAt] = useState<number | null>(null);
+// 時計は manage.tsx の concertStartAt（＝終演サマリーと同じ基点）を使う。
+// 旧実装は自前の startedAt を持ち、1曲目 auto-reset や集計リセットを知らず
+// サマリーの TOTAL と必ずズレていた。RESET は集計リセット（onReset）に直結。
+function TotalTimeAndClockDisplay({ concertStartAt, onReset }: { concertStartAt?: number | null; onReset?: () => void }) {
+  const startedAt = concertStartAt ?? null;
   const [now, setNow] = useState(Date.now());
-
-  useEffect(() => {
-    if (countdownStatus === "running" && startedAt === null) {
-      setStartedAt(Date.now());
-    }
-  }, [countdownStatus, startedAt]);
 
   // Always tick every second for the wall clock; the total timer reuses `now`
   useEffect(() => {
@@ -117,7 +114,12 @@ function TotalTimeAndClockDisplay({ countdownStatus }: { countdownStatus: Countd
         <span style={{ ...labelStyle, color: isRunning ? "#a8a8a0" : "#5a5a54" }}>TOTAL TIME</span>
         <span style={{ ...valueStyle, color: isRunning ? "#e8b04a" : "#5a5a54" }}>{totalFormatted}</span>
         <button
-          onClick={() => setStartedAt(null)}
+          onClick={() => {
+            if (!onReset) return;
+            // パトロール#5 S7: 本番中の誤タップで集計が飛ばないよう確認を挟む
+            if (!confirm("TOTAL タイムをリセットしますか？\n（公演の開始時刻・MC/アンコール集計もリセットされます）")) return;
+            onReset();
+          }}
           disabled={!isRunning}
           style={{
             fontFamily: "'Bebas Neue', Impact, 'Arial Narrow', sans-serif",
@@ -303,6 +305,7 @@ interface PerformanceEditorProps {
   subTimerActive?: boolean;
   onEndConcert?: () => void;
   onResetConcertTracking?: () => void;
+  concertStartAt?: number | null;
   // When true, the concert-end summary is showing on the sub-display. We use this to
   // suppress the screensaver (event-info overlay) so it doesn't overwrite the summary.
   summaryActive?: boolean;
@@ -354,6 +357,7 @@ export function PerformanceEditor({
   subTimerActive,
   onEndConcert,
   onResetConcertTracking,
+  concertStartAt,
   summaryActive,
   activeCueId,
   cues = [],
@@ -1312,7 +1316,7 @@ export function PerformanceEditor({
             outputFullscreen={outputFullscreen}
           />
           {/* Total time elapsed + current wall clock */}
-          <TotalTimeAndClockDisplay countdownStatus={countdownStatus} />
+          <TotalTimeAndClockDisplay concertStartAt={concertStartAt} onReset={onResetConcertTracking} />
         </div>
 
         {/* Bottom spacer — warm gray (mirrors top spacer, centers the preview+controls) */}

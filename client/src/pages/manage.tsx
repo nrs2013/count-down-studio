@@ -378,6 +378,15 @@ export default function Manage() {
   // Concert summary tracking: records when the concert began and collects each MC/ENCORE
   // segment individually (MC1, MC2, …) so the summary screen can break them out.
   const concertStartAtRef = useRef<number | null>(null);
+  // TOTAL TIME 表示とサマリーの時計を1本化するための state ミラー。
+  // 旧実装は TotalTimeAndClockDisplay が自前の startedAt を持っていて、
+  // 1曲目再生の auto-reset や RESET を互いに知らず、終演サマリーの
+  // TOTAL と表示が必ずズレる構造だった。
+  const [concertStartAt, setConcertStartAt] = useState<number | null>(null);
+  const stampConcertStart = useCallback((v: number | null) => {
+    concertStartAtRef.current = v;
+    setConcertStartAt(v);
+  }, []);
   const segmentStartAtRef = useRef<number | null>(null);
   const segmentTypeRef = useRef<"song" | "mc" | "encore" | null>(null);
   const prevTrackedSongIdRef = useRef<number | null>(null);
@@ -543,7 +552,7 @@ export default function Manage() {
 
     if (isFirstSongTrigger) {
       const song = sortedSongsRef.current.find((s) => s.id === currentSongId);
-      concertStartAtRef.current = now;
+      stampConcertStart(now);
       setMcSegments([]);
       setEncoreSegments([]);
       setSummaryActive(false);
@@ -570,7 +579,7 @@ export default function Manage() {
         segmentStartAtRef.current = now;
         segmentTypeRef.current = song.isMC ? "mc" : song.isEncore ? "encore" : "song";
         if (concertStartAtRef.current === null) {
-          concertStartAtRef.current = now;
+          stampConcertStart(now);
         }
       }
     } else {
@@ -636,7 +645,7 @@ export default function Manage() {
   }, [mcSegments, encoreSegments, broadcast, countdown, toast, activeSetlist?.name]);
 
   const resetConcertTracking = useCallback(() => {
-    concertStartAtRef.current = null;
+    stampConcertStart(null);
     segmentStartAtRef.current = null;
     segmentTypeRef.current = null;
     setMcSegments([]);
@@ -686,7 +695,7 @@ export default function Manage() {
       const isFirstSong = sortedSongs[0]?.id === song.id;
       if (isFirstSong) {
         const now = Date.now();
-        concertStartAtRef.current = now;
+        stampConcertStart(now);
         segmentStartAtRef.current = now;
         segmentTypeRef.current = song.isMC ? "mc" : song.isEncore ? "encore" : "song";
         setMcSegments([]);
@@ -1531,6 +1540,7 @@ export default function Manage() {
             subTimerActive={subTimerActive}
             onEndConcert={endConcert}
             onResetConcertTracking={resetConcertTracking}
+            concertStartAt={concertStartAt}
             summaryActive={summaryActive}
             activeCueId={activeCueId}
             cues={cues}
