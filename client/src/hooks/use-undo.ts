@@ -14,6 +14,7 @@ export function useUndo() {
     if (result) {
       qc.invalidateQueries({ queryKey: ["setlists"] });
       qc.invalidateQueries({ queryKey: ["songs", result.setlistId] });
+      qc.invalidateQueries({ queryKey: ["cues"] }); // C5: キューも undo 対象になった
       toast({
         description: `Undo: ${result.label}`,
         duration: 2000,

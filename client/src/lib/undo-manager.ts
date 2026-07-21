@@ -1,9 +1,12 @@
-import { type LocalSetlist, type LocalSong, localDB } from "./local-db";
+import { type LocalSetlist, type LocalSong, type LocalCue, localDB } from "./local-db";
 
 interface UndoSnapshot {
   setlistId: number;
   setlist: LocalSetlist;
   songs: LocalSong[];
+  // C5: キューも控えに含める。キュー誤削除→Cmd+Z で「キューは戻らず
+  // 無関係な曲編集だけ巻き戻る」二重被害を防ぐ。
+  cues: LocalCue[];
   label: string;
   timestamp: number;
 }
@@ -39,10 +42,12 @@ export const undoManager = {
       const setlist = allSetlists.find((s) => s.id === setlistId);
       if (!setlist) return;
       const songs = await localDB.getSongsBySetlist(setlistId);
+      const cues = await localDB.getAllCues();
       undoStack.push({
         setlistId,
         setlist: { ...setlist },
         songs: songs.map((s) => ({ ...s })),
+        cues: cues.map((c) => ({ ...c })),
         label,
         timestamp: Date.now(),
       });
@@ -106,6 +111,11 @@ export const undoManager = {
         } else {
           await localDB.restoreSong(ss);
         }
+      }
+
+      // C5: キューも控え時点へ戻す（古い控え=cues 無しは触らない）
+      if (snapshot.cues) {
+        await localDB.replaceAllCues(snapshot.cues);
       }
 
       return { setlistId: snapshot.setlistId, label: snapshot.label };

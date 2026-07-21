@@ -33,7 +33,7 @@ export function parseDuration(input: string): number | null {
   const num = parseInt(trimmed, 10);
   if (isNaN(num) || num < 0) return null;
   if (num < 60) return num;
-  if (num < 100) return null;
+  if (num < 100) return num; // D3: 「90」= 90秒 = 1:30 として受け付ける（旧: 拒否）
   const s = num % 100;
   const m = Math.floor(num / 100);
   if (s >= 60) return null;

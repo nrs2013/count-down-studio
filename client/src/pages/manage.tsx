@@ -728,6 +728,11 @@ export default function Manage() {
 
   const handleMidiNoteOn = useCallback(
     (note: number, _velocity: number, channel: number) => {
+      // C1: 編集モード（SET LIST）やモーダル表示中は MIDI で曲を始動しない。
+      // リハ中にセトリ編集していて卓から信号が来ると裏でショーが進行し、
+      // 公演集計（開始時刻・MC履歴）が黙って消される事故があった。
+      if (!outputOpen) return;
+      if (excelImportSheets) return;
       const matchedIndex = sortedSongs.findIndex(
         (song) =>
           song.midiNote === note &&
@@ -737,12 +742,44 @@ export default function Manage() {
         startSong(matchedIndex);
       }
     },
-    [sortedSongs, startSong],
+    [sortedSongs, startSong, outputOpen, excelImportSheets],
   );
 
   useEffect(() => {
     midiNoteOnRef.current = handleMidiNoteOn;
   }, [handleMidiNoteOn]);
+
+  // C2: 同じ MIDI ノート（同チャンネル扱い）が複数曲に割り当てられたら警告。
+  // 先にある曲が常に勝つため、終盤でそのノートを叩くと前の曲へ巻き戻る事故になる。
+  const lastMidiDupWarnRef = useRef("");
+  useEffect(() => {
+    const seen = new Map<string, string>();
+    const dups: string[] = [];
+    for (const s of sortedSongs) {
+      if (s.midiNote == null) continue;
+      const key = `${s.midiNote}/${s.midiChannel ?? "all"}`;
+      const prev = seen.get(key);
+      if (prev) dups.push(`Note ${s.midiNote}: 「${prev}」と「${s.title}」`);
+      else seen.set(key, s.title);
+    }
+    const sig = dups.join("|");
+    if (sig && sig !== lastMidiDupWarnRef.current) {
+      toast({
+        title: "MIDI ノートが重複しています",
+        description: `${dups[0]}${dups.length > 1 ? ` 他${dups.length - 1}件` : ""} — 先にある曲が優先されます`,
+        variant: "destructive",
+      });
+    }
+    lastMidiDupWarnRef.current = sig;
+  }, [sortedSongs, toast]);
+
+  // D12: 押しっぱなし中に cue が削除された場合など、存在しない cue id を
+  // 掴んだままにしない（Firebase / broadcast に死んだ id が残り続けるのを防ぐ）。
+  useEffect(() => {
+    if (activeCueId != null && !cues.some((c) => c.id === activeCueId)) {
+      setActiveCueId(null);
+    }
+  }, [cues, activeCueId]);
 
   const currentSong = currentSongIndex >= 0 ? sortedSongs[currentSongIndex] : null;
   const prevSong = currentSongIndex > 0 ? sortedSongs[currentSongIndex - 1] : null;
@@ -767,7 +804,7 @@ export default function Manage() {
     if (liveTitle !== null && liveTitle !== undefined) return liveTitle;
     return currentSong?.title || "";
   })();
-  const displayArtist = currentSong?.artist || undefined;
+  // D8: artist は /output が描画しないため broadcast から除去（死にコード整理）
 
   const rawNextTitle = nextDisplayTitle;
   const displayNextTitle = (() => {
@@ -881,7 +918,6 @@ export default function Manage() {
       status: displayStatus,
       progress: countdown.progress,
       songTitle: displaySongTitle || undefined,
-      artist: displayArtist,
       nextSongTitle: displayNextTitle,
       remainingSeconds: countdown.remainingSeconds,
       isEvent: displayIsEvent,
@@ -901,7 +937,7 @@ export default function Manage() {
       activeCueId,
       activeCue: activeCueId != null ? (cues.find((c) => c.id === activeCueId) ?? null) : null,
     });
-  }, [broadcast, outputOpen, showEventInfoOnPrimary, summaryActive, displayTime, displayStatus, countdown.progress, countdown.remainingSeconds, displaySongTitle, displayArtist, displayNextTitle, displayIsEvent, displayXTime, displayIsMC, displayIsEncore, countdown.isCountUp, countdown.elapsedSeconds, displayMcTarget, subTimerTotal, subTimerRemaining, subTimerFormatted, subTimerActive, activeCueId, cues]);
+  }, [broadcast, outputOpen, showEventInfoOnPrimary, summaryActive, displayTime, displayStatus, countdown.progress, countdown.remainingSeconds, displaySongTitle, displayNextTitle, displayIsEvent, displayXTime, displayIsMC, displayIsEncore, countdown.isCountUp, countdown.elapsedSeconds, displayMcTarget, subTimerTotal, subTimerRemaining, subTimerFormatted, subTimerActive, activeCueId, cues]);
 
   const createSetlist = useCreateSetlist();
   const deleteSetlist = useDeleteSetlist();
@@ -937,7 +973,8 @@ export default function Manage() {
     try {
       const text = await file.text();
       const data = JSON.parse(text);
-      if (!data.name || !Array.isArray(data.songs)) {
+      // D5: 名前が無い .scd はファイル名で代用（本番画面側と基準を統一）
+      if (!Array.isArray(data.songs)) {
         toast({ title: "Invalid file", variant: "destructive" });
         return;
       }
@@ -959,6 +996,7 @@ export default function Manage() {
         doorOpen: typeof data.doorOpen === "string" ? data.doorOpen : null,
         showTime: typeof data.showTime === "string" ? data.showTime : null,
         rehearsal: typeof data.rehearsal === "string" ? data.rehearsal : null,
+        description: typeof data.description === "string" ? data.description : null,
       });
       queryClient.invalidateQueries({ queryKey: ["setlists"] });
       queryClient.invalidateQueries({ queryKey: ["songs", activeSetlist.id] });
@@ -1069,9 +1107,13 @@ export default function Manage() {
       return null;
     };
 
+    // C3: 取り込み全体を Cmd+Z 1回で戻せるよう、控えは先頭で1枚だけ取り、
+    // 行ごとの自動控え（useCreateSong の pushSnapshot）はスキップする。
+    await undoManager.pushSnapshot(activeSetlist.id, "Excel 取り込み");
     const baseOrder = sortedSongs.length;
     for (let i = 0; i < importRows.length; i++) {
       const r = importRows[i];
+      undoManager.skipNextSnapshot();
       await addSong.mutateAsync({
         setlistId: activeSetlist.id,
         title: r.title,
@@ -1820,7 +1862,7 @@ export default function Manage() {
                   {(() => {
                     let songNum = 0;
                     return sortedSongs.map((song, index) => {
-                      if (!song.isEvent && !song.isMC && !song.isEncore) songNum++;
+                      if (!song.isEvent && !song.isMC && !song.isEncore && !song.isEnd) songNum++; // D1: END 行は曲番号を消費しない
                       return useCardLayout ? (
                         <MobileSongCard
                           key={song.id}

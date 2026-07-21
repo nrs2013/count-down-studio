@@ -77,11 +77,13 @@ function useDuplicateGuard(enabled: boolean = true) {
         if (e.data?.type === "ping" && e.data.id !== instanceId.current) {
           setIsDuplicate(true);
         }
-        if (e.data?.type === "pong" && e.data.id !== instanceId.current) {
-          setIsDuplicate(true);
-        }
+        // D8: "pong" 受信は送り手が存在しない死にコードだったため削除
         if (e.data?.type === "take-over" && e.data.id !== instanceId.current) {
           setIsDuplicate(true);
+          // C6: 別タブが「こちらで使用する」を明示的に押した＝制御が移った。
+          // 過去に自分が take-over していても警告を再表示する（恒久 dismiss は
+          // 2画面同時稼働の温床だった）。
+          setDismissed(false);
         }
       });
     } catch (_) {}
@@ -166,9 +168,7 @@ function AppHeader() {
       data-testid="app-header"
     >
       <ModeTabBar
-        activeMode={currentMode}
         outputOpen={outputOpen}
-        outputFullscreen={outputFullscreen}
         onOutputOn={handleOutputOn}
         onOutputOff={closeOutputWindow}
       />

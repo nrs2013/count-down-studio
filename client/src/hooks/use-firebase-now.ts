@@ -215,7 +215,6 @@ export function useFirebaseNow({
           activeCueTextColor: idleCue.textColor ?? null,
           activeCueBlink: idleCue.blink ?? null,
           activeCueBlinkSpeed: idleCue.blinkSpeed ?? null,
-          sectionLabel: null,
         };
         lastSnapshotRef.current = snapshot;
         const op = writeCdsNow(snapshot).catch((e) => reportError("write", e));
@@ -253,7 +252,6 @@ export function useFirebaseNow({
       activeCueTextColor: cue?.textColor ?? null,
       activeCueBlink: cue?.blink ?? null,
       activeCueBlinkSpeed: cue?.blinkSpeed ?? null,
-      sectionLabel: null,
     };
     lastSnapshotRef.current = snapshot;
     const op = writeCdsNow(snapshot).catch((e) => reportError("write", e));

@@ -118,6 +118,18 @@ export function CueManagerModal({ open, onClose }: { open: boolean; onClose: () 
     if (!draft) return;
     if (!draft.label.trim()) return;
     if (saving) return;
+    // D11: 同じショートカットキーの重複登録をブロック（先勝ちで2個目が
+    // 無反応になる罠。押した本人は「壊れた」と感じる）
+    if (draft.shortcutKey) {
+      const dupe = cues.find(
+        (c) => c.id !== draft.id && c.shortcutKey &&
+          c.shortcutKey.toLowerCase() === draft.shortcutKey.toLowerCase()
+      );
+      if (dupe) {
+        alert(`キー「${displayKey(draft.shortcutKey)}」は既に「${dupe.label || "(無題)"}」に割り当てられています。\n別のキーを選んでください。`);
+        return;
+      }
+    }
     setSaving(true);
     try {
       if (draft.id != null) {

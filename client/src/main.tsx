@@ -56,7 +56,7 @@ function moveToMainScreen() {
 
 moveToMainScreen();
 
-const SW_CACHE_NAME = "songcountdown-v77";
+const SW_CACHE_NAME = "songcountdown-v78";
 
 // Build banner — visible on every page load so we can tell at a glance
 // whether the director's tab is running the latest deploy.
@@ -88,10 +88,13 @@ if ("serviceWorker" in navigator) {
   // for the first time on a fresh visit — there is no previous bundle to
   // replace, so no reload is needed).
   let reloadingForNewSW = false;
-  const hadControllerAtLoad = !!navigator.serviceWorker.controller;
+  // D10: Cmd+Shift+R（SW バイパス）後のタブも以後の自動リロード対象に戻す。
+  // 「初回登録の controllerchange だけスキップ」し、2回目以降は通常どおり扱う
+  // （旧実装はロード時に controller が無いと永久にリロード対象外だった）。
+  let sawController = !!navigator.serviceWorker.controller;
   navigator.serviceWorker.addEventListener("controllerchange", () => {
     if (reloadingForNewSW) return;
-    if (!hadControllerAtLoad) return; // first-ever registration on this device
+    if (!sawController) { sawController = true; return; } // first-ever registration
 
     // Don't yank the page out from under the director mid-show. Defer the
     // reload until BOTH:

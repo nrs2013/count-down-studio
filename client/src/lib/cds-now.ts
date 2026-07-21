@@ -6,7 +6,7 @@
 //   { songTitle, nextSongTitle, remainingMs, totalMs, isRunning, isPaused,
 //     isMC, isEvent, isEncore, xTime,
 //     activeCueId, activeCueLabel, activeCueColor, activeCueTextColor,
-//     sectionLabel, updatedAt }
+//     updatedAt 
 //
 // 受信側 (SCHEDULE STUDIO phone-staff/phone-artist) は category flag で
 // "MC" / "SE" / "ENCORE" のラベル切替、nextSongTitle で「NEXT: ...」、
@@ -40,7 +40,6 @@ export interface CdsNowSnapshot {
   activeCueTextColor?: string | null;
   activeCueBlink?: boolean | null;
   activeCueBlinkSpeed?: string | null;
-  sectionLabel?: string | null;
 }
 
 export const NOW_PATH = "cds/now";
@@ -70,7 +69,6 @@ export async function writeCdsNow(snap: CdsNowSnapshot): Promise<void> {
     activeCueTextColor: snap.activeCueTextColor ?? null,
     activeCueBlink: snap.activeCueBlink ?? null,
     activeCueBlinkSpeed: snap.activeCueBlinkSpeed ?? null,
-    sectionLabel: snap.sectionLabel ?? null,
     updatedAt: serverTimestamp(),
   });
 }

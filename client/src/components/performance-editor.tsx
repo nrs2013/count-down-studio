@@ -650,6 +650,7 @@ export function PerformanceEditor({
         doorOpen: typeof data.doorOpen === "string" ? data.doorOpen : null,
         showTime: typeof data.showTime === "string" ? data.showTime : null,
         rehearsal: typeof data.rehearsal === "string" ? data.rehearsal : null,
+        description: typeof data.description === "string" ? data.description : null,
       });
       queryClient.invalidateQueries({ queryKey: ["setlists"] });
       queryClient.invalidateQueries({ queryKey: ["songs", setlist.id] });
@@ -1352,7 +1353,7 @@ export function PerformanceEditor({
                 {(() => {
                   let songNum = 0;
                   return songs.map((song, index) => {
-                    if (!song.isEvent && !song.isMC && !song.isEncore) songNum++;
+                    if (!song.isEvent && !song.isMC && !song.isEncore && !song.isEnd) songNum++; // D1: END 行は曲番号を消費しない
                     return (
                       <SongRow
                         key={song.id}

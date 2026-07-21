@@ -122,10 +122,12 @@ export const localDB = {
   },
 
   async deleteSetlist(id: number): Promise<void> {
+    // D4: setlist と songs を1トランザクションで削除。2段階だと途中で
+    // 落ちた時に見えないゴミ曲が倉庫に残留していた。
     const db = await getDB();
-    await db.delete("setlists", id);
-    const tx = db.transaction("songs", "readwrite");
-    const index = tx.store.index("bySetlist");
+    const tx = db.transaction(["setlists", "songs"], "readwrite");
+    await tx.objectStore("setlists").delete(id);
+    const index = tx.objectStore("songs").index("bySetlist");
     let cursor = await index.openCursor(id);
     while (cursor) {
       await cursor.delete();
@@ -177,11 +179,16 @@ export const localDB = {
   },
 
   async updateSong(id: number, data: Partial<LocalSong>): Promise<LocalSong> {
+    // C4: 読み→書きを1つの readwrite トランザクションに。別々だと
+    // TIME 入力→即 X-TIME のような連続操作で古い読みが新しい書きを
+    // 上書きし、入力した曲尺が黙って元に戻ることがあった。
     const db = await getDB();
-    const existing = await db.get("songs", id);
-    if (!existing) throw new Error("Song not found");
+    const tx = db.transaction("songs", "readwrite");
+    const existing = await tx.store.get(id);
+    if (!existing) { await tx.done; throw new Error("Song not found"); }
     const updated = { ...existing, ...data, id };
-    await db.put("songs", updated);
+    await tx.store.put(updated);
+    await tx.done;
     return updated;
   },
 
@@ -231,29 +238,8 @@ export const localDB = {
     await tx.done;
   },
 
-  async exportSetlist(setlistId: number): Promise<object> {
-    const db = await getDB();
-    const setlist = await db.get("setlists", setlistId);
-    if (!setlist) throw new Error("Setlist not found");
-    const songs = await this.getSongsBySetlist(setlistId);
-    return { setlist, songs };
-  },
-
-  async importData(data: { setlist: Omit<LocalSetlist, "id">; songs: Omit<LocalSong, "id" | "setlistId">[] }): Promise<number> {
-    const newSetlist = await this.createSetlist(data.setlist);
-    const db = await getDB();
-    const tx = db.transaction("songs", "readwrite");
-    for (let i = 0; i < data.songs.length; i++) {
-      const s = data.songs[i];
-      await tx.store.add({
-        ...normalizeSongForImport(s),
-        setlistId: newSetlist.id,
-        orderIndex: i,
-      });
-    }
-    await tx.done;
-    return newSetlist.id;
-  },
+  // D8: 未使用だった exportSetlist / importData は削除（.scd の入出力は
+  // manage.tsx / performance-editor.tsx が song-serialize.ts 経由で行う）
 
   // ============================================================
   // Cue cards — user-customisable STAND BY! / GO! / HOLD! style overlays
@@ -296,6 +282,17 @@ export const localDB = {
     await db.delete("cues", id);
   },
 
+  // C5: Cmd+Z 用 — キュー全量を丸ごと差し戻す（undo-manager の控えから復元）
+  async replaceAllCues(cues: LocalCue[]): Promise<void> {
+    const db = await getDB();
+    const tx = db.transaction("cues", "readwrite");
+    await tx.store.clear();
+    for (const c of cues) {
+      await tx.store.put({ ...c });
+    }
+    await tx.done;
+  },
+
   async reorderCues(cueIds: number[]): Promise<void> {
     const db = await getDB();
     const tx = db.transaction("cues", "readwrite");
@@ -308,7 +305,7 @@ export const localDB = {
     await tx.done;
   },
 
-  async replaceSetlistSongs(setlistId: number, newName: string, songs: Omit<LocalSong, "id" | "setlistId">[], extra?: { doorOpen?: string | null; showTime?: string | null; rehearsal?: string | null }): Promise<void> {
+  async replaceSetlistSongs(setlistId: number, newName: string, songs: Omit<LocalSong, "id" | "setlistId">[], extra?: { doorOpen?: string | null; showTime?: string | null; rehearsal?: string | null; description?: string | null }): Promise<void> {
     const db = await getDB();
 
     // Atomic replace: delete existing songs + update setlist metadata + add new songs
@@ -335,6 +332,8 @@ export const localDB = {
         doorOpen: extra && extra.doorOpen !== undefined ? (extra.doorOpen ?? null) : existing.doorOpen,
         showTime: extra && extra.showTime !== undefined ? (extra.showTime ?? null) : existing.showTime,
         rehearsal: extra && extra.rehearsal !== undefined ? (extra.rehearsal ?? null) : existing.rehearsal,
+        // D6: description も round-trip（書き出すのに読み込まないと上書き取り込みで混成データになる）
+        description: extra && extra.description !== undefined ? (extra.description ?? null) : existing.description,
       };
       await setlistsStore.put(updated);
     }

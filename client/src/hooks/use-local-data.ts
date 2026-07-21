@@ -139,10 +139,22 @@ export function useCues() {
   });
 }
 
+// C5: キュー操作も Cmd+Z の控えに載せる。控えはアクティブなセトリに紐づける
+// （undo-manager の控えが setlist+songs+cues の丸ごとスナップショットのため）。
+async function pushCueSnapshot(label: string) {
+  try {
+    const active = (await localDB.getAllSetlists()).find((s) => s.isActive);
+    if (active) await undoManager.pushSnapshot(active.id, label);
+  } catch (_) {}
+}
+
 export function useCreateCue() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: Omit<LocalCue, "id">) => localDB.createCue(data),
+    mutationFn: async (data: Omit<LocalCue, "id">) => {
+      await pushCueSnapshot("Add cue");
+      return localDB.createCue(data);
+    },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["cues"] }); },
   });
 }
@@ -150,7 +162,10 @@ export function useCreateCue() {
 export function useUpdateCue() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: Partial<LocalCue> }) => localDB.updateCue(id, data),
+    mutationFn: async ({ id, data }: { id: number; data: Partial<LocalCue> }) => {
+      await pushCueSnapshot("Edit cue");
+      return localDB.updateCue(id, data);
+    },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["cues"] }); },
   });
 }
@@ -158,7 +173,10 @@ export function useUpdateCue() {
 export function useDeleteCue() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: number) => localDB.deleteCue(id),
+    mutationFn: async (id: number) => {
+      await pushCueSnapshot("Delete cue");
+      return localDB.deleteCue(id);
+    },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["cues"] }); },
   });
 }
@@ -166,7 +184,10 @@ export function useDeleteCue() {
 export function useReorderCues() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (cueIds: number[]) => localDB.reorderCues(cueIds),
+    mutationFn: async (cueIds: number[]) => {
+      await pushCueSnapshot("Reorder cues");
+      return localDB.reorderCues(cueIds);
+    },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["cues"] }); },
   });
 }

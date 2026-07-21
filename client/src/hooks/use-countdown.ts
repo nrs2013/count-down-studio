@@ -114,6 +114,14 @@ export function useCountdown(): UseCountdownReturn {
       setRemainingSeconds(remainingAtPauseRef.current);
       elapsedAtPauseRef.current = elapsedAtPauseRef.current + elapsed;
       setElapsedSeconds(elapsedAtPauseRef.current);
+      // 中7: 0跨ぎの瞬間に PAUSE されたら「一時停止」ではなく「終了」として
+      // 確定させる。旧実装は残り0秒のまま paused になり、MC 自動開始などの
+      // finished 起点処理が RESUME まで止まっていた。
+      if (remainingAtPauseRef.current <= 0) {
+        statusRef.current = "finished";
+        setStatus("finished");
+        return;
+      }
     }
     statusRef.current = "paused";
     setStatus("paused");

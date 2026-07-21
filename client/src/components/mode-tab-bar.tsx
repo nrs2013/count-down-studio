@@ -1,9 +1,7 @@
 import { Zap } from "lucide-react";
 
 interface ModeTabBarProps {
-  activeMode: "setlist" | "show";
   outputOpen: boolean;
-  outputFullscreen?: boolean;
   onOutputOn?: () => void;
   onOutputOff?: () => void;
 }
@@ -12,7 +10,8 @@ export type AppMode = "setlist" | "show";
 
 // Claude-style minimal pill bar: flat, warm gray, single subtle accent.
 // No neon glows, no rainbow gradients.
-export function ModeTabBar({ activeMode, outputOpen, outputFullscreen, onOutputOn, onOutputOff }: ModeTabBarProps) {
+// D8: 未使用だった activeMode / outputFullscreen プロパティは削除
+export function ModeTabBar({ outputOpen, onOutputOn, onOutputOff }: ModeTabBarProps) {
   const UI_FONT = "'Noto Sans JP', 'Inter', sans-serif";
   const MONO_FONT = "'JetBrains Mono', monospace";
 

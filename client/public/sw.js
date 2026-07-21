@@ -3,7 +3,7 @@
 // We derive BASE_PATH from self.location so the same file works for local dev
 // (BASE_PATH = "/") and any other future deployment subpath.
 
-const CACHE_NAME = "songcountdown-v77";
+const CACHE_NAME = "songcountdown-v78";
 const BASE_PATH = self.location.pathname.replace(/sw\.js$/, "");
 
 const PRECACHE_URLS = [
@@ -23,10 +23,12 @@ const ASSET_URL_REGEX = new RegExp(
   '(?:src|href)="(' + escapeRegExp(ASSETS_PREFIX) + '[^"]+)"',
   "g",
 );
-const CHUNK_IMPORT_REGEX = new RegExp(
-  'import\\(["\'](' + escapeRegExp(ASSETS_PREFIX) + '[^"\']+)["\']\\)',
-  "g",
-);
+// C7: Vite の動的 import はビルド後 `import("./chunk-xxx.js")` という
+// 相対パスになる（BASE 付き絶対パスではない）。旧正規表現は一件もマッチせず
+// チャンク先読みが全部死にコードだった — デプロイ直後のリロード保留中タブで
+// Excel 取り込みや Firebase 機能を初めて使うとロード失敗する原因。
+// 相対 "./" を拾って assets/ 配下として解決する。
+const CHUNK_IMPORT_REGEX = /import\(["']\.\/([^"']+)["']\)/g;
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -81,7 +83,8 @@ self.addEventListener("activate", (event) => {
                 const jsText = await cached.clone().text();
                 const chunkMatches = jsText.matchAll(CHUNK_IMPORT_REGEX);
                 for (const m of chunkMatches) {
-                  const chunkUrl = m[1];
+                  // "./chunk-xxx.js" は importer (assets/index-*.js) からの相対 = assets/ 配下
+                  const chunkUrl = ASSETS_PREFIX + m[1];
                   const chunkExisting = await cache.match(chunkUrl);
                   if (!chunkExisting) {
                     try {
