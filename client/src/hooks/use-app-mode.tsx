@@ -9,7 +9,7 @@ interface AppModeContextValue {
   toggleOutputWindow: () => void;
   broadcast: (state: CountdownState) => void;
   requestOutputFullscreen: () => void;
-  showOutputOnDisplay: () => Promise<"opened" | "fullscreen" | "blocked" | "no-secondary">;
+  showOutputOnDisplay: (opts?: { skipPermissionCheck?: boolean }) => Promise<"opened" | "fullscreen" | "blocked" | "no-secondary" | "needs-permission">;
 }
 
 const AppModeContext = createContext<AppModeContextValue | null>(null);

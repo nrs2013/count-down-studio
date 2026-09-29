@@ -252,11 +252,17 @@ function SecondaryPermissionPanel({
 
 function AppHeader() {
   const [location] = useLocation();
-  const { outputOpen, outputFullscreen, openOutputWindow, closeOutputWindow } = useAppMode();
+  const { outputOpen, outputFullscreen, openOutputWindow, closeOutputWindow, showOutputOnDisplay } = useAppMode();
   const [wmState, setWmState] = useWindowManagementState();
   const [panelOpen, setPanelOpen] = useState(false);
   const [screenCount, setScreenCount] = useState<number | null>(null);
   const [requesting, setRequesting] = useState(false);
+  // DISPLAY ボタンなど、ヘッダー以外の場所からも許可の案内を出せるようにする
+  useEffect(() => {
+    const open = () => setPanelOpen(true);
+    window.addEventListener("cds-need-secondary-permission", open);
+    return () => window.removeEventListener("cds-need-secondary-permission", open);
+  }, []);
   if (location === "/output" || location === "/") return null;
 
   const currentMode = outputOpen ? "show" as const : "setlist" as const;
@@ -264,8 +270,13 @@ function AppHeader() {
   const handleOutputOn = () => {
     // 許可が未回答・拒否の時だけ、窓を開く前に CDS の画面で案内する。
     // 許可済み / 非対応ブラウザは従来どおりすぐ開く（本番の操作を増やさない）。
-    if (!outputOpen && (wmState === "prompt" || wmState === "denied")) {
+    if (wmState === "prompt" || wmState === "denied") {
       setPanelOpen(true);
+      return;
+    }
+    if (outputOpen) {
+      // 既に開いている時は開き直さず（LED が瞬くため）、前に出してセカンダリへ運ぶ
+      showOutputOnDisplay({ skipPermissionCheck: true });
       return;
     }
     openOutputWindow();
@@ -298,7 +309,11 @@ function AppHeader() {
         requesting={requesting}
         onRequest={handleRequest}
         onCancel={() => setPanelOpen(false)}
-        onOpenAnyway={() => { setPanelOpen(false); openOutputWindow(); }}
+        onOpenAnyway={() => {
+          setPanelOpen(false);
+          if (outputOpen) showOutputOnDisplay({ skipPermissionCheck: true });
+          else openOutputWindow();
+        }}
       />
     )}
     <div
@@ -306,6 +321,14 @@ function AppHeader() {
       style={{ background: "transparent" }}
       data-testid="app-header"
     >
+      <span
+        className="mr-2 select-none"
+        style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, letterSpacing: "0.1em", color: "#5a5a54" }}
+        title="いま動いている CDS の版"
+        data-testid="build-label"
+      >
+        {String((window as any).__cdsBuild ?? "").replace("songcountdown-", "")}
+      </span>
       <ModeTabBar
         outputOpen={outputOpen}
         onOutputOn={handleOutputOn}

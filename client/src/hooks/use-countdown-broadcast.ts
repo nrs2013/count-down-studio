@@ -480,7 +480,18 @@ export function useCountdownBroadcaster() {
   //   "fullscreen"  … 全画面になった
   //   "blocked"     … 窓は前に出したが、全画面は Chrome に止められた
   //   "no-secondary"… 2 枚目の画面が見つからない（許可なし / 画面が 1 枚 / ミラー）
-  const showOutputOnDisplay = useCallback(async (): Promise<"opened" | "fullscreen" | "blocked" | "no-secondary"> => {
+  const showOutputOnDisplay = useCallback(async (opts?: { skipPermissionCheck?: boolean }): Promise<"opened" | "fullscreen" | "blocked" | "no-secondary" | "needs-permission"> => {
+    // ウィンドウ管理の許可が無いと、どう頑張ってもセカンダリへ運べない。
+    // その時は CDS の画面に許可の案内を出す（App.tsx の SecondaryPermissionPanel）。
+    if (!opts?.skipPermissionCheck && "getScreenDetails" in window) {
+      try {
+        const st = (await navigator.permissions.query({ name: "window-management" as PermissionName })).state;
+        if (st !== "granted") {
+          window.dispatchEvent(new CustomEvent("cds-need-secondary-permission"));
+          return "needs-permission";
+        }
+      } catch (_) {}
+    }
     if (isOutputWindowAlive() && (!outputWindowRef.current || outputWindowRef.current.closed)) {
       // /manage をリロードすると、窓は生きていても「つかみ」が消える。
       // URL 空で同じ名前を開くと、既存の窓を読み込み直さずに拾い直せる（LED が瞬かない）。
