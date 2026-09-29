@@ -9,12 +9,13 @@ interface AppModeContextValue {
   toggleOutputWindow: () => void;
   broadcast: (state: CountdownState) => void;
   requestOutputFullscreen: () => void;
+  showOutputOnDisplay: () => Promise<"opened" | "fullscreen" | "blocked" | "no-secondary">;
 }
 
 const AppModeContext = createContext<AppModeContextValue | null>(null);
 
 export function AppModeProvider({ children }: { children: React.ReactNode }) {
-  const { broadcast, openOutputWindow, closeOutputWindow, toggleOutputWindow, outputOpen, outputFullscreen, requestOutputFullscreen } = useCountdownBroadcaster();
+  const { broadcast, openOutputWindow, closeOutputWindow, toggleOutputWindow, outputOpen, outputFullscreen, requestOutputFullscreen, showOutputOnDisplay } = useCountdownBroadcaster();
 
   return (
     <AppModeContext.Provider value={{
@@ -25,6 +26,7 @@ export function AppModeProvider({ children }: { children: React.ReactNode }) {
       toggleOutputWindow,
       broadcast,
       requestOutputFullscreen,
+      showOutputOnDisplay,
     }}>
       {children}
     </AppModeContext.Provider>

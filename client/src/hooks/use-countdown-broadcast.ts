@@ -443,6 +443,17 @@ export function useCountdownBroadcaster() {
   const requestOutputFullscreen = useCallback(() => {
     // Bring the sub window to the front first so the user can see / click it.
     try { outputWindowRef.current?.focus(); } catch (_) {}
+    // ウィンドウ管理の許可があれば、全画面を試す前に窓をセカンダリへ運ぶ。
+    // 全画面が Chrome に止められても、窓がセカンダリいっぱいに広がっていれば
+    // あとはダブルクリック 1 回で済む。
+    try {
+      const w = outputWindowRef.current;
+      const sec = secondaryScreenCache.current;
+      if (w && !w.closed && sec) {
+        w.moveTo(sec.left, sec.top);
+        w.resizeTo(sec.width, sec.height);
+      }
+    } catch (_) {}
     // Try direct (same-origin): requestFullscreen on the sub document. Chrome may still
     // block if the sub document never had its own user activation.
     try {
@@ -464,7 +475,41 @@ export function useCountdownBroadcaster() {
     } catch (_) {}
   }, []);
 
-  return { broadcast, openOutputWindow, closeOutputWindow, toggleOutputWindow, outputOpen, outputFullscreen, requestOutputFullscreen };
+  // DISPLAY ボタン: 出力をセカンダリで全画面にする。結果を返し、画面側が案内を出す。
+  //   "opened"      … 出力窓が無かったので開いた（開く時に全画面も試している）
+  //   "fullscreen"  … 全画面になった
+  //   "blocked"     … 窓は前に出したが、全画面は Chrome に止められた
+  //   "no-secondary"… 2 枚目の画面が見つからない（許可なし / 画面が 1 枚 / ミラー）
+  const showOutputOnDisplay = useCallback(async (): Promise<"opened" | "fullscreen" | "blocked" | "no-secondary"> => {
+    if (!isOutputWindowAlive() || !outputWindowRef.current) {
+      openOutputWindow();
+      return "opened";
+    }
+    try { if (outputWindowRef.current.document?.fullscreenElement) { outputWindowRef.current.focus(); return "fullscreen"; } } catch (_) {}
+    try { localStorage.removeItem(LS_OUTPUT_FS_KEY); } catch (_) {}
+    // ここまでは同期で走るのでクリックの直後扱い（Chrome が全画面を許す可能性が一番高い）
+    requestOutputFullscreen();
+    // クリック中に画面情報を取り直す。ウィンドウ管理が未回答ならここで許可を尋ねる。
+    const sec = await fetchAndCacheSecondary();
+    if (sec) {
+      try {
+        const w = outputWindowRef.current;
+        if (w && !w.closed) {
+          w.moveTo(sec.left, sec.top);
+          w.resizeTo(sec.width, sec.height);
+        }
+      } catch (_) {}
+    }
+    await new Promise((r) => setTimeout(r, 900));
+    try {
+      if (outputWindowRef.current?.document?.fullscreenElement) return "fullscreen";
+      const raw = localStorage.getItem(LS_OUTPUT_FS_KEY);
+      if (raw && JSON.parse(raw).fullscreen) return "fullscreen";
+    } catch (_) {}
+    return sec ? "blocked" : "no-secondary";
+  }, [isOutputWindowAlive, openOutputWindow, requestOutputFullscreen]);
+
+  return { broadcast, showOutputOnDisplay, openOutputWindow, closeOutputWindow, toggleOutputWindow, outputOpen, outputFullscreen, requestOutputFullscreen };
 }
 
 export function useCountdownReceiver() {

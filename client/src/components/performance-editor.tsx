@@ -157,15 +157,17 @@ function LiveMidiBigDisplay({
   enabled,
   onToggle,
   outputFullscreen,
+  onDisplayClick,
 }: {
   lastMessage: MidiMessage | null;
   enabled: boolean;
   onToggle: () => void;
   outputFullscreen?: boolean;
+  onDisplayClick?: () => void;
 }) {
-  // DISPLAY is a *read-only status indicator*. Browsers block cross-window fullscreen
-  // requests, so we can't reliably trigger it from here — we just show whether the
-  // sub display is actually fullscreen right now.
+  // DISPLAY: 押すと出力窓を前に出し、セカンダリへ運んで全画面を試す。
+  // Chrome は別窓からの全画面をよく止めるので、止められた時は親が案内を出す。
+  // 表示（ON/OFF）は従来どおり「サブが実際に全画面か」をそのまま映す。
   const fsActive = !!outputFullscreen;
   const fsStyle = fsActive
     ? {
@@ -184,13 +186,14 @@ function LiveMidiBigDisplay({
       style={{ minHeight: 84 }}
       data-testid="live-midi-big-display"
     >
-      {/* LEFT-LEFT: DISPLAY — read-only status indicator. Amber when the sub-display
-          is actually in fullscreen; neutral gray otherwise. Not clickable because
-          Chrome blocks cross-window fullscreen triggers; the user fullscreens the
-          sub window itself (click or F). */}
-      <div
-        className="flex flex-col items-center justify-center select-none"
+      {/* LEFT-LEFT: DISPLAY — amber when the sub-display is actually fullscreen.
+          Click = bring the output window to the secondary screen + try fullscreen. */}
+      <button
+        type="button"
+        onClick={onDisplayClick}
+        className="flex flex-col items-center justify-center select-none transition-colors duration-150"
         style={{
+          cursor: "pointer",
           flex: "1 1 0",
           minWidth: 0,
           borderRadius: 3,
@@ -199,13 +202,13 @@ function LiveMidiBigDisplay({
           ...fsStyle,
         }}
         data-testid="status-display-fullscreen"
-        title={fsActive ? "サブディスプレイはフルスクリーン中" : "サブディスプレイは非フルスクリーン (サブ画面をクリックかFキーで全画面化)"}
+        title={fsActive ? "サブディスプレイはフルスクリーン中（クリックで出力窓を前に出す）" : "クリックで出力をセカンダリに全画面表示"}
       >
         <span style={{ fontSize: 13, fontWeight: 700, opacity: 0.7, marginBottom: 4 }}>DISPLAY</span>
         <span style={{ fontSize: 32, fontWeight: 900, lineHeight: 1 }}>
           {fsActive ? "ON" : "OFF"}
         </span>
-      </div>
+      </button>
 
       {/* LEFT: MIDI ON/OFF toggle */}
       <button
@@ -370,7 +373,21 @@ export function PerformanceEditor({
   const updateSetlist = useUpdateSetlist();
   const updateSong = useUpdateSong();
   const { toast } = useToast();
-  const { broadcast, outputOpen, outputFullscreen } = useAppMode();
+  const { broadcast, outputOpen, outputFullscreen, showOutputOnDisplay } = useAppMode();
+  const handleDisplayClick = useCallback(async () => {
+    const result = await showOutputOnDisplay();
+    if (result === "blocked") {
+      toast({
+        title: "出力の窓をセカンダリに出しました",
+        description: "Chrome が自動の全画面を止めたため、出力の窓をダブルクリック（または F キー）で全画面にしてください。",
+      });
+    } else if (result === "no-secondary") {
+      toast({
+        title: "2 枚目の画面が見つかりません",
+        description: "出力の窓は前に出しました。システム設定 → ディスプレイで「拡張」になっているか、Chrome のサイトの設定で「ウィンドウ管理」が許可されているか確認してください。窓をセカンダリへドラッグしてダブルクリックでも全画面にできます。",
+      });
+    }
+  }, [showOutputOnDisplay, toast]);
   const [, navigate] = useLocation();
   const [showingEventInfo, setShowingEventInfo] = useState(false);
   const eventInfoIntervalRef = useRef<ReturnType<typeof setInterval>>();
@@ -1301,6 +1318,7 @@ export function PerformanceEditor({
             enabled={midiEnabled}
             onToggle={() => onToggleMidi?.()}
             outputFullscreen={outputFullscreen}
+            onDisplayClick={handleDisplayClick}
           />
           {/* Total time elapsed + current wall clock */}
           <TotalTimeAndClockDisplay concertStartAt={concertStartAt} onReset={onResetConcertTracking} />
