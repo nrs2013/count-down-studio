@@ -173,19 +173,134 @@ function useDuplicateGuard(enabled: boolean = true) {
   return { isDuplicate: enabled && isDuplicate && !dismissed, takeOver, blockedByShow };
 }
 
+// Chrome の「ウィンドウ管理」許可の状態。これが granted でないと 2 枚目の画面の
+// 場所が分からず、出力窓をセカンダリへ運べない。
+type WmState = "granted" | "prompt" | "denied" | "unsupported";
+
+function useWindowManagementState(): [WmState, (s: WmState) => void] {
+  const [state, setState] = useState<WmState>("unsupported");
+  useEffect(() => {
+    if (!("getScreenDetails" in window)) return;
+    let status: PermissionStatus | null = null;
+    const onChange = () => { if (status) setState(status.state as WmState); };
+    navigator.permissions
+      .query({ name: "window-management" as PermissionName })
+      .then((s) => { status = s; setState(s.state as WmState); s.addEventListener("change", onChange); })
+      .catch(() => setState("prompt"));
+    return () => { status?.removeEventListener("change", onChange); };
+  }, []);
+  return [state, setState];
+}
+
+// 許可を CDS の画面上で、出力窓より先にはっきり求める。
+// 以前は出力窓を開いた直後に Chrome の許可の吹き出しが出ていたため、
+// 窓の陰に隠れて「許可ボタンが出ない」状態になっていた。
+function SecondaryPermissionPanel({
+  wmState, screenCount, onRequest, onOpenAnyway, onCancel, requesting,
+}: {
+  wmState: WmState;
+  screenCount: number | null;
+  onRequest: () => void;
+  onOpenAnyway: () => void;
+  onCancel: () => void;
+  requesting: boolean;
+}) {
+  const btn = {
+    border: "0.5px solid rgba(250,250,248,0.45)",
+    background: "rgba(250,250,248,0.06)",
+    color: "#fafaf8",
+    fontFamily: "'Noto Sans JP', 'Inter', sans-serif",
+  } as const;
+  const primary = {
+    border: "0.5px solid #c186c8",
+    background: "rgba(193,134,200,0.18)",
+    color: "#fafaf8",
+    fontFamily: "'Noto Sans JP', 'Inter', sans-serif",
+  } as const;
+  let title = "セカンダリ画面を使う許可が必要です";
+  let body = "出力をセカンダリ（LED / プロジェクター）に出すには、Chrome の「ウィンドウ管理」を許可してください。下のボタンを押すと Chrome が許可を求めるので「許可」を押してください。";
+  if (wmState === "denied") {
+    title = "セカンダリ画面の使用がブロックされています";
+    body = "アドレスバー左のアイコン →「サイトの設定」→「ウィンドウ管理」を「許可」に変えて、このページを再読み込み（Cmd+R）してください。";
+  } else if (wmState === "granted" && screenCount !== null && screenCount < 2) {
+    title = "2 枚目の画面が見つかりません";
+    body = "許可は済んでいますが、Mac が画面を 1 枚しか認識していません。ケーブル・変換アダプタと、システム設定 → ディスプレイで「拡張」（ミラーではない）になっているか確認してください。";
+  } else if (wmState === "granted") {
+    title = "許可されました";
+    body = "「出力する」を押すと、セカンダリに出力の窓を開きます。";
+  }
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center" style={{ background: "rgba(10,10,10,0.72)" }} data-testid="secondary-permission-panel">
+      <div className="max-w-md w-[92%] p-6 rounded" style={{ background: "#141312", border: "0.5px solid #2c2a27" }}>
+        <h2 className="text-base font-bold mb-3" style={{ color: "#fafaf8", fontFamily: "'Noto Sans JP', 'Inter', sans-serif" }}>{title}</h2>
+        <p className="text-sm mb-5" style={{ color: "#a8a8a0", lineHeight: 1.7, fontFamily: "'Noto Sans JP', 'Inter', sans-serif" }}>{body}</p>
+        <div className="flex flex-wrap gap-2 justify-end">
+          <button className="px-4 py-2 rounded text-sm" style={btn} onClick={onCancel} data-testid="button-secondary-cancel">やめる</button>
+          <button className="px-4 py-2 rounded text-sm" style={btn} onClick={onOpenAnyway} data-testid="button-secondary-open-anyway">
+            {wmState === "granted" && (screenCount ?? 0) >= 2 ? "出力する" : "この画面に出力する"}
+          </button>
+          {wmState === "prompt" && (
+            <button className="px-4 py-2 rounded text-sm font-bold" style={primary} onClick={onRequest} disabled={requesting} data-testid="button-secondary-allow">
+              {requesting ? "Chrome の確認待ち…" : "セカンダリの使用を許可する"}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function AppHeader() {
   const [location] = useLocation();
   const { outputOpen, outputFullscreen, openOutputWindow, closeOutputWindow } = useAppMode();
+  const [wmState, setWmState] = useWindowManagementState();
+  const [panelOpen, setPanelOpen] = useState(false);
+  const [screenCount, setScreenCount] = useState<number | null>(null);
+  const [requesting, setRequesting] = useState(false);
   if (location === "/output" || location === "/") return null;
 
   const currentMode = outputOpen ? "show" as const : "setlist" as const;
 
   const handleOutputOn = () => {
+    // 許可が未回答・拒否の時だけ、窓を開く前に CDS の画面で案内する。
+    // 許可済み / 非対応ブラウザは従来どおりすぐ開く（本番の操作を増やさない）。
+    if (!outputOpen && (wmState === "prompt" || wmState === "denied")) {
+      setPanelOpen(true);
+      return;
+    }
     openOutputWindow();
+  };
+
+  const handleRequest = async () => {
+    setRequesting(true);
+    try {
+      const sd = await (window as any).getScreenDetails();
+      setScreenCount(sd?.screens?.length ?? null);
+      setWmState("granted");
+    } catch (_) {
+      try {
+        const s = await navigator.permissions.query({ name: "window-management" as PermissionName });
+        setWmState(s.state as WmState);
+      } catch (_) {
+        setWmState("denied");
+      }
+    }
+    setRequesting(false);
   };
 
   // ModeTabBar sits inside the fixed topbar strip (56px) on the right side.
   return (
+    <>
+    {panelOpen && (
+      <SecondaryPermissionPanel
+        wmState={wmState}
+        screenCount={screenCount}
+        requesting={requesting}
+        onRequest={handleRequest}
+        onCancel={() => setPanelOpen(false)}
+        onOpenAnyway={() => { setPanelOpen(false); openOutputWindow(); }}
+      />
+    )}
     <div
       className="fixed top-0 right-4 z-50 flex items-center h-[56px]"
       style={{ background: "transparent" }}
@@ -204,6 +319,7 @@ function AppHeader() {
         }}
       />
     </div>
+    </>
   );
 }
 
