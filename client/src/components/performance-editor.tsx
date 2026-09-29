@@ -378,8 +378,8 @@ export function PerformanceEditor({
     const result = await showOutputOnDisplay();
     if (result === "blocked") {
       toast({
-        title: "出力の窓をセカンダリに出しました",
-        description: "Chrome が自動の全画面を止めたため、出力の窓をダブルクリック（または F キー）で全画面にしてください。",
+        title: "出力の窓をダブルクリックで全画面に",
+        description: "Chrome が自動の全画面を止めました。出力の窓をセカンダリへ移して、ダブルクリック（または F キー）で全画面になります。",
       });
     } else if (result === "no-secondary") {
       toast({

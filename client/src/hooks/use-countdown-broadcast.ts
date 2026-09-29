@@ -481,7 +481,29 @@ export function useCountdownBroadcaster() {
   //   "blocked"     … 窓は前に出したが、全画面は Chrome に止められた
   //   "no-secondary"… 2 枚目の画面が見つからない（許可なし / 画面が 1 枚 / ミラー）
   const showOutputOnDisplay = useCallback(async (): Promise<"opened" | "fullscreen" | "blocked" | "no-secondary"> => {
-    if (!isOutputWindowAlive() || !outputWindowRef.current) {
+    if (isOutputWindowAlive() && (!outputWindowRef.current || outputWindowRef.current.closed)) {
+      // /manage をリロードすると、窓は生きていても「つかみ」が消える。
+      // URL 空で同じ名前を開くと、既存の窓を読み込み直さずに拾い直せる（LED が瞬かない）。
+      try {
+        const w = window.open("", "songcountdown_output");
+        if (w) {
+          let adopted = false;
+          try { adopted = w.location.pathname.includes("output"); } catch (_) {}
+          if (adopted) {
+            outputWindowRef.current = w;
+          } else {
+            // 拾えずに空の窓が開いた場合は閉じる（元の出力窓には触らない）
+            try { w.close(); } catch (_) {}
+          }
+        }
+      } catch (_) {}
+    }
+    if (!outputWindowRef.current || outputWindowRef.current.closed) {
+      if (isOutputWindowAlive()) {
+        // 窓は生きているが拾い直せなかった。開き直すと LED が一瞬消えるのでやめる。
+        try { bcRef.current?.postMessage({ type: "songcountdown-request-fullscreen" }); } catch (_) {}
+        return "blocked";
+      }
       openOutputWindow();
       return "opened";
     }
